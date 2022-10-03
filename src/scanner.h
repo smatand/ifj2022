@@ -61,4 +61,45 @@ typedef enum {
 
 } TokenType;
 
+typedef enum {
+    S_START,
+    S_L_PARENTH,
+    S_R_PARENTH,
+    S_SEMICOLON,
+    S_COLON,
+    S_COMA,
+    S_L_BRACE,
+    S_R_BRACE,
+    S_STRT_NEG_COMP,
+    S_MID_NEG_COMP,
+    S_ASSIGN,
+    S_STRT_COMP,
+    S_GREATER,
+    S_LESSER,
+    S_ADDITION,
+    S_SUBTRACT,
+    S_MULTIPLY,
+    S_CONCAT,
+    S_INT_LIT,
+    S_STRT_EXP,
+    S_MID_EXP,
+    S_EXP_LIT,
+    S_STRT_DEC,
+    S_DEC_LIT,
+    S_STR_LIT,
+    S_KEYW_OR_ID,
+    S_QSTN_MARK,
+    TYPE_ID,
+    S_END_SIGN,
+    S_STRT_VAR,
+    S_VAR_ID,
+    S_SLASH,
+    S_S_COMMENT,
+    S_M_COMMENT,
+    S_EOL_COUNT,
+    S_EOL,
+    S_EOF,
+
+} MachineState;
+
 #endif /* SCANNER_H */
