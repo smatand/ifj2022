@@ -9,7 +9,7 @@
 
 // php 
 typedef enum {
-    // single character
+    // single characters
     TOK_LEFT_PAREN,     /* ( */
     TOK_RIGHT_PAREN,    /* ) */
     TOK_SEMICOLON,      /* ; */
@@ -17,29 +17,31 @@ typedef enum {
     TOK_COMMA,          /* , */
     TOK_LEFT_BRACE,     /* { */
     TOK_RIGHT_BRACE,    /* } */
-    TOK_DOT,            /* . */
-    TOK_MINUS,          /* - */
-    TOK_PLUS,           /* + */
-    TOK_SLASH,          /* / */
-    TOK_BACKSLASH,      /* \ */
-    TOK_STAR,           /* * */
 
-    // one or two character
-    TOK_BANG,                   /* !   */
-    TOK_BANG_EQUAL,             /* !=  */
-    TOK_BANG_EQUAL_EQUAL,       /* !== */
-    TOK_EQUAL,                  /* =   */
-    TOK_EQUAL_EQUAL,            /* ==  */
-    TOK_EQUAL_EQUAL_EQUAL,      /* === */
+    // operators
+    TOK_DOT,                    /* . */
+    TOK_MINUS,                  /* - */
+    TOK_PLUS,                   /* + */
+    TOK_SLASH,                  /* / */
+    TOK_STAR,                   /* * */
+    TOK_NEG_COMPARISON,         /* !== */
+    TOK_ASSIGN,                 /* =   */
+    TOK_COMPARISON,             /* === */
     TOK_GREATER,                /* >   */
     TOK_GREATER_EQUAL,          /* >=  */
     TOK_LESS,                   /* <   */
     TOK_LESS_EQUAL,             /* <=  */
 
+    // identifiers
+    TOK_VAR_ID,                 /* $foo */
+    TOK_TYPE_ID,                /* ?foo */
+    TOK_FUN_ID,                 /* built-in or user made function IDs */
+    
     // literals
-    TOK_IDENTIFIER,            /* $foo */
-    TOK_STRING,                /* "foo" */
-    TOK_NUMBER,                /* 123 */
+    TOK_STRING_LIT,             /* "foo" */
+    TOK_INT_LIT,                /* 123 */
+    TOK_DEC_LIT,                /* 123.123 */
+    TOK_EXP_LIT,                /* integer or decimal with an exponent */
     
     // keywords
     TOK_IF,                    /* if */
@@ -53,11 +55,9 @@ typedef enum {
     TOK_INT,                   /* int */
     TOK_FLOAT,                 /* float */
 
-
     // prologue TODO is it okay to have this here?
     TOK_PROLOGUE,               /* <?php */
-    
-    TOK_QUESTION_MARK,  // TODO type id?
+    TOK_END_SIGN,               /* ?> */
 
 } TokenType;
 
