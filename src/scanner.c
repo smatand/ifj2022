@@ -36,6 +36,18 @@ struct Scanner
     int currLine;
 };
 
+scanner_t scanner_init(){
+    scanner_t scanner = calloc(1, sizeof(struct Scanner));
+    if(scanner == NULL){
+        return NULL;
+    }
+
+    scanner->token = token_init(scanner);
+    scanner->state = S_START;
+    scanner->currLine = 1;
+
+}
+
 token_t token_init(){
     token_t currToken = calloc(1, sizeof(struct Token));
     if(currToken == NULL){

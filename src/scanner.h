@@ -110,6 +110,8 @@ typedef struct Token *token_t;
 
 typedef struct Scanner *scanner_t;
 
+scanner_t scanner_init();
+
 token_t token_init();
 
 string_t string_init();
