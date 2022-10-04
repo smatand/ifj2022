@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <bool.h>
+#include <stdbool.h>
 
 #define initSize 32
 
