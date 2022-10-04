@@ -115,6 +115,8 @@ typedef struct Scanner *scanner_t;
 
 typedef struct TK_node *tk_node_t;
 
+typedef struct TK_list *tk_list_t;
+
 /**
  * Allocates and initializes a scanner structure.
  * @param stream input stream

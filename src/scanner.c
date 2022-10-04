@@ -44,6 +44,12 @@ struct TK_node
     tk_node_t next;
 };
 
+struct TK_list
+{
+    tk_node_t head;
+    tk_node_t tail;
+};
+
 scanner_t scanner_init(FILE *stream){
     scanner_t scanner = calloc(1, sizeof(struct Scanner));
     if(scanner == NULL){
