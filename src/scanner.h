@@ -11,6 +11,9 @@
 
 // php 
 typedef enum {
+    // initial type
+    TOK_EMPTY,
+    
     // single characters
     TOK_LEFT_PAREN,     /* ( */
     TOK_RIGHT_PAREN,    /* ) */
