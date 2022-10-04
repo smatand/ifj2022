@@ -11,8 +11,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define initSize 16
-#define growth 8
+#define initSize 8
+#define growth 2
 
 #define lexError 1
 
@@ -98,7 +98,7 @@ string_t string_init(){
 bool resize(string_t currString){
     size_t oldSize = currString->memSize;
     if((currString->currLen+1) == currString->memSize){
-        currString->memSize = currString->memSize + growth;
+        currString->memSize = currString->memSize * growth;
         void* data = realloc(currString, currString->memSize * sizeof(char));
         
         if(data == NULL){
