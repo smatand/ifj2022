@@ -35,6 +35,13 @@ struct Scanner
     FILE *stdin;
 };
 
+token_t token_init(){
+    token_t currToken = calloc(1, sizeof(struct Token));
+    if(currToken == NULL){
+        return NULL;
+    }
+}
+
 string_t string_init(){
     string_t currString = calloc(1, sizeof(struct String));
     if(currString == NULL){
