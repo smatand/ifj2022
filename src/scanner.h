@@ -132,10 +132,16 @@ scanner_t scanner_init(FILE *stream);
 token_t token_init(scanner_t scanner);
 
 /**
- * Allocates and initializes a string structure, and memory the data in it.
+ * Allocates and initializes a string structure, and memory for the data in it.
  * @return Initialized string struct, or NULL on failure.
  */
 string_t string_init();
+
+/**
+ * Allocates and initializes a TK_node structure.
+ * @return Initialized TK_node structure, or NULL on failure.
+ */
+tk_node_t node_init(scanner_t scanner);
 
 /**
  * If the current allocated memory for data in a string structure is not enough, reallocates.

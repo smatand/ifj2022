@@ -107,6 +107,16 @@ string_t string_init(){
     return currString;
 }
 
+tk_node_t node_init(){
+    tk_node_t currNode = calloc(1, sizeof(struct TK_node));
+    if(currNode == NULL){
+        fprintf(stderr, "Memory allocation failed: Struct --- TK_node.");
+        return NULL;
+    }
+    
+    return currNode;
+}
+
 bool resize(string_t currString){
     size_t oldSize = currString->memSize;
     if((currString->currLen+1) == currString->memSize){
