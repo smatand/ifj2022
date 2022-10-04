@@ -104,6 +104,8 @@ typedef enum {
 
 typedef struct String *string_t;
 
+typedef struct Token *token_t;
+
 string_t string_init();
 
 bool resize(string_t currString);

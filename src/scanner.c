@@ -21,6 +21,13 @@ struct String
     size_t memSize;
 };
 
+struct Token
+{
+    TokenType type;
+    string_t string;
+    int line;
+};
+
 string_t string_init(){
     string_t currString = calloc(1, sizeof(struct String));
     if(currString == NULL){
