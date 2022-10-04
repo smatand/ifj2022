@@ -81,7 +81,7 @@ string_t string_init(){
     }
 
     currString->memSize = initSize;
-    
+
     currString->data = calloc(initSize, sizeof(char));
     if(currString->data == NULL){
         free(currString);
@@ -126,5 +126,8 @@ bool charPushBack(string_t currString, int c){
 
 int scan(FILE *stream){
     scanner_t scanner = scanner_init(stream);
+    if(scanner == NULL){
+        return NULL;
+    }
     int c = getChar(scanner);
 }
