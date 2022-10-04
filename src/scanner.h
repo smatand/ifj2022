@@ -102,4 +102,7 @@ typedef enum {
 
 } MachineState;
 
+typedef struct String *string_t;
+
+
 #endif /* SCANNER_H */
