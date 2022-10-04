@@ -34,3 +34,7 @@ string_t string_init(){
     
     return true;
 }
+
+bool stringPushBack(string_t currString, int c){
+    currString->data[currString->currLen++] = (char)c;
+}
