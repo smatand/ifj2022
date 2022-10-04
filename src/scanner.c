@@ -77,7 +77,7 @@ string_t string_init(){
     }
     currString->memSize = initSize;
     
-    return true;
+    return currString;
 }
 
 bool resize(string_t currString){
