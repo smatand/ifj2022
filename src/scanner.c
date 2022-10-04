@@ -44,10 +44,15 @@ scanner_t scanner_init(FILE *stream){
         return NULL;
     }
 
-    scanner->token = token_init(scanner);
     scanner->state = S_START;
     scanner->stream = stream;
     scanner->currLine = 1;
+
+    scanner->token = token_init(scanner);
+    if(scanner->token == NULL){
+        free(scanner);
+        return NULL;
+    }
 
     return scanner;
 }
@@ -59,12 +64,12 @@ token_t token_init(scanner_t scanner){
     }
 
     currToken->line = scanner->currLine;
+
     currToken->string = string_init();
     if(currToken->string == NULL){
         free(currToken);
         return NULL;
     }
-    
 
     return currToken;
 }
@@ -75,12 +80,13 @@ string_t string_init(){
         return NULL;
     }
 
+    currString->memSize = initSize;
+    
     currString->data = calloc(initSize, sizeof(char));
     if(currString->data == NULL){
         free(currString);
         return NULL;
     }
-    currString->memSize = initSize;
     
     return currString;
 }
