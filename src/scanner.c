@@ -41,6 +41,8 @@ token_t token_init(){
     if(currToken == NULL){
         return NULL;
     }
+    currToken->string = string_init();
+    currToken->line = 1;
 }
 
 string_t string_init(){
