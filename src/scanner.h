@@ -7,6 +7,8 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
+#include <stdbool.h>
+
 // php 
 typedef enum {
     // single characters
