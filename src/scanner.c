@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define initSize 32
-#define growth 10
+#define initSize 16
+#define growth 8
 
 struct String
 {
@@ -42,13 +42,19 @@ bool resize(string_t currString){
         void* data = realloc(currString, currString->memSize * sizeof(char));
         
         if(data == NULL){
-            return NULL;
+            return false;
         }else{
             currString->data = data;
         }
     }
+    return true;
 }
 
 bool stringPushBack(string_t currString, int c){
+    if(resize(currString) == false){
+        return false;
+    }
+
     currString->data[currString->currLen++] = (char)c;
+    return true;
 }
