@@ -33,6 +33,7 @@ struct Scanner
     token_t token;
     MachineState state;
     FILE *stdin;
+    int currLine;
 };
 
 token_t token_init(){
