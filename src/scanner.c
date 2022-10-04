@@ -163,7 +163,7 @@ bool charPushBack(string_t currString, int c){
 int scan(FILE *stream){
     scanner_t scanner = scanner_init(stream);
     if(scanner == NULL){
-        return NULL;
+        return 99; 
     }
     int c = getChar(scanner);
 }
