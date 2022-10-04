@@ -58,8 +58,13 @@ token_t token_init(scanner_t scanner){
         return NULL;
     }
 
-    currToken->string = string_init();
     currToken->line = scanner->currLine;
+    currToken->string = string_init();
+    if(currToken->string == NULL){
+        free(currToken);
+        return NULL;
+    }
+    
 
     return currToken;
 }
