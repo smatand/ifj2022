@@ -57,8 +57,11 @@ token_t token_init(scanner_t scanner){
     if(currToken == NULL){
         return NULL;
     }
+
     currToken->string = string_init();
     currToken->line = scanner->currLine;
+
+    return currToken;
 }
 
 string_t string_init(){
