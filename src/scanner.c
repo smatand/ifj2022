@@ -41,6 +41,7 @@ struct Scanner
 scanner_t scanner_init(FILE *stream){
     scanner_t scanner = calloc(1, sizeof(struct Scanner));
     if(scanner == NULL){
+        fprintf(stderr, "Memory allocation failed: Struct --- scanner.");
         return NULL;
     }
 
@@ -60,6 +61,7 @@ scanner_t scanner_init(FILE *stream){
 token_t token_init(scanner_t scanner){
     token_t currToken = calloc(1, sizeof(struct Token));
     if(currToken == NULL){
+        fprintf(stderr, "Memory allocation failed: Struct --- token.");
         return NULL;
     }
 
@@ -77,6 +79,7 @@ token_t token_init(scanner_t scanner){
 string_t string_init(){
     string_t currString = calloc(1, sizeof(struct String));
     if(currString == NULL){
+        fprintf(stderr, "Memory allocation failed: Struct --- string.");
         return NULL;
     }
 
@@ -84,6 +87,7 @@ string_t string_init(){
 
     currString->data = calloc(initSize, sizeof(char));
     if(currString->data == NULL){
+        fprintf(stderr, "Memory allocation failed: Char* --- data.");
         free(currString);
         return NULL;
     }
