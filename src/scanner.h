@@ -112,7 +112,7 @@ typedef struct Scanner *scanner_t;
 
 scanner_t scanner_init();
 
-token_t token_init();
+token_t token_init(scanner_t scanner);
 
 string_t string_init();
 

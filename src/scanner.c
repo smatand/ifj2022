@@ -48,13 +48,13 @@ scanner_t scanner_init(){
 
 }
 
-token_t token_init(){
+token_t token_init(scanner_t scanner){
     token_t currToken = calloc(1, sizeof(struct Token));
     if(currToken == NULL){
         return NULL;
     }
     currToken->string = string_init();
-    currToken->line = 1;
+    currToken->line = scanner->currLine;
 }
 
 string_t string_init(){
