@@ -13,7 +13,7 @@
 typedef enum {
     // initial type
     TOK_EMPTY,
-    
+
     // single characters
     TOK_LEFT_PAREN,     /* ( */
     TOK_RIGHT_PAREN,    /* ) */
@@ -120,6 +120,8 @@ token_t token_init(scanner_t scanner);
 string_t string_init();
 
 bool resize(string_t currString);
+
+int getChar(scanner_t scanner);
 
 bool charPushBack(string_t currString, int c);
 

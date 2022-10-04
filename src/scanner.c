@@ -90,6 +90,13 @@ bool resize(string_t currString){
     return true;
 }
 
+int getChar(scanner_t scanner){
+    int c = getc(scanner->stream);
+    ungetc(c, scanner->stream);
+
+    return c;
+}
+
 bool charPushBack(string_t currString, int c){
     if(resize(currString) == false){
         return false;
