@@ -125,4 +125,6 @@ int getChar(scanner_t scanner);
 
 bool charPushBack(string_t currString, int c);
 
+int scan(FILE *stream);
+
 #endif /* SCANNER_H */

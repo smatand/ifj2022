@@ -107,3 +107,8 @@ bool charPushBack(string_t currString, int c){
     currString->data[currString->currLen++] = (char)c;
     return true;
 }
+
+int scan(FILE *stream){
+    scanner_t scanner = scanner_init(stream);
+    int c = getChar(scanner);
+}
