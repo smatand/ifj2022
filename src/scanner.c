@@ -32,11 +32,11 @@ struct Scanner
 {
     token_t token;
     MachineState state;
-    FILE *stdin;
+    FILE *stream;
     int currLine;
 };
 
-scanner_t scanner_init(){
+scanner_t scanner_init(FILE *stream){
     scanner_t scanner = calloc(1, sizeof(struct Scanner));
     if(scanner == NULL){
         return NULL;
@@ -44,8 +44,8 @@ scanner_t scanner_init(){
 
     scanner->token = token_init(scanner);
     scanner->state = S_START;
+    scanner->stream = stream;
     scanner->currLine = 1;
-
 }
 
 token_t token_init(scanner_t scanner){

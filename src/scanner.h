@@ -110,7 +110,7 @@ typedef struct Token *token_t;
 
 typedef struct Scanner *scanner_t;
 
-scanner_t scanner_init();
+scanner_t scanner_init(FILE *stream);
 
 token_t token_init(scanner_t scanner);
 
