@@ -49,18 +49,19 @@ typedef enum {
     TOK_EXP_LIT,                /* integer or decimal with an exponent */
     
     // keywords
-    TOK_IF,                    /* if */
     TOK_ELSE,                  /* else */
-    TOK_WHILE,                 /* while */
+    TOK_FLOAT,                 /* float */
     TOK_FUNCTION,              /* function */
+    TOK_IF,                    /* if */
+    TOK_INT,                   /* int */
+    TOK_NULL,                  /* null */
     TOK_RETURN,                /* return */
+    TOK_STRING,                /* string */
+    TOK_VOID,                  /* void */
+    TOK_WHILE,                 /* while */
     TOK_TRUE,                  /* true */
     TOK_FALSE,                 /* false */
-    TOK_NULL,                  /* null */
-    TOK_INT,                   /* int */
-    TOK_FLOAT,                 /* float */
 
-    // prologue TODO is it okay to have this here?
     TOK_PROLOGUE,               /* <?php */
     TOK_END_SIGN,               /* ?> */
 
