@@ -104,5 +104,10 @@ typedef enum {
 
 typedef struct String *string_t;
 
+string_t string_init();
+
+bool resize(string_t currString);
+
+bool stringPushBack(string_t currString, int c);
 
 #endif /* SCANNER_H */

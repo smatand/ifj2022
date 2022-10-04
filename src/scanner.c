@@ -35,10 +35,12 @@ string_t string_init(){
     
     return true;
 }
+
 bool resize(string_t currString){
     if((currString->currLen+1) == currString->memSize){
         currString->memSize = currString->memSize + growth;
         void* data = realloc(currString, currString->memSize * sizeof(char));
+        
         if(data == NULL){
             return NULL;
         }else{
