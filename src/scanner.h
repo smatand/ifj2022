@@ -113,6 +113,8 @@ typedef struct Token *token_t;
 
 typedef struct Scanner *scanner_t;
 
+typedef struct TK_node *tk_node_t;
+
 /**
  * Allocates and initializes a scanner structure.
  * @param stream input stream

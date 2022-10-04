@@ -38,6 +38,12 @@ struct Scanner
     int currLine;
 };
 
+struct TK_node
+{
+    token_t token;
+    tk_node_t next;
+};
+
 scanner_t scanner_init(FILE *stream){
     scanner_t scanner = calloc(1, sizeof(struct Scanner));
     if(scanner == NULL){
