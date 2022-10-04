@@ -50,7 +50,7 @@ bool resize(string_t currString){
     return true;
 }
 
-bool stringPushBack(string_t currString, int c){
+bool charPushBack(string_t currString, int c){
     if(resize(currString) == false){
         return false;
     }
