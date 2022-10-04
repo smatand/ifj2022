@@ -113,18 +113,53 @@ typedef struct Token *token_t;
 
 typedef struct Scanner *scanner_t;
 
+/**
+ * Allocates and initializes a scanner structure.
+ * @param stream input stream
+ * @return Initialized scanner struct, or NULL on failure.
+ */
 scanner_t scanner_init(FILE *stream);
 
+/**
+ * Allocates and initializes a token structure in a scanner structure.
+ * @param scanner target scanner struct 
+ * @return Initialized token struct, or NULL on failure.
+ */
 token_t token_init(scanner_t scanner);
 
+/**
+ * Allocates and initializes a string structure, and memory the data in it.
+ * @return Initialized string struct, or NULL on failure.
+ */
 string_t string_init();
 
+/**
+ * If the current allocated memory for data in a string structure is not enough, reallocates.
+ * @param currString current string 
+ * @return Reallocated memory for data, or NULL on failure.
+ */
 bool resize(string_t currString);
 
+/**
+ * Takes a character from the stream, and omits it back.
+ * @param scanner target scanner struct
+ * @return First character from stream (int c).
+ */
 int getChar(scanner_t scanner);
 
+/**
+ * Puts a character into a string struct's data.
+ * @param currString current string
+ * @param c character to be input
+ * @return True on success, false on resize error.
+ */
 bool charPushBack(string_t currString, int c);
 
+/**
+ * Scans a lexeme from the stream.
+ * @param stream input stream
+ * @return 0 on success, 1 on lexical error.
+ */
 int scan(FILE *stream);
 
 #endif /* SCANNER_H */
