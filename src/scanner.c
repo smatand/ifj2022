@@ -11,6 +11,7 @@
 #include <stdbool.h>
 
 #define initSize 32
+#define growth 10
 
 struct String
 {
@@ -33,6 +34,17 @@ string_t string_init(){
     currString->memSize = initSize;
     
     return true;
+}
+bool resize(string_t currString){
+    if((currString->currLen+1) == currString->memSize){
+        currString->memSize = currString->memSize + growth;
+        void* data = realloc(currString, currString->memSize * sizeof(char));
+        if(data == NULL){
+            return NULL;
+        }else{
+            currString->data = data;
+        }
+    }
 }
 
 bool stringPushBack(string_t currString, int c){
