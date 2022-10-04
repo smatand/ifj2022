@@ -28,6 +28,13 @@ struct Token
     int line;
 };
 
+struct Scanner
+{
+    token_t token;
+    MachineState state;
+    FILE *stdin;
+};
+
 string_t string_init(){
     string_t currString = calloc(1, sizeof(struct String));
     if(currString == NULL){
