@@ -67,40 +67,52 @@ typedef enum {
 } TokenType;
 
 typedef enum {
+    // end states
     S_START,
-    S_L_PARENTH,
-    S_R_PARENTH,
-    S_SEMICOLON,
+    S_L_PARENTH, // left parenthesis
+    S_R_PARENTH, // right parenthesis
+    S_SEMICOLON, 
     S_COLON,
     S_COMA,
-    S_L_BRACE,
-    S_R_BRACE,
-    S_STRT_NEG_COMP,
-    S_MID_NEG_COMP,
-    S_ASSIGN,
-    S_STRT_COMP,
-    S_GREATER,
-    S_LESSER,
+    S_L_BRACE, // left curly brackets
+    S_R_BRACE, // right curly brackets
+    S_NEG_COMP, // negative comparison
+    S_COMP, // comparison
+    S_GREATER_EQ, // greater or equals
+    S_LESSER_EQ, // lesser or equals
+    S_PROLOGUE,
     S_ADDITION,
     S_SUBTRACT,
     S_MULTIPLY,
     S_CONCAT,
-    S_INT_LIT,
-    S_STRT_EXP,
-    S_MID_EXP,
-    S_EXP_LIT,
-    S_STRT_DEC,
-    S_DEC_LIT,
-    S_STR_LIT,
-    S_KEYW_OR_ID,
+    S_ERROR,
+
+    // mid-states
+    S_STRT_NEG_COMP, // start negative comparison
+    S_MID_NEG_COMP, // mid negative comparison
+    S_ASSIGN,
+    S_STRT_COMP, // start comparison
+    S_GREATER,
+    S_LESSER,
+    S_INT_LIT, // integer literal
+    S_STRT_EXP, // start exponent
+    S_MID_EXP, // mid exponent
+    S_EXP_LIT, // exponent literal
+    S_STRT_DEC, // start decimal
+    S_DEC_LIT, // decimal literal
+    S_STRT_STR, // start string
+    S_STRT_ESCP_SQNC, // start escape sequence
+    S_ESCP_SQNC, // escape sequence
+    S_KEYW_OR_ID, // keyword or id
     S_QSTN_MARK,
     TYPE_ID,
     S_END_SIGN,
-    S_STRT_VAR,
-    S_VAR_ID,
+    S_STRT_VAR, // start variable
+    S_VAR_ID, // variable ID
     S_SLASH,
-    S_S_COMMENT,
-    S_M_COMMENT,
+    S_S_COMMENT, // single line comment
+    S_STRT_M_COMMENT, // start multiline comment
+    S_M_COMMENT, // multiline comment
     S_EOL_COUNT,
     S_EOL,
     S_EOF,
