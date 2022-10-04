@@ -107,14 +107,29 @@ typedef enum {
 
 } MachineState;
 
+/**
+ * Structure that holds strings(data), their allocated memory size and current character count.
+ */
 typedef struct String *string_t;
 
+/**
+ * Structure that holds strings(data) that make the given token, token types, and the line they're on.
+ */
 typedef struct Token *token_t;
 
+/**
+ * Structure that holds the current token, current state of the FSM, source stream and the current line's number.
+ */
 typedef struct Scanner *scanner_t;
 
+/**
+ * Structure that holds a token, and the pointer to the next node.
+ */
 typedef struct TK_node *tk_node_t;
 
+/**
+ * Structure that holds a the first and last node of the list (head and tail).
+ */
 typedef struct TK_list *tk_list_t;
 
 /**
