@@ -14,6 +14,8 @@
 #define initSize 16
 #define growth 8
 
+#define lexError 1
+
 struct String
 {
     char *data;
