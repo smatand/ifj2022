@@ -107,6 +107,16 @@ string_t string_init(){
     return currString;
 }
 
+tk_list_t list_init(){
+    tk_list_t tokenList = calloc(1, sizeof(struct TK_list));
+    if(tokenList == NULL){
+        fprintf(stderr, "Memory allocation failed: Struct --- TK_list.");
+        return NULL;
+    }
+    
+    return tokenList;
+}
+
 tk_node_t node_init(){
     tk_node_t currNode = calloc(1, sizeof(struct TK_node));
     if(currNode == NULL){

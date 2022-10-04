@@ -153,10 +153,16 @@ token_t token_init(scanner_t scanner);
 string_t string_init();
 
 /**
+ * Allocates and initializes a TK_list structure.
+ * @return Initialized TK_list structure, or NULL on failure.
+ */
+tk_list_t list_init();
+
+/**
  * Allocates and initializes a TK_node structure.
  * @return Initialized TK_node structure, or NULL on failure.
  */
-tk_node_t node_init(scanner_t scanner);
+tk_node_t node_init();
 
 /**
  * If the current allocated memory for data in a string structure is not enough, reallocates.
