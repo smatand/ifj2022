@@ -48,6 +48,8 @@ scanner_t scanner_init(FILE *stream){
     scanner->state = S_START;
     scanner->stream = stream;
     scanner->currLine = 1;
+
+    return scanner;
 }
 
 token_t token_init(scanner_t scanner){
