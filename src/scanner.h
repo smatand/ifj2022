@@ -181,6 +181,13 @@ tk_list_t list_init();
 tk_node_t node_init();
 
 /**
+ * State changer of the final state machine.
+ * @param currState current state of the machine
+ * @param c character from the next lexeme
+ */
+MachineState transition(MachineState currState, int c);
+
+/**
  * If the current allocated memory for data in a string structure is not enough, reallocates.
  * @param currString current string 
  * @return Reallocated memory for data, or NULL on failure.

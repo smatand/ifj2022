@@ -129,6 +129,43 @@ tk_node_t node_init(){
     return currNode;
 }
 
+MachineState transition(MachineState currState, int c){
+    switch (currState)  {
+    case S_START:
+        if(isspace(c)) {
+            return S_START;
+        } else if(c == '(') {
+            return S_L_PARENTH;
+        } else if(c == ')') {
+            return S_R_PARENTH;
+        } else if(c == ';') {
+            return S_SEMICOLON;
+        } else if(c == ':') {
+            return S_COLON;
+        } else if(c == ',') {
+            return S_COMA;
+        } else if(c == '{') {
+            return S_L_BRACE;
+        } else if(c == '}') {
+            return S_R_BRACE;
+        } else if(c == '!') {
+            return S_STRT_NEG_COMP;
+        } else if (c == '=') {
+            return S_COMP;
+        } else if (c == '<') {
+            return S_LESSER;
+        } else if (c == '>') {
+            return S_GREATER;
+        } else if (c == '>=')
+
+
+        break;
+
+    default:
+        break;
+    }
+}
+
 bool resize(string_t currString){
     size_t oldSize = currString->memSize;
     if((currString->currLen+1) == currString->memSize){
