@@ -62,7 +62,7 @@ typedef enum {
     TOK_TRUE,                  /* true */
     TOK_FALSE,                 /* false */
 
-    TOK_PROLOGUE,               /* <?php */
+    TOK_PROLOGUE,               /* <? */
     TOK_END_SIGN,               /* ?> */
 
 } TokenType;
@@ -86,6 +86,7 @@ typedef enum {
     S_SUBTRACT,
     S_MULTIPLY,
     S_CONCAT,
+    S_STR_LIT, // string literal
     S_ERROR,
 
     // mid-states
@@ -103,7 +104,9 @@ typedef enum {
     S_DEC_LIT, // decimal literal
     S_STRT_STR, // start string
     S_STRT_ESCP_SQNC, // start escape sequence
-    S_ESCP_SQNC, // escape sequence
+    S_HEX_SCP_SQNC, // hexadecimal escape sequence
+    S_OCT_SCP_SQNC, // octal escape sequence
+    S_SNGL_SCP_SQNC, // single char escape sequence
     S_KEYW_OR_ID, // keyword or id
     S_QSTN_MARK,
     TYPE_ID,
