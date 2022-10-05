@@ -142,7 +142,7 @@ bool resize(string_t currString){
         }
     }
 
-    memset(currString->data + oldSize, 0, oldSize); // initializing reallocated memory
+    memset(currString->data + oldSize, 0, oldSize);
     return true;
 }
 
