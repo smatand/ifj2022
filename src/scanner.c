@@ -123,6 +123,8 @@ tk_node_t node_init(){
         fprintf(stderr, "Memory allocation failed: Struct --- TK_node.");
         return NULL;
     }
+
+    currNode->next = NULL;
     
     return currNode;
 }
