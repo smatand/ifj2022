@@ -11,16 +11,16 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define initSize 8
-#define growth 2
+#define INIT_SIZE 8
+#define GROWTH 2
 
-#define lexError 1
+#define LEX_ERROR 1
 
 struct String
 {
     char *data;
     size_t currLen;
-    size_t memSize;
+    size_t memSize; // old size of the string
 };
 
 struct Token
@@ -95,9 +95,9 @@ string_t string_init(){
         return NULL;
     }
 
-    currString->memSize = initSize;
+    currString->memSize = INIT_SIZE;
 
-    currString->data = calloc(initSize, sizeof(char));
+    currString->data = calloc(INIT_SIZE, sizeof(char));
     if(currString->data == NULL){
         fprintf(stderr, "Memory allocation failed: Char* --- data.");
         free(currString);
@@ -130,7 +130,7 @@ tk_node_t node_init(){
 bool resize(string_t currString){
     size_t oldSize = currString->memSize;
     if((currString->currLen+1) == currString->memSize){
-        currString->memSize = currString->memSize * growth;
+        currString->memSize = currString->memSize * GROWTH;
         void* data = realloc(currString, currString->memSize * sizeof(char));
         
         if(data == NULL){
@@ -166,4 +166,6 @@ int scan(FILE *stream){
         return 99; 
     }
     int c = getChar(scanner);
+
+
 }
