@@ -132,31 +132,85 @@ tk_node_t node_init(){
 MachineState transition(MachineState currState, int c){
     switch (currState)  {
     case S_START:
-        if(isspace(c)) {
+        if(c == ' ') {
             return S_START;
+
+        } else if(c == '\t') {
+            return S_START;
+
         } else if(c == '(') {
             return S_L_PARENTH;
+
         } else if(c == ')') {
             return S_R_PARENTH;
+
         } else if(c == ';') {
             return S_SEMICOLON;
+
         } else if(c == ':') {
             return S_COLON;
+
         } else if(c == ',') {
             return S_COMA;
+
         } else if(c == '{') {
             return S_L_BRACE;
+
         } else if(c == '}') {
             return S_R_BRACE;
+
         } else if(c == '!') {
             return S_STRT_NEG_COMP;
+
         } else if (c == '=') {
-            return S_COMP;
+            return S_ASSIGN;
+
         } else if (c == '<') {
             return S_LESSER;
+
         } else if (c == '>') {
             return S_GREATER;
-        } else if (c == '>=')
+
+        } else if (c == '+') { 
+            return S_ADDITION;
+
+        } else if (c == '-') { 
+            return S_SUBTRACT;
+
+        } else if (c == '*') { 
+            return S_MULTIPLY;
+            
+        } else if (c == '.') { 
+            return S_CONCAT;
+            
+        } else if (isdigit(c)) { 
+            return S_SUBTRACT;
+            
+        } else if (c == '"') { 
+            return S_STR_LIT;
+            
+        } else if (c == '-') { 
+            return S_SUBTRACT;
+            
+        }  else if(c == '_' || isalpha(c)) {
+            return S_KEYW_OR_ID;
+
+        } else if(c == '?') {
+            return S_QSTN_MARK;
+
+        } else if(c == '$') {
+            return S_STRT_VAR;
+
+        } else if(c == '/') {
+            return S_SLASH;
+
+        } else if(c == '\n') {
+            return S_EOL;
+
+        } else if(c == EOF) {
+            return S_EOF;
+
+        }
 
 
         break;

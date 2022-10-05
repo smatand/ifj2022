@@ -94,8 +94,8 @@ typedef enum {
     S_MID_NEG_COMP, // mid negative comparison
     S_ASSIGN,
     S_STRT_COMP, // start comparison
-    S_GREATER,
     S_LESSER,
+    S_GREATER,
     S_INT_LIT, // integer literal
     S_STRT_EXP, // start exponent
     S_MID_EXP, // mid exponent
