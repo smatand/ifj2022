@@ -232,9 +232,6 @@ MachineState transition(MachineState currState, int c){
     case S_R_BRACE:
         return S_START;
         break;
-    case S_COLON:
-        return S_START;
-        break;
     case S_ADDITION:
         return S_START;
         break;
