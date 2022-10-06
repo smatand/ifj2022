@@ -88,6 +88,7 @@ typedef enum {
     S_CONCAT,
     S_STR_LIT, // string literal
     S_ERROR,
+    S_END,
 
     // mid-states
     S_STRT_NEG_COMP, // start negative comparison
@@ -109,13 +110,14 @@ typedef enum {
     S_SNGL_SCP_SQNC, // single char escape sequence
     S_KEYW_OR_ID, // keyword or id
     S_QSTN_MARK,
-    TYPE_ID,
+    S_TYPE_ID,
     S_END_SIGN,
     S_STRT_VAR, // start variable
     S_VAR_ID, // variable ID
     S_SLASH,
     S_S_COMMENT, // single line comment
     S_STRT_M_COMMENT, // start multiline comment
+    S_M_COMMENT_FIN, // multiline comment finish
     S_M_COMMENT, // multiline comment
     S_EOL_COUNT,
     S_EOL,

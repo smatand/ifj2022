@@ -213,45 +213,245 @@ MachineState transition(MachineState currState, int c){
         }
     case S_L_PARENTH:
         return S_START;
-        break;
+
     case S_R_PARENTH:
         return S_START;
-        break;
+
     case S_SEMICOLON:
         return S_START;
-        break;
+
     case S_COLON:
         return S_START;
-        break;
+
     case S_COMA:
         return S_START;
-        break;
+
     case S_L_BRACE:
         return S_START;
-        break;
+
     case S_R_BRACE:
         return S_START;
-        break;
+
     case S_ADDITION:
         return S_START;
-        break;
+
     case S_SUBTRACT:
         return S_START;
-        break;
+
     case S_MULTIPLY:
         return S_START;
-        break;
+
     case S_CONCAT:
         return S_START;
-        break;
+
     case S_EOL:
         return S_START;
-        break;
+
     case S_EOF:
         return S_START;
-        break;
-    default:
-        break;
+
+    case S_STRT_NEG_COMP:
+        if(c == '='){return S_MID_NEG_COMP;} 
+        return S_ERROR;
+
+    case S_MID_NEG_COMP:
+        if(c == '='){return S_NEG_COMP;}
+        return S_ERROR;
+
+    case S_ASSIGN:
+        if(c == '='){return S_STRT_COMP;}
+        return S_END;
+
+    case S_STRT_COMP:
+        if(c == '='){return S_COMP;}
+        return S_ERROR;
+
+    case S_GREATER:
+        if(c == '='){return S_GREATER_EQ;}
+        return S_END;
+
+    case S_LESSER:
+        if(c == '='){
+            return S_LESSER_EQ;
+
+        } else if(c == '?'){
+            return S_PROLOGUE;
+
+        } 
+        return S_END;
+
+    case S_INT_LIT:
+        if(isdigit(c)){
+            return S_INT_LIT;
+
+        } else if(c == '.'){
+            return S_STRT_DEC;
+
+        } else if(c == 'E' || c == 'e'){
+            return S_STRT_EXP;
+
+        }
+        return S_END;
+
+    case S_STRT_EXP:
+        if(c == '+' || c == '-'){
+            return S_MID_EXP;
+
+        } else if(isdigit(c)){
+            return S_EXP_LIT;
+
+        }
+        return S_ERROR;
+
+    case S_MID_EXP:
+        if(isdigit(c)){return S_EXP_LIT;}
+        return S_ERROR;
+
+    case S_EXP_LIT:
+        if(isdigit(c)){return S_EXP_LIT;}
+        return S_END;
+
+    case S_STRT_DEC:
+        if(isdigit(c)){return S_DEC_LIT;}
+        return S_ERROR;
+
+    case S_DEC_LIT:
+        if(isdigit(c)){
+            return S_DEC_LIT;
+
+        } else if(c == 'E' || c == 'e'){
+            return S_STRT_EXP;
+
+        }
+        return S_END;
+    case S_STRT_STR:
+        if (c == '"'){
+            return S_STR_LIT;
+
+        } else if(c == '\\'){
+            return S_STRT_ESCP_SQNC;
+
+        } else if(c == EOF){
+            return S_ERROR;
+
+        }
+        return S_STRT_STR;
+
+    case S_STRT_ESCP_SQNC:
+        if (c == 'x'){
+            return S_HEX_SCP_SQNC;
+
+        } else if(c < 47 && c > 57){ // [0-8]
+            return S_OCT_SCP_SQNC;
+
+        } else if(c == 't' || c == 'n' || c == '"' || c == '$' || c == '\\'){
+            return S_SNGL_SCP_SQNC;
+
+        } else if(c == EOF){
+            return S_ERROR;
+
+        }
+        return S_STRT_STR;
+
+    case S_HEX_SCP_SQNC:
+        if(isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)){ // [0-9] [a-f] [A-F]
+            return S_HEX_SCP_SQNC;
+
+        } else if(c == EOF){
+            S_ERROR;
+
+        }
+        return S_STRT_STR;
+
+    case S_OCT_SCP_SQNC:
+        if(c < 47 && c > 57){
+            return S_OCT_SCP_SQNC;
+
+        } else if(c == EOF){
+            return S_ERROR;
+
+        }
+        return S_STRT_STR;
+    
+    case S_KEYW_OR_ID:
+        if (isalnum(c) || c == '_'){
+            return S_KEYW_OR_ID;
+
+        }
+        return S_END;
+
+    case S_QSTN_MARK:
+        if(c == '>'){
+            return S_END_SIGN;
+
+        } else if((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a'){ // in FSM => TypeChar
+            return S_TYPE_ID;
+
+        }
+        return S_ERROR;
+
+    case S_TYPE_ID:
+        if((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a'){ // in FSM => TypeChar
+            return S_END;
+        
+        }
+    case S_STRT_VAR:
+        if (isalpha(c) || '_'){
+            return S_VAR_ID;
+
+        }
+        return S_ERROR;
+        
+    case S_VAR_ID:
+        if(isalnum(c) || c == '_'){
+            return S_VAR_ID;
+
+        }
+        return S_ERROR;
+
+    case S_SLASH:
+        if(c == '/'){
+            return S_S_COMMENT;
+
+        } else if(c == '*'){
+            return S_M_COMMENT;
+
+        }
+        return S_END;
+
+    case S_S_COMMENT:
+        if(c == EOF || c == '\n'){
+            return S_S_COMMENT;
+
+        }
+        return S_END;
+
+    case S_STRT_M_COMMENT:
+        if(c == '*'){
+            return S_M_COMMENT_FIN;
+
+        } else if(c == '\n'){
+            return S_EOL_COUNT;
+
+        } else if(c == EOF){
+            return S_ERROR;
+
+        }
+        return S_STRT_M_COMMENT;
+
+    case S_EOL_COUNT:
+        if(c == EOF){
+            return S_ERROR;
+
+        }
+        return S_STRT_M_COMMENT;
+
+    case S_M_COMMENT_FIN:
+        if(c == '/'){
+            return S_M_COMMENT;
+
+        }
+        return S_ERROR;
     }
 }
 
