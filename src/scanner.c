@@ -211,10 +211,48 @@ MachineState transition(MachineState currState, int c){
             return S_EOF;
 
         }
-
-
+    case S_L_PARENTH:
+        return S_START;
         break;
-
+    case S_R_PARENTH:
+        return S_START;
+        break;
+    case S_SEMICOLON:
+        return S_START;
+        break;
+    case S_COLON:
+        return S_START;
+        break;
+    case S_COMA:
+        return S_START;
+        break;
+    case S_L_BRACE:
+        return S_START;
+        break;
+    case S_R_BRACE:
+        return S_START;
+        break;
+    case S_COLON:
+        return S_START;
+        break;
+    case S_ADDITION:
+        return S_START;
+        break;
+    case S_SUBTRACT:
+        return S_START;
+        break;
+    case S_MULTIPLY:
+        return S_START;
+        break;
+    case S_CONCAT:
+        return S_START;
+        break;
+    case S_EOL:
+        return S_START;
+        break;
+    case S_EOF:
+        return S_START;
+        break;
     default:
         break;
     }
