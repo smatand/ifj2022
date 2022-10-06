@@ -1,0 +1,7 @@
+TOK_WHILE: while
+TOK_IF: if
+TOK_VOID: void
+TOK_INT: int
+TOK_FALSE: false
+TOK_ELSE: else
+TOK_KEY_ID: declare
