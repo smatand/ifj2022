@@ -7,7 +7,7 @@
 #include"expr.h"
 
 
-const char precedence_table[TABLE_SIZE][TABLE_SIZE] = {
+char precedence_table[TABLE_SIZE][TABLE_SIZE] = {
 //  *    +    -    /    .    <    >    >=   <=   ===  !==  =    (    )    i    $ 
   {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // *
   {'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // +
