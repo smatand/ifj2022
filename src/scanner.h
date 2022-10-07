@@ -62,12 +62,10 @@ typedef enum {
     TOK_WHILE,                 /* while */
     TOK_TRUE,                  /* true */
     TOK_FALSE,                 /* false */
-    TOK_KEY_ID,                /* any other keyword */
 
     TOK_PROLOGUE,               /* <? */
     TOK_END_SIGN,               /* ?> */
 
-    TOK_EOF,                    /* end of file */
 } TokenType;
 
 typedef enum {
@@ -172,43 +170,37 @@ typedef struct {
     token_node_t * tail;
 } token_list_t;
 
-//typedef struct String *string_t;
-//typedef struct Token *token_t;
-//typedef struct Scanner *scanner_t;
-//typedef struct TK_node *tk_node_t;
-//typedef struct TK_list *tk_list_t;
-
 /**
  * @brief Allocates and initializes a scanner structure.
  * @param stream input stream
  * @return Initialized scanner struct, or NULL on failure.
  */
-scanner_t * scannerInit(FILE *stream);
+scanner_t * scanner_init(FILE *stream);
 
 /**
  * @brief Allocates and initializes a token structure in a scanner structure.
  * @param scanner target scanner struct 
  * @return Initialized token struct, or NULL on failure.
  */
-token_t * tokenInit(scanner_t * scanner);
+token_t * token_init(scanner_t * scanner);
 
 /**
  * @brief Allocates and initializes a string structure, and memory for the data in it.
  * @return Initialized string struct, or NULL on failure.
  */
-string_t * stringInit();
+string_t * string_init();
 
 /**
  * @brief Allocates and initializes a TK_list structure.
  * @return Initialized TK_list structure, or NULL on failure.
  */
-token_list_t * listInit();
+token_list_t * list_init();
 
 /**
  * @brief Allocates and initializes a TK_node structure.
  * @return Initialized TK_node structure, or NULL on failure.
  */
-token_node_t * nodeInit();
+token_node_t * node_init();
 
 /**
  * @brief State changer of the final state machine.
@@ -240,11 +232,18 @@ int getChar(scanner_t * scanner);
 bool charPushBack(string_t * currString, int c);
 
 /**
- * @brief Checks for a keyword
- * @param str current string
- * @return 1 in case it is a keyword, otherwise 0
+ * @brief Converts a string to Integer.
+ * @param str string to be converted
+ * @return Integer value of the string.
  */
-int checkKeyword(string_t * str, token_t * token) {
+int convertStringToInt(string_t * str);
+
+/**
+ * @brief Converts a string to Double.
+ * @param str string to be converted
+ * @return Double value of the string.
+ */
+double convertStringToDouble(string_t * str);
 
 /**
  * @brief Scans a lexeme from the stream.

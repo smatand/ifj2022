@@ -26,7 +26,7 @@ scanner_t * scannerInit(FILE *stream){
     scanner->stream = stream;
     scanner->currLine = 1;
 
-    scanner->token = tokenInit(scanner);
+    scanner->token = token_init(scanner);
     if(scanner->token == NULL){
         free(scanner);
         return NULL;
@@ -44,7 +44,7 @@ token_t * tokenInit(scanner_t * scanner){
 
     currToken->line = scanner->currLine;
 
-    currToken->string = stringInit();
+    currToken->string = string_init();
     if(currToken->string == NULL){
         free(currToken);
         return NULL;
@@ -453,42 +453,24 @@ bool charPushBack(string_t * currString, int c){
     return true;
 }
 
-int checkKeyword(string_t * str, token_t * token) {
-    if (!strcmp(str->data, "else")) {
-        token->type = TOK_ELSE;
-    } else if (!strcmp(str->data, "float")) {
-        token->type = TOK_FLOAT;
-    } else if (!strcmp(str->data, "function")) {
-        token->type = TOK_FUNCTION;
-    } else if (!strcmp(str->data, "if")) {
-        token->type = TOK_IF;
-    } else if (!strcmp(str->data, "int")) {
-        token->type = TOK_INT;
-    } else if (!strcmp(str->data, "null")) {
-        token->type = TOK_NULL;
-    } else if (!strcmp(str->data, "return")) {
-        token->type = TOK_RETURN;
-    } else if (!strcmp(str->data, "string")) {
-        token->type = TOK_STRING;
-    } else if (!strcmp(str->data, "void")) {
-        token->type = TOK_VOID;
-    } else if (!strcmp(str->data, "true")) {
-        token->type = TOK_TRUE;
-    } else if (!strcmp(str->data, "false")) {
-        token->type = TOK_FALSE;
-    } else if (!strcmp(str->data, "while")) {
-        token->type = TOK_WHILE;
-    } else if (!strcmp(str->data, "php")) {
-        token->type = TOK_KEY_ID;
-    } else {
-        return 0; // it isn't keyword
-    }
+int convertStringToInt(string_t * str) {
+    char * endPtr;
 
-    return 1;
+    return strtol(str->data, &endPtr, 10);
 }
 
-int get_token(FILE *stream, token_t * token) {// token members -> type, attribute, line, column
-    int c = getChar(stream);
+double convertStringToDouble(string_t * str) {
+    char * endPtr;
 
-    
+    return strtod(str->data, &endPtr);
+}
+
+token_t get_token(FILE *stream) {
+    // scanner_t scanner = scanner_init(stream);
+    // if(scanner == NULL){
+    //     return 99; 
+    // }
+    // int c = getChar(scanner);
+
+
 }
