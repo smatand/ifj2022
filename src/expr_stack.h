@@ -6,8 +6,27 @@
 
 #ifndef EXPR_STACK_H
 #define EXPR_STACK_H
-#define START_VALUE 5
 
+#include <stdbool.h>
+#include"scanner.h"
+
+
+typedef enum{
+	TERM,
+	NONTERM,
+	INDENT,	
+}eType_t;
+
+typedef struct eItem{
+	eType_t type;
+	token_t * token;
+	struct eItem *next;	
+}eItem_t;
+
+typedef struct eStack{
+	int currSize;
+	eItem_t *head;
+}eStack_t;
 
 
 #endif /* EXPR_STACK_H */ 

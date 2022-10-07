@@ -5,8 +5,8 @@
 
 int main(){
     printf("digid: %d\n", P_LESS);
-    printf("char: >%c<\n",precedence_table[P_MUL][P_MUL]);
-    switch(precedence_table[P_LESS][P_LESS]){
+    printf("char: >%c<\n",precedenceTable[P_MUL][P_MUL]);
+    switch(precedenceTable[P_LESS][P_LESS]){
         case '!':
             printf("!\n");
             break;

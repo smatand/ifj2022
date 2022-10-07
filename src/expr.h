@@ -6,11 +6,11 @@
 
 #ifndef EXPR_H
 #define EXPR_H
+
+
 #define TABLE_SIZE 16
 
 
-
-char precedence_table[TABLE_SIZE][TABLE_SIZE];
 typedef enum{
     P_MUL, 
     P_PLUS,
@@ -28,7 +28,12 @@ typedef enum{
     P_RIGHT_PAREN,
     P_ID,
     P_DOLLAR,
-}prec_token_type_t;
+}precTokenType_t;
+
+// ; )
+//, ->FUNEXP rozsirenie'
+
+const char precedenceTable[TABLE_SIZE][TABLE_SIZE];
 
 
 #endif /* EXPR_H */ 
