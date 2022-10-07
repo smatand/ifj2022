@@ -15,8 +15,8 @@
 
 #define LEX_ERROR 1
 
-scanner_t scanner_init(FILE *stream){
-    scanner_t scanner = calloc(1, sizeof(struct Scanner));
+scanner_t * scanner_init(FILE *stream){
+    scanner_t * scanner = calloc(1, sizeof(scanner_t));
     if(scanner == NULL){
         fprintf(stderr, "Memory allocation failed: Struct --- scanner.");
         return NULL;
@@ -35,8 +35,8 @@ scanner_t scanner_init(FILE *stream){
     return scanner;
 }
 
-token_t token_init(scanner_t scanner){
-    token_t currToken = calloc(1, sizeof(struct Token));
+token_t * token_init(scanner_t * scanner){
+    token_t * currToken = calloc(1, sizeof(token_t));
     if(currToken == NULL){
         fprintf(stderr, "Memory allocation failed: Struct --- token.");
         return NULL;
@@ -53,8 +53,8 @@ token_t token_init(scanner_t scanner){
     return currToken;
 }
 
-string_t string_init(){
-    string_t currString = calloc(1, sizeof(struct String));
+string_t * string_init(){
+    string_t * currString = calloc(1, sizeof(string_t));
     if(currString == NULL){
         fprintf(stderr, "Memory allocation failed: Struct --- string.");
         return NULL;
@@ -72,8 +72,8 @@ string_t string_init(){
     return currString;
 }
 
-tk_list_t list_init(){
-    tk_list_t tokenList = calloc(1, sizeof(struct TK_list));
+token_list_t * list_init(){
+    token_list_t * tokenList = calloc(1, sizeof(token_list_t));
     if(tokenList == NULL){
         fprintf(stderr, "Memory allocation failed: Struct --- TK_list.");
         return NULL;
@@ -82,8 +82,8 @@ tk_list_t list_init(){
     return tokenList;
 }
 
-tk_node_t node_init(){
-    tk_node_t currNode = calloc(1, sizeof(struct TK_node));
+token_node_t * node_init(){
+    token_node_t * currNode = calloc(1, sizeof(token_node_t));
     if(currNode == NULL){
         fprintf(stderr, "Memory allocation failed: Struct --- TK_node.");
         return NULL;
@@ -420,7 +420,7 @@ MachineState transition(MachineState currState, int c){
     }
 }
 
-bool resize(string_t currString){
+bool resize(string_t * currString){
     size_t oldSize = currString->memSize;
     if((currString->currLen+1) == currString->memSize){
         currString->memSize = currString->memSize * GROWTH;
@@ -437,14 +437,14 @@ bool resize(string_t currString){
     return true;
 }
 
-int getChar(scanner_t scanner){
+int getChar(scanner_t * scanner){
     int c = getc(scanner->stream);
     ungetc(c, scanner->stream);
 
     return c;
 }
 
-bool charPushBack(string_t currString, int c){
+bool charPushBack(string_t * currString, int c){
     if(resize(currString) == false){
         return false;
     }

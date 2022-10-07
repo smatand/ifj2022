@@ -136,7 +136,7 @@ typedef struct {
 /** @brief Structure that holds strings(data) that make the given token, token types, and the line they're on. */
 typedef struct {
     TokenType type;
-    string_t string;
+    string_t * string;
     int line;
 
     // just one of the following will be used
@@ -149,7 +149,7 @@ typedef struct {
 
 /** @brief Structure that holds the current token, current state of the FSM, source stream and the current line's number. */
 typedef struct {
-    token_t token;
+    token_t * token;
     MachineState state;
     FILE *stream;
     int currLine;
@@ -181,14 +181,14 @@ typedef struct {
  * @param stream input stream
  * @return Initialized scanner struct, or NULL on failure.
  */
-scanner_t scanner_init(FILE *stream);
+scanner_t * scanner_init(FILE *stream);
 
 /**
  * @brief Allocates and initializes a token structure in a scanner structure.
  * @param scanner target scanner struct 
  * @return Initialized token struct, or NULL on failure.
  */
-token_t token_init(scanner_t * scanner);
+token_t * token_init(scanner_t * scanner);
 
 /**
  * @brief Allocates and initializes a string structure, and memory for the data in it.
