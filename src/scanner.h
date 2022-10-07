@@ -144,7 +144,7 @@ typedef struct {
         int intVal;
         double decVal;
         char * strVal;
-    } value;
+    } attribute;
 } token_t;
 
 /** @brief Structure that holds the current token, current state of the FSM, source stream and the current line's number. */
