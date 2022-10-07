@@ -8,6 +8,7 @@
 #define SCANNER_H
 
 #include <stdbool.h>
+#include <stdio.h>
 
 // php 
 typedef enum {
