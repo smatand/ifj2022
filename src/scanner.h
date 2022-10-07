@@ -125,94 +125,119 @@ typedef enum {
 
 } MachineState;
 
-/**
- * Structure that holds strings(data), their allocated memory size and current character count.
- */
-typedef struct String *string_t;
+/** @brief Structure that holds strings(data), their allocated memory size and current character count. */
+typedef struct {
+    char *data;
+    size_t currLen;
+    size_t memSize; // old size of the string
+} string_t;
+
+/** @brief Structure that holds strings(data) that make the given token, token types, and the line they're on. */
+typedef struct {
+    TokenType type;
+    string_t string;
+    int line;
+
+    // just one of the following will be used
+    union {
+        int intVal;
+        double decVal;
+        char * strVal;
+    } value;
+} token_t;
+
+/** @brief Structure that holds the current token, current state of the FSM, source stream and the current line's number. */
+typedef struct {
+    token_t token;
+    MachineState state;
+    FILE *stream;
+    int currLine;
+} scanner_t;
+
+
+/** @brief Structure that holds a token, and the pointer to the next node. */
+typedef struct TokenNode token_node_t;
+
+struct TokenNode{
+    token_t token;
+    token_node_t * next;
+};
+
+/** @brief Structure that holds a the first and last node of the list (head and tail). */
+typedef struct {
+    token_node_t * head;
+    token_node_t * tail;
+} token_list_t;
+
+//typedef struct String *string_t;
+//typedef struct Token *token_t;
+//typedef struct Scanner *scanner_t;
+//typedef struct TK_node *tk_node_t;
+//typedef struct TK_list *tk_list_t;
 
 /**
- * Structure that holds strings(data) that make the given token, token types, and the line they're on.
- */
-typedef struct Token *token_t;
-
-/**
- * Structure that holds the current token, current state of the FSM, source stream and the current line's number.
- */
-typedef struct Scanner *scanner_t;
-
-/**
- * Structure that holds a token, and the pointer to the next node.
- */
-typedef struct TK_node *tk_node_t;
-
-/**
- * Structure that holds a the first and last node of the list (head and tail).
- */
-typedef struct TK_list *tk_list_t;
-
-/**
- * Allocates and initializes a scanner structure.
+ * @brief Allocates and initializes a scanner structure.
  * @param stream input stream
  * @return Initialized scanner struct, or NULL on failure.
  */
 scanner_t scanner_init(FILE *stream);
 
 /**
- * Allocates and initializes a token structure in a scanner structure.
+ * @brief Allocates and initializes a token structure in a scanner structure.
  * @param scanner target scanner struct 
  * @return Initialized token struct, or NULL on failure.
  */
-token_t token_init(scanner_t scanner);
+token_t token_init(scanner_t * scanner);
 
 /**
- * Allocates and initializes a string structure, and memory for the data in it.
+ * @brief Allocates and initializes a string structure, and memory for the data in it.
  * @return Initialized string struct, or NULL on failure.
  */
-string_t string_init();
+string_t * string_init();
 
 /**
- * Allocates and initializes a TK_list structure.
+ * @brief Allocates and initializes a TK_list structure.
  * @return Initialized TK_list structure, or NULL on failure.
  */
-tk_list_t list_init();
+token_list_t * list_init();
 
 /**
- * Allocates and initializes a TK_node structure.
+ * @brief Allocates and initializes a TK_node structure.
  * @return Initialized TK_node structure, or NULL on failure.
  */
-tk_node_t node_init();
+token_node_t * node_init();
 
 /**
- * State changer of the final state machine.
+ * @brief State changer of the final state machine.
  * @param currState current state of the machine
  * @param c character from the next lexeme
  */
 MachineState transition(MachineState currState, int c);
 
 /**
- * If the current allocated memory for data in a string structure is not enough, reallocates.
+ * @brief If the current allocated memory for data in a string structure is not enough, reallocates.
  * @param currString current string 
  * @return Reallocated memory for data, or NULL on failure.
  */
-bool resize(string_t currString);
+bool resize(string_t * currString);
 
 /**
- * Takes a character from the stream, and omits it back.
+ * @brief Takes a character from the stream, and omits it back.
  * @param scanner target scanner struct
  * @return First character from stream (int c).
  */
-int getChar(scanner_t scanner);
+int getChar(scanner_t * scanner);
 
 /**
- * Puts a character into a string struct's data.
+ * @brief Puts a character into a string struct's data.
  * @param currString current string
  * @param c character to be input
  * @return True on success, false on resize error.
  */
-bool charPushBack(string_t currString, int c);
+bool charPushBack(string_t * currString, int c);
 
 /**
- * Scans a lexeme from the stream.
+ * @brief Scans a lexeme from the stream.
  * @param stream input stream
  * @return 0 on success, 1 on lexical error.
  */

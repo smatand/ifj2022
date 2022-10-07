@@ -16,40 +16,6 @@
 
 #define LEX_ERROR 1
 
-struct String
-{
-    char *data;
-    size_t currLen;
-    size_t memSize; // old size of the string
-};
-
-struct Token
-{
-    TokenType type;
-    string_t string;
-    int line;
-};
-
-struct Scanner
-{
-    token_t token;
-    MachineState state;
-    FILE *stream;
-    int currLine;
-};
-
-struct TK_node
-{
-    token_t token;
-    tk_node_t next;
-};
-
-struct TK_list
-{
-    tk_node_t head;
-    tk_node_t tail;
-};
-
 scanner_t scanner_init(FILE *stream){
     scanner_t scanner = calloc(1, sizeof(struct Scanner));
     if(scanner == NULL){
@@ -488,12 +454,12 @@ bool charPushBack(string_t currString, int c){
     return true;
 }
 
-int scan(FILE *stream){
-    scanner_t scanner = scanner_init(stream);
-    if(scanner == NULL){
-        return 99; 
-    }
-    int c = getChar(scanner);
+token_t get_token(FILE *stream) {
+    // scanner_t scanner = scanner_init(stream);
+    // if(scanner == NULL){
+    //     return 99; 
+    // }
+    // int c = getChar(scanner);
 
 
 }
