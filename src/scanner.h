@@ -62,10 +62,12 @@ typedef enum {
     TOK_WHILE,                 /* while */
     TOK_TRUE,                  /* true */
     TOK_FALSE,                 /* false */
+    TOK_KEY_ID,                /* any other keyword */
 
     TOK_PROLOGUE,               /* <? */
     TOK_END_SIGN,               /* ?> */
 
+    TOK_EOF,                    /* end of file */
 } TokenType;
 
 typedef enum {
@@ -181,32 +183,32 @@ typedef struct {
  * @param stream input stream
  * @return Initialized scanner struct, or NULL on failure.
  */
-scanner_t * scanner_init(FILE *stream);
+scanner_t * scannerInit(FILE *stream);
 
 /**
  * @brief Allocates and initializes a token structure in a scanner structure.
  * @param scanner target scanner struct 
  * @return Initialized token struct, or NULL on failure.
  */
-token_t * token_init(scanner_t * scanner);
+token_t * tokenInit(scanner_t * scanner);
 
 /**
  * @brief Allocates and initializes a string structure, and memory for the data in it.
  * @return Initialized string struct, or NULL on failure.
  */
-string_t * string_init();
+string_t * stringInit();
 
 /**
  * @brief Allocates and initializes a TK_list structure.
  * @return Initialized TK_list structure, or NULL on failure.
  */
-token_list_t * list_init();
+token_list_t * listInit();
 
 /**
  * @brief Allocates and initializes a TK_node structure.
  * @return Initialized TK_node structure, or NULL on failure.
  */
-token_node_t * node_init();
+token_node_t * nodeInit();
 
 /**
  * @brief State changer of the final state machine.
@@ -236,6 +238,13 @@ int getChar(scanner_t * scanner);
  * @return True on success, false on resize error.
  */
 bool charPushBack(string_t * currString, int c);
+
+/**
+ * @brief Checks for a keyword
+ * @param str current string
+ * @return 1 in case it is a keyword, otherwise 0
+ */
+int checkKeyword(string_t * str, token_t * token) {
 
 /**
  * @brief Scans a lexeme from the stream.
