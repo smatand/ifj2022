@@ -2,24 +2,24 @@
 #include<stdlib.h>
 #include"expr_stack.h"
 #include"expr.h"
+// #include"scanner.h"
 
 int main(){
-    printf("digid: %d\n", P_LESS);
-    printf("char: >%c<\n",precedenceTable[P_MUL][P_MUL]);
-    switch(precedenceTable[P_LESS][P_LESS]){
-        case '!':
-            printf("!\n");
-            break;
-        case '<':
-            printf("<\n");
-            break;
-        case '>':
-            printf(">\n");
-            break;
-        case '=':
-            printf("=\n");
-            break;
-        default:
-            printf("ERROR\n");
-    }
+   eStack_t stack;
+   eStackInit(&stack);
+   eStack_t *stackPtr = &stack;
+
+   eItem_t *item1 = eItemInit(NULL,TERM);  
+   eItem_t *item2 = eItemInit(NULL,TERM);  
+//    eStackPrintItem(item1);
+//    eItem_t *itemPop = eStackPopItem(stackPtr);
+   eStackPushItem(stackPtr,item1);
+   eStackPushItem(stackPtr,item2);
+//    eStackPushItem(stackPtr,item1);
+   eStackPrint(stackPtr);
+   eStackEmptyAll(stackPtr);
+//    eStackDeleteFirst(stackPtr);
+//    eStackPushItem(stack, item1);
+
+
 }

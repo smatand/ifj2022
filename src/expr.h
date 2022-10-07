@@ -7,9 +7,10 @@
 #ifndef EXPR_H
 #define EXPR_H
 
+#include<stdio.h>
+
 
 #define TABLE_SIZE 16
-
 
 typedef enum{
     P_MUL, 

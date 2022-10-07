@@ -4,6 +4,9 @@
  * @brief Implementation of parser module for IFJ22
  */
 #include<stdio.h>
+#include<stdlib.h>
+#include<stdbool.h>
+#include"expr_stack.h"
 #include"expr.h"
 
 
