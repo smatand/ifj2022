@@ -8,11 +8,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-//i+i*i
-//$
-//i > $
-//E$
-
 void eStackInit(eStack_t *stack){
     //error
     stack->head = NULL;
@@ -43,6 +38,11 @@ void eStackPushItem(eStack_t *stack,eItem_t *item){
     stack->currSize++;
 }
 
+void eStackPushIndent(eStack_t *stack){
+    eItem_t *indentItem = eItemInit(NULL,INDENT);
+    eStackPushItem(stack,indentItem);
+}
+
 eItem_t *eStackPopItem(eStack_t *stack){
     if(stack->head == NULL){
         fprintf(stderr,"popping from empty stack\n");
@@ -60,9 +60,6 @@ void eStackDeleteFirst(eStack_t *stack){
     eItem_t *itemToDelete = eStackPopItem(stack);
     free(itemToDelete);
 }
-	// eType_t type;
-	// token_t *token;
-	// struct eItem *next;	
 void eStackPrintItem(eItem_t *item){
     printf("\n");
     printf("Item:\n");
@@ -70,22 +67,29 @@ void eStackPrintItem(eItem_t *item){
         printf("NULL\n");
         return;
     }
-    printf(" etype %d\n",item->type);
-    // printf(" tokentype: %d\n",item->token->type);
+    switch(item->type){
+        case 0: printf(" TERM\n"); break;
+        case 1: printf(" NONTERM\n"); break;    
+        case 2: printf(" INDENT\n"); break;
+
+    }
+    if(item->token != NULL){
+        printf(" tokentype: %d\n",item->token->type);
+    }
     printf(" [->%s]\n",(item->next) ? "*" : "NULL");
 }
 
 void eStackPrint(eStack_t *stack){
     eItem_t *item = stack->head;
-    printf("\nStart:\n");
+    printf("\n++++++++++Start++++++++++");
     while(item != NULL){
         // // printf("[");
         // if(item->type == INDENT){
         //     printf("[<] -> ");
         // }
-        // // else if(item->type == TERM){
-        // //     printf("[TERM:%d] -> ",item->token->type);
-        // // }
+        // else if(item->type == TERM){
+        //     printf("[TERM:%d] -> ",item->token->type);
+        // }
         // else if(item->type == NONTERM){
         //     printf("[NONTERM] -> ");
         // }
@@ -95,5 +99,6 @@ void eStackPrint(eStack_t *stack){
         eStackPrintItem(item);
         item = item->next;
     }
+        printf("+++++++++++++++++++++++++\n");
 }
 

@@ -35,7 +35,7 @@ void eStackEmptyAll(eStack_t *stack);
 eItem_t *eItemInit(token_t *token, int itemType);
 eItem_t *eStackPopItem(eStack_t *stack);
 void eStackPushItem(eStack_t *stack,eItem_t *item);
-
+void eStackPushIndent(eStack_t *stack);
 void eStackDeleteFirst(eStack_t *stack);
 
 

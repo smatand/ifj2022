@@ -29,6 +29,8 @@ typedef enum{
     P_RIGHT_PAREN,
     P_ID,
     P_DOLLAR,
+    P_SEMICOLON,
+    P_ERROR,
 }precTokenType_t;
 
 // ; )
