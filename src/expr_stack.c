@@ -5,9 +5,12 @@
  */
 #include"expr_stack.h"
 #include<stdbool.h>
+#include<stdio.h>
 
-
-
+//i+i*i
+//$
+//i > $
+//E$
 void eStackInit(eStack_t *stack){
     //error
     stack->head == NULL;
@@ -15,6 +18,12 @@ void eStackInit(eStack_t *stack){
 }
 
 //dostane param token a tak a to sa mallocne
+
+void eStackEmptyAll(eStack_t *stack){
+    for(int i = 0;i < stack->currSize; i++) {
+        eStackDeleteFirst(stack);
+    }
+}
 eItem_t *eItemInit(eItem_t *item, token_t *token, eType_t *type){
     eItem_t item = malloc(sizeof(eItem_t));
     //malloc error
@@ -27,11 +36,15 @@ eItem_t *eItemInit(eItem_t *item, token_t *token, eType_t *type){
 void eStackPushItem(eStack_t * stack,eItem_t *item){
     item->next = stack->head;
     stack->head = item;
+    stack->currSize++;
 }
 
 eItem_t *eStackPopItem(stack_t* stack){
     eItem_t item = stack->head;
     stack->head = item->next;
+    if(item != NULL){
+        stack->currSize--
+    }
     return item;
 }
 
