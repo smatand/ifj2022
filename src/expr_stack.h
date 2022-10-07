@@ -19,7 +19,7 @@ typedef enum{
 
 typedef struct eItem{
 	eType_t type;
-	token_t * token;
+	token_t *token;
 	struct eItem *next;	
 }eItem_t;
 

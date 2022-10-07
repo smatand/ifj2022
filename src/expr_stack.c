@@ -40,3 +40,24 @@ void eStackDeleteFirst(stack_t* stack){
     free(itemToDelete);
 }
 
+void eStackPrint(stack_t *stack){
+    eItem_t item = stack->head;
+    printf("\nStart:\n");
+    while(item != NULL){
+        // printf("[");
+        if(item->type == INDENT){
+            printf("[<] -> ");
+        }
+        else if(item->type == TERM){
+            printf("[TERM:%d] -> ",item->token->TokenType);
+        }
+        else if(item->type == NONTERM){
+            printf("[NONTERM] -> ");
+        }
+        else{
+            printf("ERROR -> ");
+        }
+        item = item->next;
+    }
+}
+
