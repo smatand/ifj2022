@@ -175,7 +175,7 @@ typedef struct {
  * @param stream input stream
  * @return Initialized scanner struct, or NULL on failure.
  */
-scanner_t * scanner_init(FILE *stream);
+scanner_t * scannerInit(FILE *stream);
 
 /**
  * @brief Allocates and initializes a token structure in a scanner structure.
@@ -188,19 +188,19 @@ token_t * token_init(scanner_t * scanner);
  * @brief Allocates and initializes a string structure, and memory for the data in it.
  * @return Initialized string struct, or NULL on failure.
  */
-string_t * string_init();
+string_t * stringInit();
 
 /**
  * @brief Allocates and initializes a TK_list structure.
  * @return Initialized TK_list structure, or NULL on failure.
  */
-token_list_t * list_init();
+token_list_t * listInit();
 
 /**
  * @brief Allocates and initializes a TK_node structure.
  * @return Initialized TK_node structure, or NULL on failure.
  */
-token_node_t * node_init();
+token_node_t * nodeInit();
 
 /**
  * @brief State changer of the final state machine.
@@ -246,10 +246,10 @@ int convertStringToInt(string_t * str);
 double convertStringToDouble(string_t * str);
 
 /**
- * @brief Scans a lexeme from the stream.
- * @param stream input stream
- * @return 0 on success, 1 on lexical error.
+ * @brief Checks if the string is a keyword.
+ * @param str string to be checked
+ * @return True if the string is a keyword, false otherwise.
  */
-int scan(FILE *stream);
+bool checkKeyword(string_t * str, token_t * token);
 
 #endif /* SCANNER_H */
