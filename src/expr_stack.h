@@ -15,6 +15,7 @@ typedef enum eType{
 	TERM,
 	NONTERM,
 	INDENT,	
+	DOLLAR,
 }eType_t;
 
 typedef struct eItem{
@@ -36,7 +37,9 @@ eItem_t *eItemInit(token_t *token, int itemType);
 eItem_t *eStackPopItem(eStack_t *stack);
 void eStackPushItem(eStack_t *stack,eItem_t *item);
 void eStackPushIndent(eStack_t *stack);
+void eStackPushDollar(eStack_t *stack);
 void eStackDeleteFirst(eStack_t *stack);
+void eStackPushNonTerm(eStack_t *stack);
 
 
 void eStackPrintItem(eItem_t *item);
@@ -46,3 +49,5 @@ void eStackPrint(eStack_t *stack);
 
 
 #endif /* EXPR_STACK_H */ 
+
+

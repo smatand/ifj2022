@@ -40,10 +40,40 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
 //   }
 // }
 
+
+
+
+void exprReduce(eStack_t *stack){
+	int currState = E_STATE_START;
+	bool  repeat = true;
+	int tokenType;
+	eItem_t *currItem;
+	while(repeat){
+		switch(currState){
+			case E_STATE_START:
+				currItem = eStackPopItem(stack);
+				if(currItem->type == TERM){
+					currState = RULE3_EXPECTED1;
+				}
+				break;
+			case RULE3_EXPECTED1:
+				tokenType = tokenTypeToeType(currItem->token->type);
+				free(currItem);
+				if(tokenType == P_ID){
+					currItem = eStackPopItem(stack);
+					if(currItem->type == INDENT){
+						printf("3: E -> i\n");
+						free(currItem);
+						eStackPushNonTerm(stack);
+						repeat = false;
+						return;
+					}
+				}
+		}
+	}
+}
 //todo co patri pod id  co moze byt vo vyraze?
-
-
-precTokenType_t convertToPrecType(TokenType type){
+precTokenType_t tokenTypeToeType(TokenType type){
 	switch(type){
 		case TOK_STAR:
 			return P_MUL;
@@ -90,3 +120,48 @@ precTokenType_t convertToPrecType(TokenType type){
 }
 
 
+char *tokenTypeToStr(TokenType type){
+    switch(type){
+		case TOK_STAR:
+			return "*";
+		case TOK_PLUS:
+			return "+";
+		case TOK_MINUS:
+			return "-";
+		case TOK_SLASH:
+			return "/";
+		case TOK_DOT:
+			return ".";
+		case TOK_LESS:
+			return "<";
+		case TOK_GREATER:
+			return ">";
+		case TOK_GREATER_EQUAL:
+			return ">=";
+		case TOK_LESS_EQUAL:
+			return "<=";
+		case TOK_COMPARISON:
+			return "===";
+		case TOK_NEG_COMPARISON:
+			return "!==";
+		case TOK_ASSIGN:
+			return "=";
+		case TOK_LEFT_PAREN:
+			return "(";
+		case TOK_RIGHT_PAREN:
+			return ")";
+		case TOK_SEMICOLON:
+			return ";";
+		case TOK_VAR_ID:
+		case TOK_STRING_LIT:            
+    	case TOK_INT_LIT:             
+    	case TOK_DEC_LIT:                
+    	case TOK_EXP_LIT:
+		case TOK_TRUE:
+		case TOK_FALSE:
+		case TOK_NULL:
+			return "i";
+		default:
+			return "error";
+    }
+}

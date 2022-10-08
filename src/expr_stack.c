@@ -4,6 +4,7 @@
  * @brief Implementation of parser module for IFJ22
  */
 #include"expr_stack.h"
+#include"expr.h"
 #include<stdbool.h>
 #include<stdio.h>
 #include<stdlib.h>
@@ -19,6 +20,7 @@ void eStackInit(eStack_t *stack){
 void eStackEmptyAll(eStack_t *stack){
     while(stack->head != NULL) {
         eStackDeleteFirst(stack);
+        // eStackPrint(stack);
     }
 }
 
@@ -40,7 +42,23 @@ void eStackPushItem(eStack_t *stack,eItem_t *item){
 
 void eStackPushIndent(eStack_t *stack){
     eItem_t *indentItem = eItemInit(NULL,INDENT);
+    if(stack->head->type != NONTERM){
+        eStackPushItem(stack,indentItem);
+        return;
+    }
+    eItem_t *poppeNonTerm = eStackPopItem(stack);
     eStackPushItem(stack,indentItem);
+    eStackPushItem(stack,poppeNonTerm);
+}
+
+void eStackPushDollar(eStack_t *stack){
+    eItem_t *dollarItem = eItemInit(NULL,DOLLAR);
+    eStackPushItem(stack,dollarItem);
+}
+
+void eStackPushNonTerm(eStack_t *stack){
+    eItem_t *nonTermItem = eItemInit(NULL,NONTERM);
+    eStackPushItem(stack,nonTermItem);
 }
 
 eItem_t *eStackPopItem(eStack_t *stack){
@@ -58,30 +76,35 @@ eItem_t *eStackPopItem(eStack_t *stack){
 
 void eStackDeleteFirst(eStack_t *stack){
     eItem_t *itemToDelete = eStackPopItem(stack);
+    //free tokens ?
+    if(itemToDelete->token != NULL){
+        free(itemToDelete->token);
+    }
     free(itemToDelete);
 }
 void eStackPrintItem(eItem_t *item){
-    printf("\n");
-    printf("Item:\n");
+    // printf("Item:\n");
     if(item == NULL){
-        printf("NULL\n");
+        printf("[NULL]");
         return;
     }
     switch(item->type){
-        case 0: printf(" TERM\n"); break;
-        case 1: printf(" NONTERM\n"); break;    
-        case 2: printf(" INDENT\n"); break;
+        case TERM: 
+                printf("[%s]",tokenTypeToStr(item->token->type));
+                break;
+        case NONTERM: 
+            printf("[E]"); break;    
+        case INDENT: 
+            printf("|"); break;
+        case DOLLAR:
+            printf("$"); break;
 
     }
-    if(item->token != NULL){
-        printf(" tokentype: %d\n",item->token->type);
-    }
-    printf(" [->%s]\n",(item->next) ? "*" : "NULL");
 }
 
 void eStackPrint(eStack_t *stack){
     eItem_t *item = stack->head;
-    printf("\n++++++++++Start++++++++++");
+    printf("\n------------------------------\n");
     while(item != NULL){
         // // printf("[");
         // if(item->type == INDENT){
@@ -97,8 +120,18 @@ void eStackPrint(eStack_t *stack){
         //     printf("ERROR -> ");
         // }
         eStackPrintItem(item);
+        if(item->next == NULL){
+            printf(" -> NULL");
+        }
+        else{
+            printf(" -> ");
+        }
         item = item->next;
+        
     }
-        printf("+++++++++++++++++++++++++\n");
+        printf("\n------------------------------\n");
 }
 
+// void eStackReduce(eStack_t *stack){
+
+// }

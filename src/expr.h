@@ -8,9 +8,26 @@
 #define EXPR_H
 
 #include<stdio.h>
+#include"scanner.h"
 
 
 #define TABLE_SIZE 16
+
+
+typedef enum{
+    E_STATE_START,
+
+    RULE1_EXPECTED1,
+    RULE1_EXPECTED2,
+    RULE1_EXPECTED3,
+
+    RULE2_EXPECTED1,
+    RULE2_EXPECTED2,
+    RULE2_EXPECTED3,
+
+    RULE3_EXPECTED1,
+}eStates_t;
+
 
 typedef enum{
     P_MUL, 
@@ -38,5 +55,8 @@ typedef enum{
 
 const char precedenceTable[TABLE_SIZE][TABLE_SIZE];
 
+char *tokenTypeToStr(TokenType type);
+precTokenType_t tokenTypeToeType(TokenType type);
+void exprReduce(eStack_t *stack);
 
 #endif /* EXPR_H */ 
