@@ -1,9 +1,6 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include <stdio.h>
-#include <stdlib.h>
-
 /** @brief Types of tokens */
 typedef enum {
     // initial type
@@ -78,9 +75,10 @@ typedef struct {
         double decVal;
         char * strVal;
         keyword_t kwVal;
-    }
+    } attribute;
 } token_t;
 
+/** @brief States for FSM */
 typedef enum {
     // end states
     S_START,
@@ -137,5 +135,27 @@ typedef enum {
     S_EOL,
     S_EOF,
 } machineState_t
+
+/** 
+ * @brief Allocate memory for token
+ * @param token token to operate with
+ * 
+ * @return SUCCESS, otherwise ERR_INTERNAL
+ */
+int tokenInit(token_t * token);
+
+/**
+ * @brief Frees token
+ * @param token token to operate with
+ */
+void freeToken(token_t * token);
+
+/**
+ * @brief Scans token
+ * @param token for return
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
+ */ 
+int scanToken(token_t * token);
 
 #endif // SCANNER_H
