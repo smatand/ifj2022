@@ -63,3 +63,26 @@ int checkKeyword(token_t * token, string_t * s) {
 
     return 1;
 }
+
+void convertStringToInt(string_t * s, token_t * token) {
+    // todo: make it converting hexadecimal too
+    char * endPtr;
+
+    int res = strtol(s->str, &endPtr, 10);
+
+    token->type = TOK_INT_LIT;
+    token->attribute.intVal = res;
+
+    stringDestroy(s);
+}
+
+void convertStringToDouble(string_t * s, token_t * token) {
+    char * endPtr
+
+    double res = strtod(s->str, &endPtr, 10);
+
+    token->type = TOK_DEC_LIT;
+    token->attribute.decVal = res;
+
+    stringDestroy(s);
+}
