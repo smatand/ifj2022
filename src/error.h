@@ -1,6 +1,8 @@
 #ifndef ERROR_H
 #define ERROR_H
 
+#define SUCCESS               0 // success
+
 #define ERR_LEX_ANALYSIS      1 // error due to lexical analysis
 #define ERR_SYN_ANALYSIS      2 // error due to syntactic analysis
 #define ERR_SEM               3 // undefined function, redefinition of existing function
