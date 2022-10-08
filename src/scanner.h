@@ -134,7 +134,7 @@ typedef enum {
     S_EOL_COUNT,
     S_EOL,
     S_EOF,
-} machineState_t
+} machineState_t;
 
 /** 
  * @brief Allocate memory for token
@@ -157,5 +157,12 @@ void freeToken(token_t * token);
  * @return SUCCESS, otherwise ERR_CODE
  */ 
 int scanToken(token_t * token);
+
+/**
+ * @brief Checks for keyword (TOK_KEYWORD)
+ * 
+ * @return 0 in case of no keyword, otherwise 1 in case it is keyword
+ */
+int checkKeyword(token_t * token, string_t * s);
 
 #endif // SCANNER_H
