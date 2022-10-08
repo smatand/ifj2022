@@ -19,14 +19,34 @@ int main(){
     eStackPushDollar(stackPtr);
     eStackPushIndent(stackPtr);
 
-    token_t *token1 = myTokenInit(TOK_INT_LIT);
+    //  token_t *token1 = myTokenInit(TOK_INT_LIT);
+    token_t *token1 = myTokenInit(TOK_LEFT_PAREN);
+    token_t *token3 = myTokenInit(TOK_RIGHT_PAREN);
     eItem_t *item1 = eItemInit(token1,TERM);  
+    eItem_t *item3 = eItemInit(token3,TERM);  
 
-    eStackPushItem(stackPtr,item1);
+    eStackPushItem(stackPtr, item1);
+    eStackPushNonTerm(stackPtr);
+    eStackPushItem(stackPtr, item3);
     eStackPrint(stackPtr);
-
     exprReduce(stackPtr);
     eStackPrint(stackPtr);
+    // eItem_t *item3 = eItemInit(token3,TERM);  
+
+    // eStackPushItem(stackPtr,item1);
+    // eStackPrint(stackPtr);
+
+    // exprReduce(stackPtr);
+    // eStackPrint(stackPtr);
+
+    // token_t *token1 = myTokenInit(TOK_INT_LIT);
+    // eItem_t *item1 = eItemInit(token1,TERM);  
+
+    // eStackPushItem(stackPtr,item1);
+    // eStackPrint(stackPtr);
+
+    // exprReduce(stackPtr);
+    // eStackPrint(stackPtr);
 
 
     eStackEmptyAll(stackPtr);
