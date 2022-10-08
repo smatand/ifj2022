@@ -9,7 +9,13 @@
 
 
 int stringInit(string_t * s) {
-    s->str = calloc(1, DEFAULT_LEN);
+    s = calloc(1, sizeof(string_t));
+    if (s == NULL) {
+        fprintf(stderr, "Memory allocation of string struct failed");
+        return ERR_INTERNAL;
+    }
+
+    s->str = malloc(DEFAULT_LEN);
     if (s->str == NULL) {
         fprintf(stderr, "Memory allocation of string failed");
         return ERR_INTERNAL;

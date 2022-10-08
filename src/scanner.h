@@ -1,6 +1,8 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
+#include "str.h"
+
 /** @brief Types of tokens */
 typedef enum {
     // initial type
@@ -13,7 +15,7 @@ typedef enum {
     TOK_RIGHT_BRACE,
     TOK_SEMICOLON,
     TOK_COLON,
-    TOK_COMMMA,
+    TOK_COMMA,
 
     // operators
     TOK_DOT,
@@ -40,7 +42,7 @@ typedef enum {
     TOK_DEC_LIT,
 
     // keyword
-    TOK_KEYWORD
+    TOK_KEYWORD,
 
     TOK_PROLOGUE,
     //TOK_KEY_ID
@@ -86,7 +88,7 @@ typedef enum {
     S_R_PARENTH, // right parenthesis
     S_SEMICOLON, 
     S_COLON,
-    S_COMA,
+    S_COMMA,
     S_L_BRACE, // left curly brackets
     S_R_BRACE, // right curly brackets
     S_NEG_COMP, // negative comparison
@@ -151,14 +153,6 @@ int tokenInit(token_t * token);
 void freeToken(token_t * token);
 
 /**
- * @brief Scans token
- * @param token for return
- * 
- * @return SUCCESS, otherwise ERR_CODE
- */ 
-int scanToken(token_t * token);
-
-/**
  * @brief Checks for keyword (TOK_KEYWORD)
  * 
  * @return 0 in case of no keyword, otherwise 1 in case it is keyword
@@ -178,5 +172,20 @@ void convertStringToInt(string_t * s, token_t * token);
  * @param token token to be operated with
  */
 void convertStringToDouble(string_t * s, token_t * token);
+
+/**
+ * @brief Scans token
+ * @param token for return
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
+ */ 
+int scanToken(token_t * token);
+
+/**
+ * @brief State changer of the FSM
+ * @param currState current state of the machine
+ * @param c character from the next lexeme
+ */
+machineState_t transition(machineState_t currState, int c, token_t * token);
 
 #endif // SCANNER_H
