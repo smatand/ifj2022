@@ -62,6 +62,9 @@ int main() {
                         break;
                 }
                 break;
+            case TOK_INT_LIT:
+                printf("TOK_INT_LIT: %d\n", token->attribute.intVal);
+                break;
             default:
                 printf("unknown");
                 break;

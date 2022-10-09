@@ -100,12 +100,14 @@ typedef enum {
     S_STRT_COMP, // start comparison
     S_LESSER,
     S_GREATER,
+
     S_INT_LIT, // integer literal
     S_STRT_EXP, // start exponent
     S_MID_EXP, // mid exponent
     S_EXP_LIT, // exponent literal
     S_STRT_DEC, // start decimal
     S_DEC_LIT, // decimal literal
+
     S_STRT_STR, // start string
     S_STRT_ESCP_SQNC, // start escape sequence
     S_HEX_SCP_SQNC, // hexadecimal escape sequence
@@ -153,7 +155,7 @@ int checkKeyword(token_t * token, string_t * s);
  * @param s string to be converted
  * @param token token to be operated with
  */
-void convertStringToInt(string_t * s, token_t * token);
+int convertStringToInt(string_t * s, token_t * token, FILE * fp);
 
 /**
  * @brief Converts string to double

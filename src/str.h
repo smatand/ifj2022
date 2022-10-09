@@ -1,6 +1,8 @@
 #ifndef STR_H
 #define STR_H
 
+#include <stdio.h>
+
 /** @brief Structure for string properties */
 typedef struct {
     char * str;
@@ -21,7 +23,7 @@ string_t * stringInit(int ret);
  */
 void stringDestroy(string_t * s);
 
-/*
+/**
  * @brief Looks ahead by one characters
  * @param fp file pointer
  * 
@@ -29,4 +31,12 @@ void stringDestroy(string_t * s);
  */
 int lookAheadByOneChar(FILE * fp);
 
+/**
+ * @brief Pushes character to the end of the string
+ * @param s struct to operate with
+ * @param c char being pushed to the end
+ * 
+ * @return SUCCESS, otherwise ERR_INTERNAL
+ */
+int strPushBack(string_t * s, int c);
 #endif // STR_H

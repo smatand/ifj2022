@@ -51,7 +51,9 @@ int checkKeyword(token_t * token, string_t * s) {
     } else if (!strcmp(s->str, "false")) {
         token->attribute.kwVal = KW_FALSE;
     } else {
-        return 0; // no keyword found
+        stringDestroy(s);
+        token->type = TOK_IDENTIFIER;
+        return 0; // no keyword found, it is ID
     }
 
     stringDestroy(s);
@@ -59,7 +61,7 @@ int checkKeyword(token_t * token, string_t * s) {
     return 1;
 }
 
-void convertStringToInt(string_t * s, token_t * token) {
+int convertStringToInt(string_t * s, token_t * token, FILE * fp) {
     // todo: make it converting hexadecimal too
     char * endPtr;
 
@@ -67,8 +69,6 @@ void convertStringToInt(string_t * s, token_t * token) {
 
     token->type = TOK_INT_LIT;
     token->attribute.intVal = res;
-
-    stringDestroy(s);
 }
 
 void convertStringToDouble(string_t * s, token_t * token) {
@@ -233,6 +233,9 @@ int scanToken(token_t * token) {
                     token->type = TOK_SLASH;
                 } else if(c == '\n') {
                     fsmState = S_EOL;
+                } else if (isdigit(c)) {
+                    fsmState = S_INT_LIT;
+                    ungetc(c, fp);
                 } else if(c == EOF) {
                     token->type = TOK_EOF;
                     stringDestroy(str);
@@ -313,7 +316,9 @@ int scanToken(token_t * token) {
                 } 
             case S_INT_LIT:
                 if (isdigit(c)) {
-                    fsmState = S_INT_LIT;
+                    if (strPushBack(str, c) != SUCCESS) {
+                        return ERR_INTERNAL;
+                    }
                     break;
                 } else if (c == '.') {
                     fsmState = S_STRT_DEC;
@@ -322,8 +327,10 @@ int scanToken(token_t * token) {
                     fsmState = S_STRT_EXP;
                     break;
                 }
-                fsmState = S_END;
-                break;
+
+                convertStringToInt(str, token, fp);
+                stringDestroy(str);
+                return SUCCESS;
             case S_STRT_EXP:
                 if (c == '+' || c == '-') {
                     fsmState = S_MID_EXP;
