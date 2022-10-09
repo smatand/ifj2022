@@ -7,6 +7,8 @@
 #include <string.h> // strcmp()
 #include <ctype.h> // isalpha()
 
+#define MAX_TYPE_ID_CHARS 7 // 6 + 1 for /0 (string, float, int)
+
 int tokenInit(token_t * token) {
     token = malloc(sizeof(token_t));
     if (token == NULL) {
@@ -53,7 +55,7 @@ int checkKeyword(token_t * token, string_t * s) {
     }
 
     stringDestroy(s);
-
+    token->type = TOK_KEYWORD;
     return 1;
 }
 
@@ -99,6 +101,31 @@ int checkForPrologue(FILE * fp) {
     loadedChars[3] = '\0';
 
     return strcmp(loadedChars, prologue);
+}
+
+int fillStrWithTypeID(string_t * s, FILE * fp) {
+    char buff[MAX_TYPE_ID_CHARS];
+    int c = getc(fp);
+    int i = 0;
+
+    while (c != EOF && !isspace(c) && c != '=') {
+        buff[i++] = c;
+        c = getc(fp);
+
+        if (i == MAX_TYPE_ID_CHARS) {
+            return ERR_LEX_ANALYSIS;
+        }
+    }
+    
+    if (c == EOF) {
+        return ERR_LEX_ANALYSIS;
+    }
+
+    buff[i] = '\0';
+
+    memcpy(s->str, buff, i); // s->str should contain DEFAULT_LEN (16) space
+
+    return SUCCESS;
 }
 
 int scanToken(token_t * token) {
@@ -171,21 +198,33 @@ int scanToken(token_t * token) {
                     }
                     fsmState = S_GREATER;
                 } else if (c == '+') { 
-                    fsmState = S_ADDITION;
+                    stringDestroy(str);
+                    token->type = TOK_PLUS;
+                    return SUCCESS;
                 } else if (c == '-') { 
-                    fsmState = S_SUBTRACT;
+                    stringDestroy(str);
+                    token->type = TOK_MINUS;
+                    return SUCCESS;
                 } else if (c == '*') { 
-                    fsmState = S_MULTIPLY;
+                    stringDestroy(str);
+                    token->type = TOK_STAR;
+                    return SUCCESS;
+//                    fsmState = S_MULTIPLY;
                 } else if (c == '.') { 
-                    fsmState = S_CONCAT;
-                } else if (isdigit(c)) { 
-                    fsmState = S_SUBTRACT;
+                    stringDestroy(str);
+                    token->type = TOK_DOT;
+                    return SUCCESS;
+//                    fsmState = S_CONCAT;
+                } else if (c == '-') { 
+                    stringDestroy(str);
+                    token->type = TOK_MINUS;
+                    return SUCCESS;
+//                    fsmState = S_SUBTRACT;
                 } else if (c == '"') { 
                     fsmState = S_STR_LIT;
                 }  else if(c == '_' || isalpha(c)) {
                     fsmState = S_KEYW_OR_ID;
                 } else if(c == '?') {
-                    // stringDestroy(str) TODO: ?
                     fsmState = S_QSTN_MARK;
                 } else if(c == '$') {
                     fsmState = S_STRT_VAR;
@@ -204,8 +243,6 @@ int scanToken(token_t * token) {
                 token->type = TOK_PLUS;
                 return SUCCESS;
             case S_SUBTRACT:
-                token->type = TOK_MINUS;
-                return SUCCESS;
             case S_MULTIPLY:
                 token->type = TOK_STAR;
                 return SUCCESS;
@@ -333,7 +370,7 @@ int scanToken(token_t * token) {
                     fsmState = S_ERROR;
                     break;
                 }
-                fsmState = S_STRT_STR;
+//                fsmState = S_STRT_STR;
                 break;
             case S_STRT_ESCP_SQNC:
                 if (c == 'x') {
@@ -384,15 +421,29 @@ int scanToken(token_t * token) {
                     token->type = TOK_END_PROLOGUE;
                     return SUCCESS;
                 } else if ((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a') { // in FSM => TypeChar
-                    token->type = TOK_TYPE_ID;
-                    return SUCCESS;
-                }
-                return ERR_LEX_ANALYSIS;
-            case S_TYPE_ID:
-                if ((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a') { // in FSM => TypeChar
-                    fsmState = S_END;
+                    ungetc(c, fp);
+                    fsmState = S_TYPE_ID;
                     break;
                 }
+                stringDestroy(str);
+                return ERR_LEX_ANALYSIS;
+            case S_TYPE_ID:
+                    // need to check for 'string', 'int' or 'float'
+                    ungetc(c, fp);
+                    if (fillStrWithTypeID(str, fp) != SUCCESS) {
+                        return ERR_LEX_ANALYSIS;
+                    }
+
+                    if (!checkKeyword(token, str)) {
+                        // it doesn't match any keyword, throw err_lex
+                        // checkKeyword() already contains stringDestroy(str)
+                        return ERR_LEX_ANALYSIS;
+                    } else if ( token->attribute.kwVal == KW_STRING 
+                            ||  token->attribute.kwVal == KW_INT 
+                            ||  token->attribute.kwVal == KW_FLOAT ) {
+                        return SUCCESS; // token->type is set, attribute too
+                    }
+                    return ERR_LEX_ANALYSIS;
             case S_STRT_VAR:
                 if (isalpha(c) || '_') {
                     fsmState = S_VAR_ID;

@@ -46,6 +46,19 @@ int main() {
             case TOK_EOF:
                 printf("TOK_EOF\n");
                 break;
+            case TOK_KEYWORD:
+                switch (token->attribute.kwVal) {
+                    case KW_INT:
+                        printf("KW_INT\n");
+                        break;
+                    case KW_FLOAT:
+                        printf("KW_FLOAT\n");
+                        break;
+                    case KW_STRING:
+                        printf("KW_STRING\n");
+                        break;
+                }
+                break;
             default:
                 printf("unknown");
                 break;
@@ -54,5 +67,6 @@ int main() {
         scanToken(token);
     }
 
+    freeToken(token);
     return 0;
 }
