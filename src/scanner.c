@@ -158,14 +158,14 @@ int scanToken(token_t * token) {
                 } else if (c == '<') {
                     stringDestroy(str);
                     // if there is a space behind the char, it is just the < operator
-                    if (isspace(lookAheadByOneChar(fp))) {
+                    if (lookAheadByOneChar(fp) != '=') {
                         token->type = TOK_LESS;
                         return SUCCESS;
                     }
                     fsmState = S_LESSER;
                 } else if (c == '>') {
                     stringDestroy(str);
-                    if (isspace(lookAheadByOneChar(fp))) {
+                    if (lookAheadByOneChar(fp) != '=') {
                         token->type = TOK_GREATER;
                         return SUCCESS;
                     }
@@ -201,10 +201,19 @@ int scanToken(token_t * token) {
                 }
                 break;
             case S_ADDITION:
+                token->type = TOK_PLUS;
+                return SUCCESS;
             case S_SUBTRACT:
+                token->type = TOK_MINUS;
+                return SUCCESS;
             case S_MULTIPLY:
+                token->type = TOK_STAR;
+                return SUCCESS;
             case S_CONCAT:
+                token->type = TOK_DOT;
+                return SUCCESS;
             case S_EOL:
+                // todo: ??
                 fsmState = S_START;
                 break;
             case S_STRT_NEG_COMP:
@@ -241,7 +250,8 @@ int scanToken(token_t * token) {
                 }
             case S_GREATER:
                 if (c == '=') {
-                    fsmState = S_GREATER_EQ;
+                    token->type = TOK_GREATER_EQUAL;
+                    return SUCCESS;
                 } else {
                     fsmState = S_END;
                 }
