@@ -65,8 +65,6 @@ typedef enum {
     KW_WHILE,
     KW_TRUE,
     KW_FALSE,
-
-    KW_PHP
 } keyword_t;
 
 /** @brief Structure that holds the token properties */
@@ -85,10 +83,8 @@ typedef enum {
     // end states
     S_START,
     S_NEG_COMP, // negative comparison
-    S_COMP, // comparison
     S_GREATER_EQ, // greater or equals
     S_LESSER_EQ, // lesser or equals
-    S_PROLOGUE,
     S_ADDITION,
     S_SUBTRACT,
     S_MULTIPLY,

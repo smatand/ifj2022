@@ -34,6 +34,12 @@ int main() {
             case TOK_RIGHT_PAREN:
                 printf("TOK_RIGHT_PAREN\n");
                 break;
+            case TOK_PROLOGUE:
+                printf("TOK_PROLOGUE\n");
+                break;
+            case TOK_END_PROLOGUE:
+                printf("TOK_END_PROLOGUE\n");
+                break;
             case TOK_EMPTY: // comments
                 printf("\n");
                 break;

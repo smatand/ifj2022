@@ -48,8 +48,6 @@ int checkKeyword(token_t * token, string_t * s) {
         token->attribute.kwVal = KW_TRUE;
     } else if (!strcmp(s->str, "false")) {
         token->attribute.kwVal = KW_FALSE;
-    } else if (!strcmp(s->str, "php")) {
-        token->attribute.kwVal = KW_PHP;
     } else {
         return 0; // no keyword found
     }
@@ -82,7 +80,26 @@ void convertStringToDouble(string_t * s, token_t * token) {
     stringDestroy(s);
 }
 
+int checkForPrologue(FILE * fp) {
+    // just simply get first 3 chars and compare them with "php"
+    char prologue[4] = "php";
+    
+    char loadedChars[4];
+    int c = 0;
 
+    for (int i=0; i<3; i++) {
+        c = getc(fp);
+
+        if (c != EOF) {
+            loadedChars[i] = c;
+        } else {
+            return ERR_LEX_ANALYSIS;
+        }
+    }
+    loadedChars[3] = '\0';
+
+    return strcmp(loadedChars, prologue);
+}
 
 int scanToken(token_t * token) {
     FILE * fp = stdin; // IFJ22 will be read only from stdin
@@ -133,12 +150,25 @@ int scanToken(token_t * token) {
                     return SUCCESS;
                     /////////////////////////
                 } else if(c == '!') {
+                    stringDestroy(str);
                     fsmState = S_STRT_NEG_COMP;
                 } else if (c == '=') {
+                    stringDestroy(str);
                     fsmState = S_ASSIGN;
                 } else if (c == '<') {
+                    stringDestroy(str);
+                    // if there is a space behind the char, it is just the < operator
+                    if (isspace(lookAheadByOneChar(fp))) {
+                        token->type = TOK_LESS;
+                        return SUCCESS;
+                    }
                     fsmState = S_LESSER;
                 } else if (c == '>') {
+                    stringDestroy(str);
+                    if (isspace(lookAheadByOneChar(fp))) {
+                        token->type = TOK_GREATER;
+                        return SUCCESS;
+                    }
                     fsmState = S_GREATER;
                 } else if (c == '+') { 
                     fsmState = S_ADDITION;
@@ -152,11 +182,10 @@ int scanToken(token_t * token) {
                     fsmState = S_SUBTRACT;
                 } else if (c == '"') { 
                     fsmState = S_STR_LIT;
-                } else if (c == '-') { 
-                    fsmState = S_SUBTRACT;
                 }  else if(c == '_' || isalpha(c)) {
                     fsmState = S_KEYW_OR_ID;
                 } else if(c == '?') {
+                    // stringDestroy(str) TODO: ?
                     fsmState = S_QSTN_MARK;
                 } else if(c == '$') {
                     fsmState = S_STRT_VAR;
@@ -183,29 +212,33 @@ int scanToken(token_t * token) {
                     fsmState = S_MID_NEG_COMP;
                 } else {
                     fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS;
                 }
                 break;
             case S_MID_NEG_COMP:
                 if (c == '=') {
-                    fsmState = S_NEG_COMP;
+                    token->type = TOK_NEG_COMPARISON;
+                    return SUCCESS;
                 } else {
                     fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS;
                 }
-                break;
             case S_ASSIGN:
                 if (c == '=') {
                     fsmState = S_STRT_COMP;
                 } else { 
-                    fsmState = S_END;
+                    token->type = TOK_ASSIGN;
+                    return SUCCESS;
                 }
                 break;
             case S_STRT_COMP:
                 if (c == '=') {
-                    fsmState = S_COMP;
+                    token->type = TOK_COMPARISON;
+                    return SUCCESS;
                 } else {
                     fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS;
                 }
-                break;
             case S_GREATER:
                 if (c == '=') {
                     fsmState = S_GREATER_EQ;
@@ -215,15 +248,16 @@ int scanToken(token_t * token) {
                 break;
             case S_LESSER:
                 if (c == '=') {
-                    fsmState = S_LESSER_EQ;
-                    break;
+                    token->type = TOK_LESS_EQUAL;
+                    return SUCCESS;
                 } else if (c == '?'){
-                    fsmState = S_PROLOGUE;
-                    break;
+                    if(!checkForPrologue(fp)) {
+                        token->type = TOK_PROLOGUE;
+                        return SUCCESS;
+                    } else {
+                        return ERR_LEX_ANALYSIS; // prologue was not loaded
+                    }
                 } 
-                fsmState = S_END;
-                break;
-
             case S_INT_LIT:
                 if (isdigit(c)) {
                     fsmState = S_INT_LIT;
@@ -337,14 +371,13 @@ int scanToken(token_t * token) {
 
             case S_QSTN_MARK:
                 if (c == '>') {
-                    fsmState = S_END_SIGN;
-                    break;
+                    token->type = TOK_END_PROLOGUE;
+                    return SUCCESS;
                 } else if ((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a') { // in FSM => TypeChar
-                    fsmState = S_TYPE_ID;
-                    break;
+                    token->type = TOK_TYPE_ID;
+                    return SUCCESS;
                 }
-                fsmState = S_ERROR;
-                break;
+                return ERR_LEX_ANALYSIS;
             case S_TYPE_ID:
                 if ((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a') { // in FSM => TypeChar
                     fsmState = S_END;
