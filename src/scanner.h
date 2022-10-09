@@ -174,11 +174,4 @@ void convertStringToDouble(string_t * s, token_t * token);
  */ 
 int scanToken(token_t * token);
 
-/**
- * @brief State changer of the FSM
- * @param currState current state of the machine
- * @param c character from the next lexeme
- */
-machineState_t transition(machineState_t currState, int c, token_t * token);
-
 #endif // SCANNER_H

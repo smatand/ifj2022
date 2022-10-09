@@ -29,13 +29,19 @@ int main() {
                 printf("TOK_COMMA\n");
                 break;
             case TOK_LEFT_PAREN:
-                printf("TOK_LEFT_PAREN");
+                printf("TOK_LEFT_PAREN\n");
                 break;
             case TOK_RIGHT_PAREN:
-                printf("TOK_RIGHT_PAREN");
+                printf("TOK_RIGHT_PAREN\n");
+                break;
+            case TOK_EMPTY: // comments
+                printf("\n");
                 break;
             case TOK_EOF:
-                printf("TOK_EOF");
+                printf("TOK_EOF\n");
+                break;
+            default:
+                printf("unknown");
                 break;
         }
 

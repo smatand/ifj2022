@@ -82,6 +82,8 @@ void convertStringToDouble(string_t * s, token_t * token) {
     stringDestroy(s);
 }
 
+
+
 int scanToken(token_t * token) {
     FILE * fp = stdin; // IFJ22 will be read only from stdin
 
@@ -160,6 +162,7 @@ int scanToken(token_t * token) {
                     fsmState = S_STRT_VAR;
                 } else if(c == '/') {
                     fsmState = S_SLASH;
+                    token->type = TOK_SLASH;
                 } else if(c == '\n') {
                     fsmState = S_EOL;
                 } else if(c == EOF) {
@@ -364,47 +367,53 @@ int scanToken(token_t * token) {
             case S_SLASH:
                 if (c == '/') {
                     fsmState = S_S_COMMENT;
+                    stringDestroy(str);
                     break;
                 } else if (c == '*'){
                     fsmState = S_M_COMMENT;
+                    stringDestroy(str);
                     break;
                 }
                 fsmState = S_END;
                 break;
             case S_S_COMMENT:
                 if (c == EOF || c == '\n') {
-                    fsmState = S_S_COMMENT;
-                } else {
-                    fsmState = S_END;
+                    token->type = TOK_EMPTY;
+                    return SUCCESS;
                 }
                 break;
-            case S_STRT_M_COMMENT:
+            // multiline comments
+            case S_M_COMMENT: 
                 if (c == '*') {
-                    fsmState = S_M_COMMENT_FIN;
+                    int c2 = lookAheadByOneChar(fp);
+                    if (c2 == '/') {
+                        fsmState = S_M_COMMENT_FIN;
+                    }
                     break;
                 } else if (c == '\n') {
                     fsmState = S_EOL_COUNT;
                     break;
                 } else if (c == EOF) {
-                    fsmState = S_ERROR;
+                    fsmState = S_ERROR; // TODO: is it really an error
                     break;
                 }
-                fsmState = S_STRT_M_COMMENT;
                 break;
             case S_EOL_COUNT:
                 if (c == EOF) {
-                    fsmState = S_ERROR;
+//                    fsmState = S_ERROR; // TODO: is it really an error
+                    return ERR_LEX_ANALYSIS;
                 } else {
                     fsmState = S_STRT_M_COMMENT;
                 }
                 break;
             case S_M_COMMENT_FIN:
                 if (c == '/') {
-                    fsmState = S_M_COMMENT;
+                    token->type = TOK_EMPTY;
+                    return SUCCESS;
                 } else {
-                    fsmState = S_ERROR;
+//                   fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS; // neither nested comment blocks should be there
                 }
-                break;
             }
     }
 

@@ -21,4 +21,12 @@ string_t * stringInit(int ret);
  */
 void stringDestroy(string_t * s);
 
+/*
+ * @brief Looks ahead by one characters
+ * @param fp file pointer
+ * 
+ * @return character
+ */
+int lookAheadByOneChar(FILE * fp);
+
 #endif // STR_H

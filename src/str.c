@@ -33,3 +33,13 @@ void stringDestroy(string_t * s) {
     s->realLen = 0;
     s->allocatedSize = 0;
 }
+
+int lookAheadByOneChar(FILE * fp) {
+    int c = 0;
+    c = getc(fp);
+
+    int ret = c; // EOF or any char
+    ungetc(c, fp);
+
+    return ret;
+}
