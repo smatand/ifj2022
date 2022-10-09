@@ -155,7 +155,7 @@ int checkKeyword(token_t * token, string_t * s);
  * @param s string to be converted
  * @param token token to be operated with
  */
-void convertStringToInt(string_t * s, token_t * token, FILE * fp);
+void convertStringToInt(string_t * s, token_t * token);
 
 /**
  * @brief Converts string to double
