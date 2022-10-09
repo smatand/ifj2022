@@ -57,6 +57,9 @@ int main() {
                     case KW_STRING:
                         printf("KW_STRING\n");
                         break;
+                    case KW_NULL:
+                        printf("KW_NULL\n");
+                        break;
                 }
                 break;
             default:

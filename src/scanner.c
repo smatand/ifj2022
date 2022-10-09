@@ -445,7 +445,8 @@ int scanToken(token_t * token) {
                         return ERR_LEX_ANALYSIS;
                     } else if ( token->attribute.kwVal == KW_STRING 
                             ||  token->attribute.kwVal == KW_INT 
-                            ||  token->attribute.kwVal == KW_FLOAT ) {
+                            ||  token->attribute.kwVal == KW_FLOAT
+                            || token->attribute.kwVal == KW_NULL ) {
                         return SUCCESS; // token->type is set, attribute too
                     }
                     return ERR_LEX_ANALYSIS;
