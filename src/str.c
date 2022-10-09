@@ -8,14 +8,14 @@
 #define DEFAULT_LEN 16
 
 
-int stringInit(string_t * s) {
-    s = calloc(1, sizeof(string_t));
+string_t * stringInit(int ret) {
+    string_t * s = calloc(1, sizeof(string_t));
     if (s == NULL) {
-        fprintf(stderr, "Memory allocation of string struct failed");
+        fprintf(stderr, "Memory allocation of string_t failed");
         return ERR_INTERNAL;
     }
 
-    s->str = malloc(DEFAULT_LEN);
+    s->str = calloc(1, DEFAULT_LEN);
     if (s->str == NULL) {
         fprintf(stderr, "Memory allocation of string failed");
         return ERR_INTERNAL;
@@ -25,7 +25,7 @@ int stringInit(string_t * s) {
     s->realLen = 0;
     s->str[s->realLen] = '\0';
 
-    return SUCCESS;
+    return s;
 }
 
 void stringDestroy(string_t * s) {

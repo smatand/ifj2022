@@ -87,8 +87,9 @@ int scanToken(token_t * token) {
 
     machineState_t fsmState = S_START;
 
-    string_t * str;
-    if (stringInit(str) != SUCCESS) {
+    int ret = 0;
+    string_t * str = stringInit(&ret);
+    if (ret != SUCCESS) {
         return ERR_INTERNAL;
     }
 
@@ -101,33 +102,34 @@ int scanToken(token_t * token) {
                 if(isspace(c)) {
                     ;
                 } else if(c == '(') {
-                    fsmState = S_L_BRACE;
                     token->type = TOK_LEFT_BRACE;
                     stringDestroy(str);
+                    return SUCCESS;
                 } else if(c == ')') {
-                    fsmState = S_R_BRACE;
                     token->type = TOK_RIGHT_BRACE;
                     stringDestroy(str);
+                    return SUCCESS;
                 } else if(c == ';') {
-                    fsmState = S_SEMICOLON;
                     token->type = TOK_SEMICOLON;
                     stringDestroy(str);
+                    return SUCCESS;
                 } else if(c == ':') {
-                    fsmState = S_COLON;
                     token->type = TOK_COLON;
                     stringDestroy(str);
+                    return SUCCESS;
                 } else if(c == ',') {
-                    fsmState = S_COMMA;
                     token->type = TOK_COMMA;
                     stringDestroy(str);
+                    return SUCCESS;
                 } else if(c == '{') {
-                    fsmState = S_L_PARENTH;
                     token->type = TOK_LEFT_PAREN;
                     stringDestroy(str);
+                    return SUCCESS;
                 } else if(c == '}') {
-                    fsmState = S_R_PARENTH;
                     token->type = TOK_RIGHT_PAREN;
                     stringDestroy(str);
+                    return SUCCESS;
+                    /////////////////////////
                 } else if(c == '!') {
                     fsmState = S_STRT_NEG_COMP;
                 } else if (c == '=') {
@@ -161,25 +163,17 @@ int scanToken(token_t * token) {
                 } else if(c == '\n') {
                     fsmState = S_EOL;
                 } else if(c == EOF) {
-                    fsmState = S_EOF;
+                    token->type = TOK_EOF;
+                    stringDestroy(str);
+                    return SUCCESS;
                 }
-            case S_L_PARENTH:
-            case S_R_PARENTH:
-            case S_SEMICOLON:
-            case S_COLON:
-            case S_COMMA:
-            case S_L_BRACE:
-            case S_R_BRACE:
+                break;
             case S_ADDITION:
             case S_SUBTRACT:
             case S_MULTIPLY:
             case S_CONCAT:
             case S_EOL:
                 fsmState = S_START;
-                break;
-            case S_EOF:
-                fsmState = S_EOF;
-                token->type = TOK_EOF; // TODO: ???
                 break;
             case S_STRT_NEG_COMP:
                 if (c == '=') {

@@ -1,58 +1,45 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "../src/scanner.h"
+#include "../src/error.h"
 
 int main() {
-    FILE * fp = stdin;
     token_t * token = calloc(1, sizeof(token_t));
+    if (tokenInit(token) != SUCCESS) {
+        return ERR_INTERNAL;
+    }
 
-    get_token(fp, token); // load first token 
+    scanToken(token); // first scan
 
-    while (token->type != T_EOF) {
+    while (token->type != TOK_EOF) {
         switch (token->type) {
-            //////////////////PROLOGUE//////////////////////////
-            case TOK_PROLOGUE:
-                printf("TOK_PROLOGUE: %s)", token->attribute); /* <? */
+            case TOK_LEFT_BRACE:
+                printf("TOK_LEFT_BRACE\n");
                 break;
-            case TOK_KEY_ID:
-                printf("TOK_KEY_ID: %s)", token->attribute); /* php */ // (or other keywords ?? todo)
+            case TOK_RIGHT_BRACE:
+                printf("TOK_RIGHT_BRACE\n");
                 break;
-            case TOK_END_SIGN:
-                printf("TOK_END_SIGN: %s)", token->attribute); /* ?> */
+            case TOK_SEMICOLON:
+                printf("TOK_SEMICOLON\n");
                 break;
-            ///////////////////NUMBERS//////////////////////////
-            case TOK_INT_LIT:
-                printf("TOK_INT_LIT: %d)", token->attribute); /* 123 */
+            case TOK_COLON:
+                printf("TOK_COLON\n");
                 break;
-            case TOK_DEC_LIT:
-                printf("TOK_DEC_LIT: %f)", token->attribute); /* 123.456 */
+            case TOK_COMMA:
+                printf("TOK_COMMA\n");
                 break;
-            ///////////////////KEYWORDS//////////////////////////
-            case TOK_WHILE:
-                printf("TOK_WHILE: %s)", token->attribute); /* while */
+            case TOK_LEFT_PAREN:
+                printf("TOK_LEFT_PAREN");
                 break;
-            case TOK_IF:
-                printf("TOK_IF: %s)", token->attribute); /* if */
+            case TOK_RIGHT_PAREN:
+                printf("TOK_RIGHT_PAREN");
                 break;
-            case TOK_VOID:
-                printf("TOK_VOID: %s)", token->attribute); /* void */
+            case TOK_EOF:
+                printf("TOK_EOF");
                 break;
-            case TOK_INT:
-                printf("TOK_INT: %s)", token->attribute); /* int */
-                break;
-            case TOK_FALSE:
-                printf("TOK_FALSE: %s)", token->attribute); /* false */
-                break;
-            case TOK_ELSE:
-                printf("TOK_ELSE: %s)", token->attribute); /* else */
-                break;
-            default:
-                break;
-            }
-
-        // load next token
-        if (get_token(fp, token) != 0) {
-            printf("ERROR");
         }
+
+        scanToken(token);
     }
 
     return 0;

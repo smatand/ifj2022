@@ -84,13 +84,6 @@ typedef struct {
 typedef enum {
     // end states
     S_START,
-    S_L_PARENTH, // left parenthesis
-    S_R_PARENTH, // right parenthesis
-    S_SEMICOLON, 
-    S_COLON,
-    S_COMMA,
-    S_L_BRACE, // left curly brackets
-    S_R_BRACE, // right curly brackets
     S_NEG_COMP, // negative comparison
     S_COMP, // comparison
     S_GREATER_EQ, // greater or equals
