@@ -7,7 +7,7 @@
 #include <string.h> // strcmp()
 #include <ctype.h> // isalpha()
 
-#define MAX_TYPE_ID_CHARS 7 // 6 + 1 for /0 (string, float, int)
+#define MAX_KEYWORD_CHARS 9 // 8 + 1 for /0 (function + '\0')
 
 int tokenInit(token_t * token) {
     token = malloc(sizeof(token_t));
@@ -103,8 +103,8 @@ int checkForPrologue(FILE * fp) {
     return strcmp(loadedChars, prologue);
 }
 
-int fillStrWithTypeID(string_t * s, FILE * fp) {
-    char buff[MAX_TYPE_ID_CHARS];
+int fillStrWithKeyword(string_t * s, FILE * fp) {
+    char buff[MAX_KEYWORD_CHARS];
     int c = getc(fp);
     int i = 0;
 
@@ -112,7 +112,7 @@ int fillStrWithTypeID(string_t * s, FILE * fp) {
         buff[i++] = c;
         c = getc(fp);
 
-        if (i == MAX_TYPE_ID_CHARS) {
+        if (i == MAX_KEYWORD_CHARS) {
             return ERR_LEX_ANALYSIS;
         }
     }
@@ -241,13 +241,19 @@ int scanToken(token_t * token) {
                 break;
             case S_ADDITION:
                 token->type = TOK_PLUS;
+                stringDestroy(str);
                 return SUCCESS;
             case S_SUBTRACT:
+                token->type = TOK_MINUS;
+                stringDestroy(str);
+                return SUCCESS;
             case S_MULTIPLY:
                 token->type = TOK_STAR;
+                stringDestroy(str);
                 return SUCCESS;
             case S_CONCAT:
                 token->type = TOK_DOT;
+                stringDestroy(str);
                 return SUCCESS;
             case S_EOL:
                 // todo: ??
@@ -415,7 +421,6 @@ int scanToken(token_t * token) {
                     fsmState = S_END;
                 }
                 break;
-
             case S_QSTN_MARK:
                 if (c == '>') {
                     token->type = TOK_END_PROLOGUE;
@@ -430,7 +435,7 @@ int scanToken(token_t * token) {
             case S_TYPE_ID:
                     // need to check for 'string', 'int' or 'float'
                     ungetc(c, fp);
-                    if (fillStrWithTypeID(str, fp) != SUCCESS) {
+                    if (fillStrWithKeyword(str, fp) != SUCCESS) {
                         return ERR_LEX_ANALYSIS;
                     }
 
