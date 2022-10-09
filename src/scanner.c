@@ -61,7 +61,7 @@ int checkKeyword(token_t * token, string_t * s) {
     return 1;
 }
 
-int convertStringToInt(string_t * s, token_t * token, FILE * fp) {
+void convertStringToInt(string_t * s, token_t * token, FILE * fp) {
     // todo: make it converting hexadecimal too
     char * endPtr;
 
@@ -78,8 +78,6 @@ void convertStringToDouble(string_t * s, token_t * token) {
 
     token->type = TOK_DEC_LIT;
     token->attribute.decVal = res;
-
-    stringDestroy(s);
 }
 
 int checkForPrologue(FILE * fp) {
@@ -235,7 +233,9 @@ int scanToken(token_t * token) {
                     fsmState = S_EOL;
                 } else if (isdigit(c)) {
                     fsmState = S_INT_LIT;
-                    ungetc(c, fp);
+                    if (strPushBack(str, c) != SUCCESS) {
+                        return ERR_INTERNAL;
+                    }
                 } else if(c == EOF) {
                     token->type = TOK_EOF;
                     stringDestroy(str);
@@ -321,13 +321,16 @@ int scanToken(token_t * token) {
                     }
                     break;
                 } else if (c == '.') {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
                     fsmState = S_STRT_DEC;
                     break;
                 } else if (c == 'E' || c == 'e') {
                     fsmState = S_STRT_EXP;
                     break;
                 }
-
                 convertStringToInt(str, token, fp);
                 stringDestroy(str);
                 return SUCCESS;
@@ -357,21 +360,31 @@ int scanToken(token_t * token) {
                 break;
             case S_STRT_DEC:
                 if (isdigit(c)) {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
                     fsmState = S_DEC_LIT;
+                    break;
                 } else {
-                    fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS;
+//                    fsmState = S_ERROR;
                 }
-                break;
             case S_DEC_LIT:
                 if (isdigit(c)) {
-                    fsmState = S_DEC_LIT;
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
                     break;
                 } else if (c == 'E' || c == 'e') {
                     fsmState = S_STRT_EXP;
                     break;
                 }
-                fsmState = S_END;
-                break;
+                convertStringToDouble(str, token);
+                stringDestroy(str);
+                return SUCCESS;
+//                fsmState = S_END;
             case S_STRT_STR:
                 if (c == '"') {
                     fsmState = S_STR_LIT;
