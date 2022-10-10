@@ -8,65 +8,96 @@
 #define PARSER_H
 
 #include <stdlib.h>
+#include "scanner.h"
 
-/**********************************************************************************   LL GRAMMAR   *****************************
-<program>  ->  <prolog> <units> <program_end>
-<prolog>  ->  "<?php" "declare(strict_types=1);"
-<units>  ->  <unit> <units>
-<units>  ->  ε
-<unit>  ->  <function_definition>
-<unit>  ->  <statements>
+#define CALL_RULE(ruleFunction)     \
+	do                              \
+	{                               \
+		int error = ruleFunction(); \
+		if (error != 0)             \
+			return error;           \
+	} while (0)
 
-<function_definition> ->  "function" ID "(" <params> ")" ":" <type> "{" EOL <statements> EOL "}" EOL
-<function_definition> ->  ε
-<params>  ->  <param> <param_n>
-<params>  ->  ε
-<param>  ->  <type> "$" ID
-<param_n>  ->  "," <type> "$" ID
-<param_n>  ->  ε
+/**
+ * @brief Initialize the parser
+ * @param
+ * @return Error code
+ */
+int initParser();
 
-<type>  ->  INT
-<type>  ->  STRING
-<type>  ->  FLOAT
+/**
+ * @brief Free all memory allocated by the parser
+ * @param
+ * @return Error code
+ */
+int destroyParser();
 
-<statements>  ->  <statement> <statements>
-<statements>  ->  ε
+/**
+ * @brief Get the next token from the scanner
+ * @param
+ * @return Error code
+ */
+int getNextToken();
 
-<statement>  ->  "$" ID "=" <assignment> ";"     // assignment
-<statement>  ->  "if" "(" <expression> ")" "{" <statements> "}" "else" "{" <statements> "}"     // conditional
-<statement>  ->  "while" "(" <expression> ")" "{" <statements> "}"     // loop
-<statement>  ->  ID "(" <arguments> ")" ";"     // function call sans assignment
-<statement>  ->  "return" <return_value> ";"     // return statement
+/**
+ * @brief Check the type of the current token
+ * @param TokenType Type of token to check against
+ * @return True if token types match, otherwise false
+ */
+bool checkTokenType(TokenType type);
 
-<assignment>  ->  <expression>
-<assignment>  ->  ID "(" <arguments> ")"     // assignment via function
+/**
+ * @brief Parse the source code
+ * @param
+ * @return Error code
+ */
+int parseSource();
 
-<arguments>  ->  <term> <argument_n>
-<arguments>  ->  ε
-<argument_n>  ->  "," <value>
-<argument_n>  ->  ε
+//###############################~~~RULES~~~#######
 
-<return_value>  ->  <expression>
-<return_value>  ->  ε
+// Rule #1
+int rProgram();
+// Rule #2
+int rProlog();
+// Rule #3
+int rUnits();
+// Rules #5, #6
+int rUnit();
+// Rule #7
+int rFunctionDefinition();
+// Rule #9
+int rParams();
+// Rule #11
+int rParam();
+// Rule #12
+int rParam_n();
+// Rules #14, #15, #16
+int rType();
+// Rules #17, #18, #19, #20, #21
+int rStatements();
+// Rule #23
+int rAssignmentStatement();
+// Rule #24
+int rConditionalStatement();
+// Rule #25
+int rWhileLoopStatement();
+// Rule #26
+int rFunctionCallStatement();
+// Rule #27
+int rReturnStatement();
+// Rules #28, #29
+int rAssignment();
+// Rule #30
+int rArguments();
+// Rule #32
+int rArgument_n();
+// Rule #34
+int rReturnValue();
+// Rules #36, #37, #38, #39, #40
+int rTerm();
+// Rule #41
+int rProgramEnd();
 
-<term>  ->  "$" ID
-<term>  ->  INT_LITERAL
-<term>  ->  STRING_LITERAL
-<term>  ->  FLOAT_LITERAL
-<term>  ->  NULL
-
-<program_end>  ->  "?>" EOF
-<program_end>  ->  EOF
-**********************************************************************************   LL GRAMMAR   *****************************/
-
-int parse_source();
-
-int r_program();
-
-int r_prolog();
-
-int r_units();
-
-int r_program_end();
+//#################################################
 
 #endif /* PARSER_H */

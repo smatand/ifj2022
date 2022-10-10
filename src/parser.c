@@ -6,12 +6,7 @@
 
 #include "parser.h"
 
-int r_program()
-{
-	return 0;
-}
-
-int parse_source()
+int parseSource()
 {
 	int error;
 	error = program();
