@@ -122,7 +122,71 @@ int fillStrWithKeyword(string_t * s, FILE * fp) {
     buff[i] = '\0';
 
     memcpy(s->str, buff, i); // s->str should contain DEFAULT_LEN (16) space
+    s->realLen = i;
 
+    return SUCCESS;
+}
+
+int fillStr(string_t * s, token_t * token, FILE * fp, int flag) {
+    char * buff = calloc(1, MAX_KEYWORD_CHARS);
+    if (buff == NULL) {
+        fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+        return ERR_INTERNAL;
+    }
+
+    int c = getc(fp);
+    int i = 0;
+
+    while (c != EOF && !isspace(c) && c != '=') {
+        buff[i++] = c;
+        c = getc(fp);
+
+        if (i == MAX_KEYWORD_CHARS) {
+            // flag 1 defines the function is meant for keywords
+            if (flag == 1) {
+                free(buff);
+                fprintf(stderr, "%d ERROR LEX, MAX_SIZE OF KEYWORD REACHED\n", __LINE__);
+                return ERR_LEX_ANALYSIS;
+            }
+
+            buff = realloc(1, i + MAX_KEYWORD_CHARS);
+            if (buff == NULL) {
+                //free(buff);
+                fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+                return ERR_INTERNAL;
+            }
+        }
+    }
+
+    if (c == EOF) {
+        free(buff);
+        fprintf(stderr, "%d ERROR EOF REACHED\n", __LINE__);
+        return ERR_LEX_ANALYSIS; // TODO: what ?
+    }
+
+    buff[i] = '\0';
+
+    if (stringResize(s, i + MAX_KEYWORD_CHARS) != SUCCESS) {
+        free(buff);
+        fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+        return ERR_INTERNAL;
+    }
+    memcpy(s->str, buff, i);
+    s->realLen = i;
+
+    // if not keyword, attach the string to the attribute.strVal
+    if (flag != 1) {
+        token->type = TOK_IDENTIFIER;
+        token->attribute.strVal = calloc(1, s->realLen);
+        if (token->attribute.strVal == NULL) {
+            free(buff);
+            fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+            return ERR_INTERNAL;
+        }
+        memcpy(token->attribute.strVal, s->str, s->realLen);
+        stringDestroy(s);
+    }
+    free(buff);
     return SUCCESS;
 }
 
@@ -365,8 +429,8 @@ int scanToken(token_t * token) {
                     fsmState = S_EXP_LIT;
                 } else {
 //                    fsmState = S_ERROR;
-                    return ERR_LEX_ANALYSIS;
                     stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
                 }
                 break;
             case S_EXP_LIT:
@@ -495,18 +559,25 @@ int scanToken(token_t * token) {
                     return ERR_LEX_ANALYSIS;
             case S_STRT_VAR:
                 if (isalpha(c) || '_') {
-                    fsmState = S_VAR_ID;
+//                    fsmState = S_VAR_ID; // DELETE THIS STATE MAYBE
+                    ungetc(c, fp);
+//                    if (fillStrWithKeyword(str, fp)) != SUCCESS {
+//                        return ERR_LEX_ANALYSIS;
+//                    };
+                    int ret = fillStr(str, token, fp, 0);
+                    return ret;
                 } else {
-                    fsmState = S_ERROR;
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
                 }
                 break;
-            case S_VAR_ID:
-                if (isalnum(c) || c == '_') {
-                    fsmState = S_VAR_ID;
-                } else {
-                    fsmState = S_ERROR;
-                }
-                break;
+//            case S_VAR_ID:
+//                if (isalnum(c) || c == '_') {
+//                    strPushBack(str, c);
+//                } else {
+////                    fsmState = S_ERROR;
+//                }
+//                break;
             case S_SLASH:
                 if (c == '/') {
                     fsmState = S_S_COMMENT;

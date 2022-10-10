@@ -68,6 +68,9 @@ int main() {
             case TOK_DEC_LIT:
                 printf("TOK_DEC_LIT: %f\n", token->attribute.decVal);
                 break;
+            case TOK_IDENTIFIER:
+                printf("TOK_IDENTIFIER: %s\n", token->attribute.strVal);
+                break;
             default:
                 printf("unknown");
                 break;

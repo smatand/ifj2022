@@ -151,12 +151,29 @@ void freeToken(token_t * token);
 int checkKeyword(token_t * token, string_t * s);
 
 /**
+ * @brief Fills s->str with following string
+ * @param s struct to operate with
+ * @param fp file pointer
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
+int fillStrWithKeyword(string_t * s, FILE * fp) {
+
+/**
  * @brief Converts string to integer
  * @param s string to be converted
  * @param token token to be operated with
  */
 void convertStringToInt(string_t * s, token_t * token);
 
+/**
+ * @brief Fills string with characters
+ * @param s struct to operate with
+ * @param token struct to operate with for declaring type, attributes
+ * @param flag 1 for keyword, 0 for other
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
+ */
+int fillStr(string_t * s, token_t * token, FILE * fp, int flag);
 /**
  * @brief Converts string to double
  * @param s string to be converted

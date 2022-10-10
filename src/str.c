@@ -43,8 +43,15 @@ int lookAheadByOneChar(FILE * fp) {
     return ret;
 }
 
-int stringResize(string_t * s) {
+int stringResize(string_t * s, int toSize) {
+    s->str = realloc(s->str, toSize);
+    if (s->str == NULL) {
+        return ERR_INTERNAL;
+    }
 
+    s->allocatedSize = toSize; // incrementing by DEFAULT_LEN
+
+    return SUCCESS;
 }
 
 int strPushBack(string_t * s, int c) {

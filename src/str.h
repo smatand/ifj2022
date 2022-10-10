@@ -39,4 +39,13 @@ int lookAheadByOneChar(FILE * fp);
  * @return SUCCESS, otherwise ERR_INTERNAL
  */
 int strPushBack(string_t * s, int c);
+
+/**
+ * @brief Resizes string
+ * @param s struct to operate with
+ * @param toSize new size
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
+ */
+int stringResize(string_t * s, int toSize) {
 #endif // STR_H
