@@ -1,7 +1,7 @@
 /**
  * @file parser.h
  *
- * @brief Implementation of parser module for IFJ22
+ * @brief Parser interface
  */
 
 #ifndef PARSER_H
@@ -18,12 +18,18 @@
 			return error;           \
 	} while (0)
 
+typedef struct Parser
+{
+	// TODO: symtable, bools, etc.
+	scanner_t* scanner;
+} Parser_t;
+
 /**
  * @brief Initialize the parser
  * @param
  * @return Error code
  */
-int initParser();
+Parser_t* initParser();
 
 /**
  * @brief Free all memory allocated by the parser

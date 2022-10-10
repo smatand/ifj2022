@@ -1,3 +1,9 @@
+/**
+ * @file syntax_rules.h
+ *
+ * @brief Implementation of syntax rules for IFJ22
+ */
+
 #include "parser.h"
 
 int rProgram()
