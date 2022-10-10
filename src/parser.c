@@ -6,12 +6,33 @@
 
 #include "parser.h"
 
-int r_program()
+Parser_t* initParser(FILE *stream)
 {
-	return 0;
+	Parser_t* parser = malloc(sizeof(Parser_t));
+	if (parser == NULL)
+	{
+		fprintf(stderr, "Memory allocation failed: Struct --- parser.");
+		return NULL;
+	}
+
+	parser->scanner = scannerInit(stream);
+	if (parser->scanner == NULL)
+	{
+		free(parser);
+		return NULL;
+	}
+
+	return parser;
 }
 
-int parse_source()
+int destroyParser(Parser_t* parser)
+{
+	// TODO: destroyScanner(parser->scanner);
+	// free(parser);
+	// parser = NULL;
+}
+
+int parseSource()
 {
 	int error;
 	error = program();
