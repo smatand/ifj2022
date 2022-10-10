@@ -1,88 +1,90 @@
-/**
- * @file scanner.h
- *
- * @brief Scanner interface
- */
-
 #ifndef SCANNER_H
 #define SCANNER_H
 
-#include <stdbool.h>
-#include <stdio.h>
+#include "str.h"
 
-// php 
+/** @brief Types of tokens */
 typedef enum {
     // initial type
     TOK_EMPTY,
 
-    // single characters
-    TOK_LEFT_PAREN,     /* ( */
-    TOK_RIGHT_PAREN,    /* ) */
-    TOK_SEMICOLON,      /* ; */
-    TOK_COLON,          /* : */
-    TOK_COMMA,          /* , */
-    TOK_LEFT_BRACE,     /* { */
-    TOK_RIGHT_BRACE,    /* } */
+    // single chars
+    TOK_LEFT_PAREN,
+    TOK_RIGHT_PAREN,
+    TOK_LEFT_BRACE,
+    TOK_RIGHT_BRACE,
+    TOK_SEMICOLON,
+    TOK_COLON,
+    TOK_COMMA,
 
     // operators
-    TOK_DOT,                    /* . */
-    TOK_MINUS,                  /* - */
-    TOK_PLUS,                   /* + */
-    TOK_SLASH,                  /* / */
-    TOK_STAR,                   /* * */
-    TOK_NEG_COMPARISON,         /* !== */
-    TOK_ASSIGN,                 /* =   */
-    TOK_COMPARISON,             /* === */
-    TOK_GREATER,                /* >   */
-    TOK_GREATER_EQUAL,          /* >=  */
-    TOK_LESS,                   /* <   */
-    TOK_LESS_EQUAL,             /* <=  */
+    TOK_DOT,
+    TOK_MINUS,
+    TOK_PLUS,
+    TOK_SLASH,
+    TOK_STAR,
+    TOK_NEG_COMPARISON,
+    TOK_ASSIGN,
+    TOK_COMPARISON,
+    TOK_GREATER,
+    TOK_GREATER_EQUAL,
+    TOK_LESS,
+    TOK_LESS_EQUAL,
 
     // identifiers
-    TOK_VAR_ID,                 /* $foo */
-    TOK_TYPE_ID,                /* ?foo */
-    TOK_FUN_ID,                 /* built-in or user made function IDs */
-    
+    TOK_IDENTIFIER,     // $foo
+    TOK_TYPE_ID,        // ?foo
+    TOK_FUN_ID,         // built-in or user made function IDs
+
     // literals
-    TOK_STRING_LIT,             /* "foo" */
-    TOK_INT_LIT,                /* 123 */
-    TOK_DEC_LIT,                /* 123.123 */
-    TOK_EXP_LIT,                /* integer or decimal with an exponent */
-    
-    // keywords
-    TOK_ELSE,                  /* else */
-    TOK_FLOAT,                 /* float */
-    TOK_FUNCTION,              /* function */
-    TOK_IF,                    /* if */
-    TOK_INT,                   /* int */
-    TOK_NULL,                  /* null */
-    TOK_RETURN,                /* return */
-    TOK_STRING,                /* string */
-    TOK_VOID,                  /* void */
-    TOK_WHILE,                 /* while */
-    TOK_TRUE,                  /* true */
-    TOK_FALSE,                 /* false */
+    TOK_STRING_LIT,
+    TOK_INT_LIT,
+    TOK_DEC_LIT,
 
-    TOK_PROLOGUE,               /* <? */
-    TOK_END_SIGN,               /* ?> */
+    // keyword
+    TOK_KEYWORD,
 
-} TokenType;
+    TOK_PROLOGUE,
+    //TOK_KEY_ID
+    TOK_END_PROLOGUE,
 
+    TOK_EOF
+} tokenType_t;
+
+/** @brief Keywords */
+typedef enum {
+    KW_IF,
+    KW_ELSE,
+    KW_INT,
+    KW_FLOAT,
+    KW_FUNCTION,
+    KW_NULL,
+    KW_RETURN,
+    KW_STRING,
+    KW_VOID,
+    KW_WHILE,
+    KW_TRUE,
+    KW_FALSE,
+} keyword_t;
+
+/** @brief Structure that holds the token properties */
+typedef struct {
+    tokenType_t type;
+    union {
+        int intVal;
+        double decVal;
+        char * strVal;
+        keyword_t kwVal;
+    } attribute;
+} token_t;
+
+/** @brief States for FSM */
 typedef enum {
     // end states
     S_START,
-    S_L_PARENTH, // left parenthesis
-    S_R_PARENTH, // right parenthesis
-    S_SEMICOLON, 
-    S_COLON,
-    S_COMA,
-    S_L_BRACE, // left curly brackets
-    S_R_BRACE, // right curly brackets
     S_NEG_COMP, // negative comparison
-    S_COMP, // comparison
     S_GREATER_EQ, // greater or equals
     S_LESSER_EQ, // lesser or equals
-    S_PROLOGUE,
     S_ADDITION,
     S_SUBTRACT,
     S_MULTIPLY,
@@ -98,12 +100,14 @@ typedef enum {
     S_STRT_COMP, // start comparison
     S_LESSER,
     S_GREATER,
+
     S_INT_LIT, // integer literal
     S_STRT_EXP, // start exponent
     S_MID_EXP, // mid exponent
     S_EXP_LIT, // exponent literal
     S_STRT_DEC, // start decimal
     S_DEC_LIT, // decimal literal
+
     S_STRT_STR, // start string
     S_STRT_ESCP_SQNC, // start escape sequence
     S_HEX_SCP_SQNC, // hexadecimal escape sequence
@@ -123,133 +127,66 @@ typedef enum {
     S_EOL_COUNT,
     S_EOL,
     S_EOF,
+} machineState_t;
 
-} MachineState;
-
-/** @brief Structure that holds strings(data), their allocated memory size and current character count. */
-typedef struct {
-    char *data;
-    size_t currLen;
-    size_t memSize; // old size of the string
-} string_t;
-
-/** @brief Structure that holds strings(data) that make the given token, token types, and the line they're on. */
-typedef struct {
-    TokenType type;
-    string_t * string;
-    int line;
-
-    // just one of the following will be used
-    union {
-        int intVal;
-        double decVal;
-        char * strVal;
-    } attribute;
-} token_t;
-
-/** @brief Structure that holds the current token, current state of the FSM, source stream and the current line's number. */
-typedef struct {
-    token_t * token;
-    MachineState state;
-    FILE *stream;
-    int currLine;
-} scanner_t;
-
-
-/** @brief Structure that holds a token, and the pointer to the next node. */
-typedef struct TokenNode token_node_t;
-
-struct TokenNode{
-    token_t token;
-    token_node_t * next;
-};
-
-/** @brief Structure that holds a the first and last node of the list (head and tail). */
-typedef struct {
-    token_node_t * head;
-    token_node_t * tail;
-} token_list_t;
+/** 
+ * @brief Allocate memory for token
+ * @param token token to operate with
+ * 
+ * @return SUCCESS, otherwise ERR_INTERNAL
+ */
+int tokenInit(token_t * token);
 
 /**
- * @brief Allocates and initializes a scanner structure.
- * @param stream input stream
- * @return Initialized scanner struct, or NULL on failure.
+ * @brief Frees token
+ * @param token token to operate with
  */
-scanner_t * scannerInit(FILE *stream);
+void freeToken(token_t * token);
 
 /**
- * @brief Allocates and initializes a token structure in a scanner structure.
- * @param scanner target scanner struct 
- * @return Initialized token struct, or NULL on failure.
+ * @brief Checks for keyword (TOK_KEYWORD)
+ * 
+ * @return 0 in case of no keyword, otherwise 1 in case it is keyword
  */
-token_t * token_init(scanner_t * scanner);
+int checkKeyword(token_t * token, string_t * s);
 
 /**
- * @brief Allocates and initializes a string structure, and memory for the data in it.
- * @return Initialized string struct, or NULL on failure.
- */
-string_t * stringInit();
+ * @brief Fills s->str with following string
+ * @param s struct to operate with
+ * @param fp file pointer
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
+int fillStrWithKeyword(string_t * s, FILE * fp) {
 
 /**
- * @brief Allocates and initializes a TK_list structure.
- * @return Initialized TK_list structure, or NULL on failure.
+ * @brief Converts string to integer
+ * @param s string to be converted
+ * @param token token to be operated with
  */
-token_list_t * listInit();
+void convertStringToInt(string_t * s, token_t * token);
 
 /**
- * @brief Allocates and initializes a TK_node structure.
- * @return Initialized TK_node structure, or NULL on failure.
+ * @brief Fills string with characters
+ * @param s struct to operate with
+ * @param token struct to operate with for declaring type, attributes
+ * @param flag 1 for keyword, 0 for other
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
  */
-token_node_t * nodeInit();
+int fillStr(string_t * s, token_t * token, FILE * fp, int flag);
+/**
+ * @brief Converts string to double
+ * @param s string to be converted
+ * @param token token to be operated with
+ */
+void convertStringToDouble(string_t * s, token_t * token);
 
 /**
- * @brief State changer of the final state machine.
- * @param currState current state of the machine
- * @param c character from the next lexeme
- */
-MachineState transition(MachineState currState, int c);
+ * @brief Scans token
+ * @param token for return
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
+ */ 
+int scanToken(token_t * token);
 
-/**
- * @brief If the current allocated memory for data in a string structure is not enough, reallocates.
- * @param currString current string 
- * @return Reallocated memory for data, or NULL on failure.
- */
-bool resize(string_t * currString);
-
-/**
- * @brief Takes a character from the stream, and omits it back.
- * @param scanner target scanner struct
- * @return First character from stream (int c).
- */
-int getChar(scanner_t * scanner);
-
-/**
- * @brief Puts a character into a string struct's data.
- * @param currString current string
- * @param c character to be input
- * @return True on success, false on resize error.
- */
-bool charPushBack(string_t * currString, int c);
-
-/**
- * @brief Converts a string to Integer.
- * @param str string to be converted
- * @return Integer value of the string.
- */
-int convertStringToInt(string_t * str);
-
-/**
- * @brief Converts a string to Double.
- * @param str string to be converted
- * @return Double value of the string.
- */
-double convertStringToDouble(string_t * str);
-
-/**
- * @brief Checks if the string is a keyword.
- * @param str string to be checked
- * @return True if the string is a keyword, false otherwise.
- */
-bool checkKeyword(string_t * str, token_t * token);
-
-#endif /* SCANNER_H */
+#endif // SCANNER_H

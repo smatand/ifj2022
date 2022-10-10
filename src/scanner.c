@@ -1,498 +1,635 @@
-/**
- * @file scanner.c
- *
- * @brief Implementation of scanner module for IFJ22
- */
-
 #include "scanner.h"
-#include <ctype.h>
+#include "error.h"
+#include "str.h"
+
 #include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
+#include <stdio.h>
+#include <string.h> // strcmp()
+#include <ctype.h> // isalpha()
 
-#define INIT_SIZE 8
-#define GROWTH 2
+#define MAX_KEYWORD_CHARS 9 // 8 + 1 for /0 (function + '\0')
 
-#define LEX_ERROR 1
-
-scanner_t * scannerInit(FILE *stream){
-    scanner_t * scanner = calloc(1, sizeof(scanner_t));
-    if(scanner == NULL){
-        fprintf(stderr, "Memory allocation failed: Struct --- scanner.");
-        return NULL;
+int tokenInit(token_t * token) {
+    token = malloc(sizeof(token_t));
+    if (token == NULL) {
+        fprintf(stderr, "Memory allocation of token_t failed");
+        return ERR_INTERNAL;
     }
 
-    scanner->state = S_START;
-    scanner->stream = stream;
-    scanner->currLine = 1;
+    token->type = TOK_EMPTY;
 
-    scanner->token = tokenInit(scanner);
-    if(scanner->token == NULL){
-        free(scanner);
-        return NULL;
-    }
-
-    return scanner;
+    return SUCCESS;
 }
 
-token_t * tokenInit(scanner_t * scanner){
-    token_t * currToken = calloc(1, sizeof(token_t));
-    if(currToken == NULL){
-        fprintf(stderr, "Memory allocation failed: Struct --- token.");
-        return NULL;
-    }
-
-    currToken->line = scanner->currLine;
-
-    currToken->string = stringInit();
-    if(currToken->string == NULL){
-        free(currToken);
-        return NULL;
-    }
-
-    return currToken;
+void freeToken(token_t * token) {
+    free(token);
 }
 
-string_t * stringInit(){
-    string_t * currString = calloc(1, sizeof(string_t));
-    if(currString == NULL){
-        fprintf(stderr, "Memory allocation failed: Struct --- string.");
-        return NULL;
-    }
-
-    currString->memSize = INIT_SIZE;
-
-    currString->data = calloc(INIT_SIZE, sizeof(char));
-    if(currString->data == NULL){
-        fprintf(stderr, "Memory allocation failed: Char* --- data.");
-        free(currString);
-        return NULL;
-    }
-    
-    return currString;
-}
-
-token_list_t * listInit(){
-    token_list_t * tokenList = calloc(1, sizeof(token_list_t));
-    if(tokenList == NULL){
-        fprintf(stderr, "Memory allocation failed: Struct --- TK_list.");
-        return NULL;
-    }
-    
-    return tokenList;
-}
-
-token_node_t * nodeInit(){
-    token_node_t * currNode = calloc(1, sizeof(token_node_t));
-    if(currNode == NULL){
-        fprintf(stderr, "Memory allocation failed: Struct --- TK_node.");
-        return NULL;
-    }
-
-    currNode->next = NULL;
-    
-    return currNode;
-}
-
-MachineState transition(MachineState currState, int c){
-    switch (currState)  {
-    case S_START:
-        if(c == ' ') {
-            return S_START;
-
-        } else if(c == '\t') {
-            return S_START;
-
-        } else if(c == '(') {
-            return S_L_PARENTH;
-
-        } else if(c == ')') {
-            return S_R_PARENTH;
-
-        } else if(c == ';') {
-            return S_SEMICOLON;
-
-        } else if(c == ':') {
-            return S_COLON;
-
-        } else if(c == ',') {
-            return S_COMA;
-
-        } else if(c == '{') {
-            return S_L_BRACE;
-
-        } else if(c == '}') {
-            return S_R_BRACE;
-
-        } else if(c == '!') {
-            return S_STRT_NEG_COMP;
-
-        } else if (c == '=') {
-            return S_ASSIGN;
-
-        } else if (c == '<') {
-            return S_LESSER;
-
-        } else if (c == '>') {
-            return S_GREATER;
-
-        } else if (c == '+') { 
-            return S_ADDITION;
-
-        } else if (c == '-') { 
-            return S_SUBTRACT;
-
-        } else if (c == '*') { 
-            return S_MULTIPLY;
-            
-        } else if (c == '.') { 
-            return S_CONCAT;
-            
-        } else if (isdigit(c)) { 
-            return S_SUBTRACT;
-            
-        } else if (c == '"') { 
-            return S_STR_LIT;
-            
-        } else if (c == '-') { 
-            return S_SUBTRACT;
-            
-        }  else if(c == '_' || isalpha(c)) {
-            return S_KEYW_OR_ID;
-
-        } else if(c == '?') {
-            return S_QSTN_MARK;
-
-        } else if(c == '$') {
-            return S_STRT_VAR;
-
-        } else if(c == '/') {
-            return S_SLASH;
-
-        } else if(c == '\n') {
-            return S_EOL;
-
-        } else if(c == EOF) {
-            return S_EOF;
-
-        }
-    case S_L_PARENTH:
-        return S_START;
-
-    case S_R_PARENTH:
-        return S_START;
-
-    case S_SEMICOLON:
-        return S_START;
-
-    case S_COLON:
-        return S_START;
-
-    case S_COMA:
-        return S_START;
-
-    case S_L_BRACE:
-        return S_START;
-
-    case S_R_BRACE:
-        return S_START;
-
-    case S_ADDITION:
-        return S_START;
-
-    case S_SUBTRACT:
-        return S_START;
-
-    case S_MULTIPLY:
-        return S_START;
-
-    case S_CONCAT:
-        return S_START;
-
-    case S_EOL:
-        return S_START;
-
-    case S_EOF:
-        return S_START;
-
-    case S_STRT_NEG_COMP:
-        if(c == '='){return S_MID_NEG_COMP;} 
-        return S_ERROR;
-
-    case S_MID_NEG_COMP:
-        if(c == '='){return S_NEG_COMP;}
-        return S_ERROR;
-
-    case S_ASSIGN:
-        if(c == '='){return S_STRT_COMP;}
-        return S_END;
-
-    case S_STRT_COMP:
-        if(c == '='){return S_COMP;}
-        return S_ERROR;
-
-    case S_GREATER:
-        if(c == '='){return S_GREATER_EQ;}
-        return S_END;
-
-    case S_LESSER:
-        if(c == '='){
-            return S_LESSER_EQ;
-
-        } else if(c == '?'){
-            return S_PROLOGUE;
-
-        } 
-        return S_END;
-
-    case S_INT_LIT:
-        if(isdigit(c)){
-            return S_INT_LIT;
-
-        } else if(c == '.'){
-            return S_STRT_DEC;
-
-        } else if(c == 'E' || c == 'e'){
-            return S_STRT_EXP;
-
-        }
-        return S_END;
-
-    case S_STRT_EXP:
-        if(c == '+' || c == '-'){
-            return S_MID_EXP;
-
-        } else if(isdigit(c)){
-            return S_EXP_LIT;
-
-        }
-        return S_ERROR;
-
-    case S_MID_EXP:
-        if(isdigit(c)){return S_EXP_LIT;}
-        return S_ERROR;
-
-    case S_EXP_LIT:
-        if(isdigit(c)){return S_EXP_LIT;}
-        return S_END;
-
-    case S_STRT_DEC:
-        if(isdigit(c)){return S_DEC_LIT;}
-        return S_ERROR;
-
-    case S_DEC_LIT:
-        if(isdigit(c)){
-            return S_DEC_LIT;
-
-        } else if(c == 'E' || c == 'e'){
-            return S_STRT_EXP;
-
-        }
-        return S_END;
-    case S_STRT_STR:
-        if (c == '"'){
-            return S_STR_LIT;
-
-        } else if(c == '\\'){
-            return S_STRT_ESCP_SQNC;
-
-        } else if(c == EOF){
-            return S_ERROR;
-
-        }
-        return S_STRT_STR;
-
-    case S_STRT_ESCP_SQNC:
-        if (c == 'x'){
-            return S_HEX_SCP_SQNC;
-
-        } else if(c < 47 && c > 57){ // [0-8]
-            return S_OCT_SCP_SQNC;
-
-        } else if(c == 't' || c == 'n' || c == '"' || c == '$' || c == '\\'){
-            return S_SNGL_SCP_SQNC;
-
-        } else if(c == EOF){
-            return S_ERROR;
-
-        }
-        return S_STRT_STR;
-
-    case S_HEX_SCP_SQNC:
-        if(isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)){ // [0-9] [a-f] [A-F]
-            return S_HEX_SCP_SQNC;
-
-        } else if(c == EOF){
-            S_ERROR;
-
-        }
-        return S_STRT_STR;
-
-    case S_OCT_SCP_SQNC:
-        if(c < 47 && c > 57){
-            return S_OCT_SCP_SQNC;
-
-        } else if(c == EOF){
-            return S_ERROR;
-
-        }
-        return S_STRT_STR;
-    
-    case S_KEYW_OR_ID:
-        if (isalnum(c) || c == '_'){
-            return S_KEYW_OR_ID;
-
-        }
-        return S_END;
-
-    case S_QSTN_MARK:
-        if(c == '>'){
-            return S_END_SIGN;
-
-        } else if((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a'){ // in FSM => TypeChar
-            return S_TYPE_ID;
-
-        }
-        return S_ERROR;
-
-    case S_TYPE_ID:
-        if((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a'){ // in FSM => TypeChar
-            return S_END;
-        
-        }
-    case S_STRT_VAR:
-        if (isalpha(c) || '_'){
-            return S_VAR_ID;
-
-        }
-        return S_ERROR;
-        
-    case S_VAR_ID:
-        if(isalnum(c) || c == '_'){
-            return S_VAR_ID;
-
-        }
-        return S_ERROR;
-
-    case S_SLASH:
-        if(c == '/'){
-            return S_S_COMMENT;
-
-        } else if(c == '*'){
-            return S_M_COMMENT;
-
-        }
-        return S_END;
-
-    case S_S_COMMENT:
-        if(c == EOF || c == '\n'){
-            return S_S_COMMENT;
-
-        }
-        return S_END;
-
-    case S_STRT_M_COMMENT:
-        if(c == '*'){
-            return S_M_COMMENT_FIN;
-
-        } else if(c == '\n'){
-            return S_EOL_COUNT;
-
-        } else if(c == EOF){
-            return S_ERROR;
-
-        }
-        return S_STRT_M_COMMENT;
-
-    case S_EOL_COUNT:
-        if(c == EOF){
-            return S_ERROR;
-
-        }
-        return S_STRT_M_COMMENT;
-
-    case S_M_COMMENT_FIN:
-        if(c == '/'){
-            return S_M_COMMENT;
-
-        }
-        return S_ERROR;
-    }
-}
-
-bool resize(string_t * currString){
-    size_t oldSize = currString->memSize;
-    if((currString->currLen+1) == currString->memSize){
-        currString->memSize = currString->memSize * GROWTH;
-        void* data = realloc(currString, currString->memSize * sizeof(char));
-        
-        if(data == NULL){
-            return false;
-        }else{
-            currString->data = data;
-        }
-    }
-
-    memset(currString->data + oldSize, 0, oldSize);
-    return true;
-}
-
-int getChar(scanner_t * scanner){
-    int c = getc(scanner->stream);
-    ungetc(c, scanner->stream);
-
-    return c;
-}
-
-bool charPushBack(string_t * currString, int c){
-    if(resize(currString) == false){
-        return false;
-    }
-
-    currString->data[currString->currLen++] = (char)c;
-    return true;
-}
-
-int convertStringToInt(string_t * str) {
-    char * endPtr;
-
-    return strtol(str->data, &endPtr, 10);
-}
-
-double convertStringToDouble(string_t * str) {
-    char * endPtr;
-
-    return strtod(str->data, &endPtr);
-}
-
-bool checkKeyword(string_t * str, token_t * token) {
-    if (!strcmp(str->data, "else")) {
-        token->type = TOK_ELSE;
-    } else if (!strcmp(str->data, "float")) {
-        token->type = TOK_FLOAT;
-    } else if (!strcmp(str->data, "function")) {
-        token->type = TOK_FUNCTION;
-    } else if (!strcmp(str->data, "if")) {
-        token->type = TOK_IF;
-    } else if (!strcmp(str->data, "int")) {
-        token->type = TOK_INT;
-    } else if (!strcmp(str->data, "null")) {
-        token->type = TOK_NULL;
-    } else if (!strcmp(str->data, "return")) {
-        token->type = TOK_RETURN;
-    } else if (!strcmp(str->data, "string")) {
-        token->type = TOK_STRING;
-    } else if (!strcmp(str->data, "void")) {
-        token->type = TOK_VOID;
-    } else if (!strcmp(str->data, "while")) {
-        token->type = TOK_WHILE;
-    } else if (!strcmp(str->data, "true")) {
-        token->type = TOK_TRUE;
-    } else if (!strcmp(str->data, "false")) {
-        token->type = TOK_FALSE;
+int checkKeyword(token_t * token, string_t * s) {
+    if (!strcmp(s->str, "if")) {
+        token->attribute.kwVal = KW_IF;
+    } else if (!strcmp(s->str, "else")) {
+        token->attribute.kwVal = KW_ELSE;
+    } else if (!strcmp(s->str, "int")) {
+        token->attribute.kwVal = KW_INT;
+    } else if (!strcmp(s->str, "float")) {
+        token->attribute.kwVal = KW_FLOAT;
+    } else if (!strcmp(s->str, "function")) {
+        token->attribute.kwVal = KW_FUNCTION;
+    } else if (!strcmp(s->str, "null")) {
+        token->attribute.kwVal = KW_NULL;
+    } else if (!strcmp(s->str, "return")) {
+        token->attribute.kwVal = KW_RETURN;
+    } else if (!strcmp(s->str, "string")) {
+        token->attribute.kwVal = KW_STRING;
+    } else if (!strcmp(s->str, "void")) {
+        token->attribute.kwVal = KW_VOID;
+    } else if (!strcmp(s->str, "while")) {
+        token->attribute.kwVal = KW_WHILE;
+    } else if (!strcmp(s->str, "true")) {
+        token->attribute.kwVal = KW_TRUE;
+    } else if (!strcmp(s->str, "false")) {
+        token->attribute.kwVal = KW_FALSE;
     } else {
-        return false;
+        stringDestroy(s);
+        token->type = TOK_IDENTIFIER;
+        return 0; // no keyword found, it is ID
     }
 
-    return true;
+    stringDestroy(s);
+    token->type = TOK_KEYWORD;
+    return 1;
+}
+
+void convertStringToInt(string_t * s, token_t * token) {
+    // todo: make it converting hexadecimal too
+    char * endPtr;
+
+    int res = strtol(s->str, &endPtr, 10);
+
+    token->type = TOK_INT_LIT;
+    token->attribute.intVal = res;
+}
+
+void convertStringToDouble(string_t * s, token_t * token) {
+    char * endPtr;
+
+    double res = strtod(s->str, &endPtr);
+
+    token->type = TOK_DEC_LIT;
+    token->attribute.decVal = res;
+}
+
+int checkForPrologue(FILE * fp) {
+    // just simply get first 3 chars and compare them with "php"
+    char prologue[4] = "php";
+    
+    char loadedChars[4];
+    int c = 0;
+
+    for (int i=0; i<3; i++) {
+        c = getc(fp);
+
+        if (c != EOF) {
+            loadedChars[i] = c;
+        } else {
+            return ERR_LEX_ANALYSIS;
+        }
+    }
+    loadedChars[3] = '\0';
+
+    return strcmp(loadedChars, prologue);
+}
+
+int fillStrWithKeyword(string_t * s, FILE * fp) {
+    char buff[MAX_KEYWORD_CHARS];
+    int c = getc(fp);
+    int i = 0;
+
+    while (c != EOF && !isspace(c) && c != '=') {
+        buff[i++] = c;
+        c = getc(fp);
+
+        if (i == MAX_KEYWORD_CHARS) {
+            return ERR_LEX_ANALYSIS;
+        }
+    }
+    
+    if (c == EOF) {
+        return ERR_LEX_ANALYSIS;
+    }
+
+    buff[i] = '\0';
+
+    memcpy(s->str, buff, i); // s->str should contain DEFAULT_LEN (16) space
+    s->realLen = i;
+
+    return SUCCESS;
+}
+
+int fillStr(string_t * s, token_t * token, FILE * fp, int flag) {
+    char * buff = calloc(1, MAX_KEYWORD_CHARS);
+    if (buff == NULL) {
+        fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+        return ERR_INTERNAL;
+    }
+
+    int c = getc(fp);
+    int i = 0;
+
+    while (c != EOF && !isspace(c) && c != '=') {
+        buff[i++] = c;
+        c = getc(fp);
+
+        if (i == MAX_KEYWORD_CHARS) {
+            // flag 1 defines the function is meant for keywords
+            if (flag == 1) {
+                free(buff);
+                fprintf(stderr, "%d ERROR LEX, MAX_SIZE OF KEYWORD REACHED\n", __LINE__);
+                return ERR_LEX_ANALYSIS;
+            }
+
+            buff = realloc(1, i + MAX_KEYWORD_CHARS);
+            if (buff == NULL) {
+                //free(buff);
+                fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+                return ERR_INTERNAL;
+            }
+        }
+    }
+
+    if (c == EOF) {
+        free(buff);
+        fprintf(stderr, "%d ERROR EOF REACHED\n", __LINE__);
+        return ERR_LEX_ANALYSIS; // TODO: what ?
+    }
+
+    buff[i] = '\0';
+
+    if (stringResize(s, i + MAX_KEYWORD_CHARS) != SUCCESS) {
+        free(buff);
+        fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+        return ERR_INTERNAL;
+    }
+    memcpy(s->str, buff, i);
+    s->realLen = i;
+
+    // if not keyword, attach the string to the attribute.strVal
+    if (flag != 1) {
+        token->type = TOK_IDENTIFIER;
+        token->attribute.strVal = calloc(1, s->realLen);
+        if (token->attribute.strVal == NULL) {
+            free(buff);
+            fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+            return ERR_INTERNAL;
+        }
+        memcpy(token->attribute.strVal, s->str, s->realLen);
+        stringDestroy(s);
+    }
+    free(buff);
+    return SUCCESS;
+}
+
+int scanToken(token_t * token) {
+    FILE * fp = stdin; // IFJ22 will be read only from stdin
+
+    machineState_t fsmState = S_START;
+
+    int ret = 0;
+    string_t * str = stringInit(&ret);
+    if (ret != SUCCESS) {
+        return ERR_INTERNAL;
+    }
+
+    int c = 0;
+
+    while(1) {
+        c = getc(fp);
+        switch(fsmState) {
+            case S_START:
+                if(isspace(c)) {
+                    ;
+                } else if(c == '(') {
+                    token->type = TOK_LEFT_BRACE;
+                    stringDestroy(str);
+                    return SUCCESS;
+                } else if(c == ')') {
+                    token->type = TOK_RIGHT_BRACE;
+                    stringDestroy(str);
+                    return SUCCESS;
+                } else if(c == ';') {
+                    token->type = TOK_SEMICOLON;
+                    stringDestroy(str);
+                    return SUCCESS;
+                } else if(c == ':') {
+                    token->type = TOK_COLON;
+                    stringDestroy(str);
+                    return SUCCESS;
+                } else if(c == ',') {
+                    token->type = TOK_COMMA;
+                    stringDestroy(str);
+                    return SUCCESS;
+                } else if(c == '{') {
+                    token->type = TOK_LEFT_PAREN;
+                    stringDestroy(str);
+                    return SUCCESS;
+                } else if(c == '}') {
+                    token->type = TOK_RIGHT_PAREN;
+                    stringDestroy(str);
+                    return SUCCESS;
+                    /////////////////////////
+                } else if(c == '!') {
+                    stringDestroy(str);
+                    fsmState = S_STRT_NEG_COMP;
+                } else if (c == '=') {
+                    stringDestroy(str);
+                    fsmState = S_ASSIGN;
+                } else if (c == '<') {
+                    stringDestroy(str);
+                    // if there is a space behind the char, it is just the < operator
+                    if (lookAheadByOneChar(fp) != '=') {
+                        token->type = TOK_LESS;
+                        return SUCCESS;
+                    }
+                    fsmState = S_LESSER;
+                } else if (c == '>') {
+                    stringDestroy(str);
+                    if (lookAheadByOneChar(fp) != '=') {
+                        token->type = TOK_GREATER;
+                        return SUCCESS;
+                    }
+                    fsmState = S_GREATER;
+                } else if (c == '+') { 
+                    stringDestroy(str);
+                    token->type = TOK_PLUS;
+                    return SUCCESS;
+                } else if (c == '-') { 
+                    stringDestroy(str);
+                    token->type = TOK_MINUS;
+                    return SUCCESS;
+                } else if (c == '*') { 
+                    stringDestroy(str);
+                    token->type = TOK_STAR;
+                    return SUCCESS;
+//                    fsmState = S_MULTIPLY;
+                } else if (c == '.') { 
+                    stringDestroy(str);
+                    token->type = TOK_DOT;
+                    return SUCCESS;
+//                    fsmState = S_CONCAT;
+                } else if (c == '-') { 
+                    stringDestroy(str);
+                    token->type = TOK_MINUS;
+                    return SUCCESS;
+//                    fsmState = S_SUBTRACT;
+                } else if (c == '"') { 
+                    fsmState = S_STR_LIT;
+                }  else if(c == '_' || isalpha(c)) {
+                    fsmState = S_KEYW_OR_ID;
+                } else if(c == '?') {
+                    fsmState = S_QSTN_MARK;
+                } else if(c == '$') {
+                    fsmState = S_STRT_VAR;
+                } else if(c == '/') {
+                    fsmState = S_SLASH;
+                    token->type = TOK_SLASH;
+                } else if(c == '\n') {
+                    fsmState = S_EOL;
+                } else if (isdigit(c)) {
+                    fsmState = S_INT_LIT;
+                    if (strPushBack(str, c) != SUCCESS) {
+                        return ERR_INTERNAL;
+                    }
+                } else if(c == EOF) {
+                    token->type = TOK_EOF;
+                    stringDestroy(str);
+                    return SUCCESS;
+                }
+                break;
+            case S_ADDITION:
+                token->type = TOK_PLUS;
+                stringDestroy(str);
+                return SUCCESS;
+            case S_SUBTRACT:
+                token->type = TOK_MINUS;
+                stringDestroy(str);
+                return SUCCESS;
+            case S_MULTIPLY:
+                token->type = TOK_STAR;
+                stringDestroy(str);
+                return SUCCESS;
+            case S_CONCAT:
+                token->type = TOK_DOT;
+                stringDestroy(str);
+                return SUCCESS;
+            case S_EOL:
+                // todo: ??
+                fsmState = S_START;
+                break;
+            case S_STRT_NEG_COMP:
+                if (c == '=') {
+                    fsmState = S_MID_NEG_COMP;
+                } else {
+                    fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS;
+                }
+                break;
+            case S_MID_NEG_COMP:
+                if (c == '=') {
+                    token->type = TOK_NEG_COMPARISON;
+                    return SUCCESS;
+                } else {
+                    fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS;
+                }
+            case S_ASSIGN:
+                if (c == '=') {
+                    fsmState = S_STRT_COMP;
+                } else { 
+                    token->type = TOK_ASSIGN;
+                    return SUCCESS;
+                }
+                break;
+            case S_STRT_COMP:
+                if (c == '=') {
+                    token->type = TOK_COMPARISON;
+                    return SUCCESS;
+                } else {
+                    fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS;
+                }
+            case S_GREATER:
+                if (c == '=') {
+                    token->type = TOK_GREATER_EQUAL;
+                    return SUCCESS;
+                } else {
+                    fsmState = S_END;
+                }
+                break;
+            case S_LESSER:
+                if (c == '=') {
+                    token->type = TOK_LESS_EQUAL;
+                    return SUCCESS;
+                } else if (c == '?'){
+                    if(!checkForPrologue(fp)) {
+                        token->type = TOK_PROLOGUE;
+                        return SUCCESS;
+                    } else {
+                        return ERR_LEX_ANALYSIS; // prologue was not loaded
+                    }
+                } 
+            case S_INT_LIT:
+                if (isdigit(c)) {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        return ERR_INTERNAL;
+                    }
+                    break;
+                } else if (c == '.') {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_DEC;
+                    break;
+                } else if (c == 'E' || c == 'e') {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_EXP;
+                    break;
+                }
+                convertStringToInt(str, token);
+                stringDestroy(str);
+                return SUCCESS;
+            case S_STRT_EXP:
+                if (c == '+' || c == '-') {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_MID_EXP;
+                    break;
+                } else if (isdigit(c)) {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_EXP_LIT;
+                    break;
+                }
+                fsmState = S_ERROR;
+                break;
+            case S_MID_EXP:
+                if (isdigit(c)) {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_EXP_LIT;
+                } else {
+//                    fsmState = S_ERROR;
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
+                }
+                break;
+            case S_EXP_LIT:
+                if (isdigit(c)) {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                } else {
+                    fsmState = S_END;
+                }
+                convertStringToDouble(str, token);
+                return SUCCESS;
+                break;
+            case S_STRT_DEC:
+                if (isdigit(c)) {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_DEC_LIT;
+                    break;
+                } else {
+                    return ERR_LEX_ANALYSIS;
+//                    fsmState = S_ERROR;
+                }
+            case S_DEC_LIT:
+                if (isdigit(c)) {
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    break;
+                } else if (c == 'E' || c == 'e') {
+                    fsmState = S_STRT_EXP;
+                    break;
+                }
+                convertStringToDouble(str, token);
+                stringDestroy(str);
+                return SUCCESS;
+//                fsmState = S_END;
+            case S_STRT_STR:
+                if (c == '"') {
+                    fsmState = S_STR_LIT;
+                    break;
+                } else if (c == '\\') {
+                    fsmState = S_STRT_ESCP_SQNC;
+                    break;
+                } else if (c == EOF) {
+                    fsmState = S_ERROR;
+                    break;
+                }
+//                fsmState = S_STRT_STR;
+                break;
+            case S_STRT_ESCP_SQNC:
+                if (c == 'x') {
+                    fsmState = S_HEX_SCP_SQNC;
+                    break;
+                } else if (c < 47 && c > 57) { // [0-8]
+                    fsmState = S_OCT_SCP_SQNC;
+                    break;
+                } else if (c == 't' || c == 'n' || c == '"' || c == '$' || c == '\\') {
+                    fsmState = S_SNGL_SCP_SQNC;
+                    break;
+                } else if (c == EOF) {
+                    fsmState = S_ERROR;
+                    break;
+                }
+                fsmState = S_STRT_STR;
+                break;
+            case S_HEX_SCP_SQNC:
+                if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F]
+                    fsmState = S_HEX_SCP_SQNC;
+                    break;
+                } else if (c == EOF){
+                    S_ERROR;
+                    break;
+                }
+                fsmState = S_STRT_STR;
+                break;
+            case S_OCT_SCP_SQNC:
+                if (c < 47 && c > 57) {
+                    fsmState = S_OCT_SCP_SQNC;
+                    break;
+                } else if(c == EOF) {
+                    fsmState = S_ERROR;
+                    break;
+                }
+                fsmState = S_STRT_STR;
+                break;
+            case S_KEYW_OR_ID:
+                if (isalnum(c) || c == '_') {
+                    fsmState = S_KEYW_OR_ID;
+                } else {
+                    fsmState = S_END;
+                }
+                break;
+            case S_QSTN_MARK:
+                if (c == '>') {
+                    token->type = TOK_END_PROLOGUE;
+                    return SUCCESS;
+                } else if ((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a') { // in FSM => TypeChar
+                    ungetc(c, fp);
+                    fsmState = S_TYPE_ID;
+                    break;
+                }
+                stringDestroy(str);
+                return ERR_LEX_ANALYSIS;
+            case S_TYPE_ID:
+                    // need to check for 'string', 'int' or 'float'
+                    ungetc(c, fp);
+                    if (fillStrWithKeyword(str, fp) != SUCCESS) {
+                        return ERR_LEX_ANALYSIS;
+                    }
+
+                    if (!checkKeyword(token, str)) {
+                        // it doesn't match any keyword, throw err_lex
+                        // checkKeyword() already contains stringDestroy(str)
+                        return ERR_LEX_ANALYSIS;
+                    } else if ( token->attribute.kwVal == KW_STRING 
+                            ||  token->attribute.kwVal == KW_INT 
+                            ||  token->attribute.kwVal == KW_FLOAT
+                            || token->attribute.kwVal == KW_NULL ) {
+                        return SUCCESS; // token->type is set, attribute too
+                    }
+                    return ERR_LEX_ANALYSIS;
+            case S_STRT_VAR:
+                if (isalpha(c) || '_') {
+//                    fsmState = S_VAR_ID; // DELETE THIS STATE MAYBE
+                    ungetc(c, fp);
+//                    if (fillStrWithKeyword(str, fp)) != SUCCESS {
+//                        return ERR_LEX_ANALYSIS;
+//                    };
+                    int ret = fillStr(str, token, fp, 0);
+                    return ret;
+                } else {
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
+                }
+                break;
+//            case S_VAR_ID:
+//                if (isalnum(c) || c == '_') {
+//                    strPushBack(str, c);
+//                } else {
+////                    fsmState = S_ERROR;
+//                }
+//                break;
+            case S_SLASH:
+                if (c == '/') {
+                    fsmState = S_S_COMMENT;
+                    stringDestroy(str);
+                    break;
+                } else if (c == '*'){
+                    fsmState = S_M_COMMENT;
+                    stringDestroy(str);
+                    break;
+                }
+                fsmState = S_END;
+                break;
+            case S_S_COMMENT:
+                if (c == EOF || c == '\n') {
+                    token->type = TOK_EMPTY;
+                    return SUCCESS;
+                }
+                break;
+            // multiline comments
+            case S_M_COMMENT: 
+                if (c == '*') {
+                    int c2 = lookAheadByOneChar(fp);
+                    if (c2 == '/') {
+                        fsmState = S_M_COMMENT_FIN;
+                    }
+                    break;
+                } else if (c == '\n') {
+                    fsmState = S_EOL_COUNT;
+                    break;
+                } else if (c == EOF) {
+                    fsmState = S_ERROR; // TODO: is it really an error
+                    break;
+                }
+                break;
+            case S_EOL_COUNT:
+                if (c == EOF) {
+//                    fsmState = S_ERROR; // TODO: is it really an error
+                    return ERR_LEX_ANALYSIS;
+                } else {
+                    fsmState = S_STRT_M_COMMENT;
+                }
+                break;
+            case S_M_COMMENT_FIN:
+                if (c == '/') {
+                    token->type = TOK_EMPTY;
+                    return SUCCESS;
+                } else {
+//                   fsmState = S_ERROR;
+                    return ERR_LEX_ANALYSIS; // neither nested comment blocks should be there
+                }
+            }
+    }
+
+    return SUCCESS;
 }
