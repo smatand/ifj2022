@@ -483,11 +483,15 @@ int scanToken(token_t * token) {
                 break;
             case S_HEX_SCP_SQNC:
                 if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F]
-                    fsmState = S_HEX_SCP_SQNC;
+                    int temp = lookAheadByOneChar(fp);
+                    if(isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103){
+                        
+                    }
                     break;
                 } else if (c == EOF){
-                    S_ERROR;
-                    break;
+                    token->type = TOK_ERROR;
+                    strcpy(token->attribute.strVal, str->str);
+                    return ERR_LEX_ANALYSIS;
                 }
                 fsmState = S_STRT_STR;
                 break;
