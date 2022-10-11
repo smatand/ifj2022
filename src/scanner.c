@@ -246,7 +246,7 @@ int scanToken(token_t * token) {
                     fsmState = S_ASSIGN;
                 } else if (c == '<') {
                     stringDestroy(str);
-                    // if there is a char other than '=' after the first '=', it is just the < operator
+                    // if there is a char other than '=' or '?' after the first '=', it is just the < operator
                     if (lookAheadByOneChar(fp) != '=' || lookAheadByOneChar(fp) != '?') {
                         token->type = TOK_LESS;
                         return SUCCESS;
