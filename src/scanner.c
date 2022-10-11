@@ -261,7 +261,6 @@ int scanToken(token_t * token) {
                         token->type = TOK_GREATER_EQUAL;
                         return SUCCESS;
                     }
-                    fsmState = S_GREATER;
                 } else if (c == '+') { 
                     stringDestroy(str);
                     token->type = TOK_PLUS;
