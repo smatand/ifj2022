@@ -339,8 +339,6 @@ int scanToken(token_t * token) {
                 if (c == '=') {
                     token->type = TOK_GREATER_EQUAL;
                     return SUCCESS;
-                } else {
-                    fsmState = S_END;
                 }
                 break;
             case S_LESSER:
