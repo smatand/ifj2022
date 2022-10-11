@@ -278,7 +278,7 @@ int scanToken(token_t * token) {
                     token->type = TOK_DOT;
                     return SUCCESS;
                 } else if (c == '"') { 
-                    fsmState = S_STR_LIT;
+                    fsmState = S_STRT_STR;
                 }  else if(c == '_' || isalpha(c)) {
                     fsmState = S_KEYW_OR_ID;
                 } else if(c == '?') {
@@ -447,16 +447,22 @@ int scanToken(token_t * token) {
 //                fsmState = S_END;
             case S_STRT_STR:
                 if (c == '"') {
-                    fsmState = S_STR_LIT;
-                    break;
+                    token->type = TOK_STRING_LIT;
+                    token->attribute.strVal = str->str;
+                    return SUCCESS;
                 } else if (c == '\\') {
                     fsmState = S_STRT_ESCP_SQNC;
-                    break;
                 } else if (c == EOF) {
-                    fsmState = S_ERROR;
-                    break;
+                    token->type = TOK_ERROR;
+                    token->attribute.strVal = str->str;
+                    return ERR_LEX_ANALYSIS;
+                } else { // else it is part of string literal
+                    if (strPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
                 }
-//                fsmState = S_STRT_STR;
                 break;
             case S_STRT_ESCP_SQNC:
                 if (c == 'x') {
