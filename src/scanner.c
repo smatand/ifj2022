@@ -346,6 +346,7 @@ int scanToken(token_t * token) {
                         token->type = TOK_PROLOGUE;
                         return SUCCESS;
                     } else {
+                        token->type = TOK_ERROR;
                         return ERR_LEX_ANALYSIS; // prologue was not loaded
                     }
                 } 
