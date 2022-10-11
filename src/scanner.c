@@ -299,22 +299,6 @@ int scanToken(token_t * token) {
                     return SUCCESS;
                 }
                 break;
-            case S_ADDITION:
-                token->type = TOK_PLUS;
-                stringDestroy(str);
-                return SUCCESS;
-            case S_SUBTRACT:
-                token->type = TOK_MINUS;
-                stringDestroy(str);
-                return SUCCESS;
-            case S_MULTIPLY:
-                token->type = TOK_STAR;
-                stringDestroy(str);
-                return SUCCESS;
-            case S_CONCAT:
-                token->type = TOK_DOT;
-                stringDestroy(str);
-                return SUCCESS;
             case S_EOL:
                 // todo: ??
                 fsmState = S_START;
