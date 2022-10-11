@@ -490,10 +490,21 @@ int scanToken(token_t * token) {
                 fsmState = S_STRT_STR;
                 break;
             case S_HEX_SCP_SQNC:
-                if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F]
+                char escpStr[5] = {'0', 'x'}; // convertible format of hexa number
+                if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F] first hexa char
+                    escpStr[2] = c;
                     int temp = lookAheadByOneChar(fp);
-                    if(isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103){
-                        asd
+                    if (isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103)) { // second hexa char
+                        escpStr[3] = c;
+                        temp = convertHexToInt(escpStr);
+                        if (temp > 32 || temp < 127) { // if convertible to a printable and allowed char, will do so
+                            if (strPushBack(str, temp) != SUCCESS) {
+                                stringDestroy(str);
+                                return ERR_INTERNAL;
+                            }
+                        } else { // else append the escape sequence to the end of the string literal
+                            
+                        }
                     }
                     break;
                 } else if (c == EOF){
