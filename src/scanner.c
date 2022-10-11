@@ -487,10 +487,14 @@ int scanToken(token_t * token) {
                     fsmState = S_ERROR;
                     break;
                 }
+                if (strPushBack(str, c) != SUCCESS) { // if no valid escapes were read, treat it as part of the string
+                    stringDestroy(str);
+                    return ERR_INTERNAL;
+                }
                 fsmState = S_STRT_STR;
                 break;
             case S_HEX_SCP_SQNC:
-                char escpStr[5] = {'0', 'x'}; // convertible format of hexa number
+                char escpStr[5] = {'0', 'x', '\0', '\0', '\0'}; // convertible format of hexa number
                 if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F] first hexa char
                     escpStr[2] = c;
                     int temp = lookAheadByOneChar(fp);
@@ -502,15 +506,59 @@ int scanToken(token_t * token) {
                                 stringDestroy(str);
                                 return ERR_INTERNAL;
                             }
+                            fsmState = S_STRT_STR;
+                            break;
                         } else { // else append the escape sequence to the end of the string literal
-                            
+                            escpStr[0] = '\\'; // putting back the backslash
+                            for (size_t i = 0; i < 5; i++){
+                                if (strPushBack(str, escpStr[i]) != SUCCESS) {
+                                    stringDestroy(str);
+                                    return ERR_INTERNAL;
+                                }
+                            }
+                            fsmState = S_STRT_STR;
+                            break;
                         }
+                    } else if (c == EOF){ // error caused by EOF
+                        token->type = TOK_ERROR;
+                        for (size_t i = 0; i < 4; i++){
+                            if (strPushBack(str, escpStr[i]) != SUCCESS) {
+                                stringDestroy(str);
+                                return ERR_INTERNAL;
+                            }
+                        }
+                        strcpy(token->attribute.strVal, str->str);
+                        return ERR_LEX_ANALYSIS;
+                    } else { // incorrect hexa escp. seq. -> part of string
+                        for (size_t i = 0; i < 4; i++){
+                            if (strPushBack(str, escpStr[i]) != SUCCESS) {
+                                stringDestroy(str);
+                                return ERR_INTERNAL;
+                            }
+                        }
+                        fsmState = S_STRT_STR;
+                        break;
                     }
-                    break;
                 } else if (c == EOF){
                     token->type = TOK_ERROR;
+                    for (size_t i = 0; i < 3; i++){
+                        if (strPushBack(str, escpStr[i]) != SUCCESS) {
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                    }
                     strcpy(token->attribute.strVal, str->str);
                     return ERR_LEX_ANALYSIS;
+                } else {
+                    escpStr[0] = '\\'; // putting back the backslash
+                    for (size_t i = 0; i < 3; i++){ // pushing back "\x[invalid hexa char]"
+                        if (strPushBack(str, escpStr[i]) != SUCCESS) {
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
                 }
                 fsmState = S_STRT_STR;
                 break;
