@@ -8,6 +8,9 @@ typedef enum {
     // initial type
     TOK_EMPTY,
 
+    // error type
+    TOK_ERROR,
+
     // single chars
     TOK_LEFT_PAREN,
     TOK_RIGHT_PAREN,
