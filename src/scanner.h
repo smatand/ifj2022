@@ -85,10 +85,6 @@ typedef enum {
     S_NEG_COMP, // negative comparison
     S_GREATER_EQ, // greater or equals
     S_LESSER_EQ, // lesser or equals
-    S_ADDITION,
-    S_SUBTRACT,
-    S_MULTIPLY,
-    S_CONCAT,
     S_STR_LIT, // string literal
     S_ERROR,
     S_END,
