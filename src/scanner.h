@@ -165,6 +165,25 @@ int fillStrWithKeyword(string_t * s, FILE * fp) {
 void convertStringToInt(string_t * s, token_t * token);
 
 /**
+ * @brief Converts string to double
+ * @param s string to be converted
+ * @param token token to be operated with
+ */
+void convertStringToDouble(string_t * s, token_t * token);
+
+/**
+ * @brief Converts hexadecimal string to int
+ * @param s string to be converted
+ */
+int convertHexToInt(char * s);
+
+/**
+ * @brief Compares first 3 characters of source to "php"
+ * @param fp pointer to input stream
+ */
+int checkForPrologue(FILE * fp)
+
+/**
  * @brief Fills string with characters
  * @param s struct to operate with
  * @param token struct to operate with for declaring type, attributes
@@ -173,12 +192,6 @@ void convertStringToInt(string_t * s, token_t * token);
  * @return SUCCESS, otherwise ERR_CODE
  */
 int fillStr(string_t * s, token_t * token, FILE * fp, int flag);
-/**
- * @brief Converts string to double
- * @param s string to be converted
- * @param token token to be operated with
- */
-void convertStringToDouble(string_t * s, token_t * token);
 
 /**
  * @brief Scans token

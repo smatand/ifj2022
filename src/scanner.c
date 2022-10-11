@@ -80,6 +80,14 @@ void convertStringToDouble(string_t * s, token_t * token) {
     token->attribute.decVal = res;
 }
 
+int convertHexToInt(char * s){
+    char * endPtr;
+
+    int res = strtol(s, &endPtr, 16);
+
+    return res;
+}
+
 int checkForPrologue(FILE * fp) {
     // just simply get first 3 chars and compare them with "php"
     char prologue[4] = "php";
@@ -485,7 +493,7 @@ int scanToken(token_t * token) {
                 if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F]
                     int temp = lookAheadByOneChar(fp);
                     if(isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103){
-                        
+                        asd
                     }
                     break;
                 } else if (c == EOF){
