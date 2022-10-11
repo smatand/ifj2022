@@ -371,6 +371,7 @@ int scanToken(token_t * token) {
                     break;
                 }
                 convertStringToInt(str, token);
+                ungetc(c, fp); // return last read char to stream if it's not 'E', 'e', '.', or a number
                 stringDestroy(str);
                 return SUCCESS;
             case S_STRT_EXP:
