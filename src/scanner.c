@@ -448,13 +448,14 @@ int scanToken(token_t * token) {
             case S_STRT_STR:
                 if (c == '"') {
                     token->type = TOK_STRING_LIT;
-                    token->attribute.strVal = str->str;
+                    strcpy(token->attribute.strVal, str->str);
+                    stringDestroy(str);
                     return SUCCESS;
                 } else if (c == '\\') {
                     fsmState = S_STRT_ESCP_SQNC;
                 } else if (c == EOF) {
                     token->type = TOK_ERROR;
-                    token->attribute.strVal = str->str;
+                    strcpy(token->attribute.strVal, str->str);
                     return ERR_LEX_ANALYSIS;
                 } else { // else it is part of string literal
                     if (strPushBack(str, c) != SUCCESS) {
