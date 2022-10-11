@@ -271,17 +271,10 @@ int scanToken(token_t * token) {
                     stringDestroy(str);
                     token->type = TOK_STAR;
                     return SUCCESS;
-//                    fsmState = S_MULTIPLY;
                 } else if (c == '.') { 
                     stringDestroy(str);
                     token->type = TOK_DOT;
                     return SUCCESS;
-//                    fsmState = S_CONCAT;
-                } else if (c == '-') { 
-                    stringDestroy(str);
-                    token->type = TOK_MINUS;
-                    return SUCCESS;
-//                    fsmState = S_SUBTRACT;
                 } else if (c == '"') { 
                     fsmState = S_STR_LIT;
                 }  else if(c == '_' || isalpha(c)) {
