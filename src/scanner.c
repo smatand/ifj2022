@@ -257,6 +257,9 @@ int scanToken(token_t * token) {
                     if (lookAheadByOneChar(fp) != '=') {
                         token->type = TOK_GREATER;
                         return SUCCESS;
+                    } else {
+                        token->type = TOK_GREATER_EQUAL;
+                        return SUCCESS;
                     }
                     fsmState = S_GREATER;
                 } else if (c == '+') { 
@@ -335,12 +338,6 @@ int scanToken(token_t * token) {
                     fsmState = S_ERROR;
                     return ERR_LEX_ANALYSIS;
                 }
-            case S_GREATER:
-                if (c == '=') {
-                    token->type = TOK_GREATER_EQUAL;
-                    return SUCCESS;
-                }
-                break;
             case S_LESSER:
                 if (c == '=') {
                     token->type = TOK_LESS_EQUAL;
