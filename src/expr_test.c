@@ -51,6 +51,7 @@ int main(){
     eStackPushItem(expr,item5);
 
     int stackTokenType;
+    int currItemToken;
     eItem_t *curritem = expr->head;
     // eStackPrint(expr);
     // eItem_t *newitem;
@@ -66,8 +67,15 @@ int main(){
             stackTokenType = tokenTypeToeType(closestTerm->token);
         }
         eStackPrintItem(curritem);
-        int currItemToken = tokenTypeToeType(curritem->token);
+        if(curritem->type == DOLLAR){
+            currItemToken = P_DOLLAR;
+        }
+        else{
+            currItemToken = tokenTypeToeType(curritem->token);
 
+        }
+        // printf("TEST\n");
+        // if(currItemToken == P_DOLLAR) printf("MAM DOLLAR\n");
         char operantion = precedenceTable[stackTokenType][currItemToken];
         
         switch(operantion){
@@ -99,7 +107,10 @@ int main(){
         // eStackPrint(expr);
     }
 
-    // eStackPrint(stack);
+    while(stack->head->next->type != DOLLAR){
+        exprReduce(stack);
+        eStackPrint(stack);
+    }
 
 		
     eStackEmptyAll(stack);
