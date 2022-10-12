@@ -47,5 +47,5 @@ int strPushBack(string_t * s, int c);
  * 
  * @return SUCCESS, otherwise ERR_CODE
  */
-int stringResize(string_t * s, int toSize) {
+int stringResize(string_t * s, int toSize);
 #endif // STR_H

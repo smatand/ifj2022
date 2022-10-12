@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include"expr_stack.h"
 #include"expr.h"
-// #include"scanner.h"
+#include"scanner.h"
 
 
 //docasny generator testovacich tokenov

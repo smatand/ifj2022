@@ -55,8 +55,8 @@ typedef enum{
 
 const char precedenceTable[TABLE_SIZE][TABLE_SIZE];
 
-char *tokenTypeToStr(TokenType type);
-precTokenType_t tokenTypeToeType(TokenType type);
+char *tokenTypeToStr(token_t *token);
+precTokenType_t tokenTypeToeType(token_t *token);
 void exprReduce(eStack_t *stack);
 
 #endif /* EXPR_H */ 

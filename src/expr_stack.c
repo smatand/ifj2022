@@ -90,7 +90,7 @@ void eStackPrintItem(eItem_t *item){
     }
     switch(item->type){
         case TERM: 
-                printf("[%s]",tokenTypeToStr(item->token->type));
+                printf("[%s]",tokenTypeToStr(item->token));
                 break;
         case NONTERM: 
             printf("[E]"); break;    
