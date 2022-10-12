@@ -60,7 +60,8 @@ int main(){
     int currItemToken;
     eItem_t *curritem = expr->head;
     eItem_t *newItem;
-        stackPrint(stack);
+    printf("example: (i+i)*i\n");
+    stackPrint(stack);
     while(true){
         eItem_t *closestTerm = findClosestTerm(stack);
 
@@ -84,15 +85,12 @@ int main(){
         
         switch(operantion){
             case '<':
-                // printf("SHIFT\n");
                 eStackShift(stack,curritem);
                 break;
             case '>':
-                // printf("REDUCE\n");
                 exprReduce(stack);
                 break;
             case '=':
-                // printf("EQUAL\n");
                 newItem = eItemInit(curritem->token, TERM);
                 eStackPushItem(stack,newItem);
                 break;
@@ -111,6 +109,7 @@ int main(){
         // eStackPrint(expr);
         stackPrint(stack);
     }
+        stackPrint(stack);
     while(stack->head->next->type != DOLLAR){
         exprReduce(stack);
         stackPrint(stack);
