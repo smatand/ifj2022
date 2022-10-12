@@ -42,6 +42,7 @@ void eStackDeleteFirst(eStack_t *stack);
 void eStackPushNonTerm(eStack_t *stack);
 
 
+void eStackShift(eStack_t *stack, eItem_t *item);
 void eStackPrintItem(eItem_t *item);
 
 

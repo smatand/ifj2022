@@ -41,7 +41,25 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
 // }
 
 
+void exprMain(){
+	// bool continueParsing = true;
 
+	// eStack_t estack;
+	// eStack_t *stack = &estack;
+	// eStackInit(stack);
+	// eStackPushDollar(stack);
+	// token_t *currtoken;
+	// int errorHandle;
+	// while(continueParsing){
+	// 	tokenInit(currtoken);
+	// 	scanToken(currtoken);
+	// 	eItem_t *item = eItemInit(currtoken,TERM);
+	// 	eStackPushItem(stack,item);
+	// 	eStackPrint(stack);
+
+		
+	// }
+}
 
 void exprReduce(eStack_t *stack){
 	int currState = E_STATE_START;

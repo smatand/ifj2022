@@ -101,6 +101,11 @@ void eStackPrintItem(eItem_t *item){
 
     }
 }
+void eStackShift(eStack_t *stack, eItem_t *item){
+    eStackPushIndent(stack);
+    eItem_t *newItem = eItemInit(item->token,TERM);
+    eStackPushItem(stack,newItem);
+}
 
 void eStackPrint(eStack_t *stack){
     eItem_t *item = stack->head;
