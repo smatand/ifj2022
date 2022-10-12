@@ -55,7 +55,7 @@ void exprReduce(eStack_t *stack){
 				currItem = eStackPopItem(stack);
 				if(currItem->type == TERM){		
 					//E -> i	
-					tokenType = tokenTypeToeType(currItem->token->type);
+					tokenType = tokenTypeToeType(currItem->token);
 					if(tokenType ==  P_RIGHT_PAREN){
 						currState = RULE2_EXPECTED1;
 						break;
@@ -73,7 +73,7 @@ void exprReduce(eStack_t *stack){
 				//next token needs to be operand
 				free(currItem);
 				currItem = eStackPopItem(stack);
-				tokenType = tokenTypeToeType(currItem->token->type);
+				tokenType = tokenTypeToeType(currItem->token);
 				if(tokenType != P_ID || tokenType != P_LEFT_PAREN || tokenType != P_RIGHT_PAREN){
 					currState = RULE1_EXPECTED2;
 				}
@@ -110,7 +110,7 @@ void exprReduce(eStack_t *stack){
 			case RULE2_EXPECTED2:
 				free(currItem);
 				currItem = eStackPopItem(stack);
-				tokenType = tokenTypeToeType(currItem->token->type);
+				tokenType = tokenTypeToeType(currItem->token);
 				if(tokenType ==  P_LEFT_PAREN){
 					currState = RULE2_EXPECTED3;
 				}
@@ -127,7 +127,7 @@ void exprReduce(eStack_t *stack){
 
 			//rule E -> i
 			case RULE3_EXPECTED1:
-				tokenType = tokenTypeToeType(currItem->token->type);
+				tokenType = tokenTypeToeType(currItem->token);
 				free(currItem);
 				if(tokenType == P_ID){
 					currItem = eStackPopItem(stack);
@@ -145,7 +145,19 @@ void exprReduce(eStack_t *stack){
 	}
 }
 //todo co patri pod id  co moze byt vo vyraze?
-precTokenType_t tokenTypeToeType(TokenType type){
+precTokenType_t tokenTypeToeType(token_t *token){
+	tokenType_t type = token->type;
+	if(type == TOK_KEYWORD){
+		keyword_t keyword = token->attribute.kwVal;
+		switch(keyword){
+			case KW_TRUE:
+			case KW_FALSE:
+			case KW_NULL:
+				return P_ID;
+			default:
+				return P_ERROR;
+		}
+	}
 	switch(type){
 		case TOK_STAR:
 			return P_MUL;
@@ -177,14 +189,9 @@ precTokenType_t tokenTypeToeType(TokenType type){
 			return P_RIGHT_PAREN;
 		case TOK_SEMICOLON:
 			return P_SEMICOLON;
-		case TOK_VAR_ID:
 		case TOK_STRING_LIT:            
     	case TOK_INT_LIT:             
     	case TOK_DEC_LIT:                
-    	case TOK_EXP_LIT:
-		case TOK_TRUE:
-		case TOK_FALSE:
-		case TOK_NULL:
 			return P_ID;
 		default:
 			return P_ERROR;
@@ -192,7 +199,19 @@ precTokenType_t tokenTypeToeType(TokenType type){
 }
 
 
-char *tokenTypeToStr(TokenType type){
+char *tokenTypeToStr(token_t *token){
+	tokenType_t type = token->type;
+	if(type == TOK_KEYWORD){
+		keyword_t keyword = token->attribute.kwVal;
+		switch(keyword){
+			case KW_TRUE:
+			case KW_FALSE:
+			case KW_NULL:
+				return "i";
+			default:
+				return "error";
+		}
+	}
     switch(type){
 		case TOK_STAR:
 			return "*";
@@ -224,14 +243,9 @@ char *tokenTypeToStr(TokenType type){
 			return ")";
 		case TOK_SEMICOLON:
 			return ";";
-		case TOK_VAR_ID:
 		case TOK_STRING_LIT:            
     	case TOK_INT_LIT:             
     	case TOK_DEC_LIT:                
-    	case TOK_EXP_LIT:
-		case TOK_TRUE:
-		case TOK_FALSE:
-		case TOK_NULL:
 			return "i";
 		default:
 			return "error";

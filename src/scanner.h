@@ -181,7 +181,7 @@ int convertHexToInt(char * s);
  * @brief Compares first 3 characters of source to "php"
  * @param fp pointer to input stream
  */
-int checkForPrologue(FILE * fp)
+int checkForPrologue(FILE * fp);
 
 /**
  * @brief Fills string with characters
