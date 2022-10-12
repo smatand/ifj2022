@@ -32,32 +32,36 @@ int main(){
     eStackInit(expr);
 
 
-    //tokens for i+i*i
+    //tokens for (i+i)*i
     token_t *token1 = myTokenInit(TOK_INT_LIT); //1i
     token_t *token2 = myTokenInit(TOK_STAR); //1i
-    token_t *token3 = myTokenInit(TOK_INT_LIT); //1i
-    token_t *token4 = myTokenInit(TOK_PLUS); //1i
-    token_t *token5 = myTokenInit(TOK_INT_LIT); //1i
+    token_t *token3 = myTokenInit(TOK_RIGHT_PAREN); //1i
+    token_t *token4 = myTokenInit(TOK_INT_LIT); //1i
+    token_t *token5 = myTokenInit(TOK_PLUS); //1i
+    token_t *token6 = myTokenInit(TOK_INT_LIT); //1i
+    token_t *token7 = myTokenInit(TOK_LEFT_PAREN); //1i
     eItem_t *item1 = eItemInit(token1, TERM);
     eItem_t *item2 = eItemInit(token2, TERM);
     eItem_t *item3 = eItemInit(token3, TERM);
     eItem_t *item4 = eItemInit(token4, TERM);
     eItem_t *item5 = eItemInit(token5, TERM);
+    eItem_t *item6 = eItemInit(token6, TERM);
+    eItem_t *item7 = eItemInit(token7, TERM);
     eStackPushDollar(expr);
     eStackPushItem(expr,item1);
     eStackPushItem(expr,item2);
     eStackPushItem(expr,item3);
     eStackPushItem(expr,item4);
     eStackPushItem(expr,item5);
+    eStackPushItem(expr,item6);
+    eStackPushItem(expr,item7);
 
     int stackTokenType;
     int currItemToken;
     eItem_t *curritem = expr->head;
-    // eStackPrint(expr);
-    // eItem_t *newitem;
+    eItem_t *newItem;
+        stackPrint(stack);
     while(true){
-        // eStackPrint(expr);
-        eStackPrint(stack);
         eItem_t *closestTerm = findClosestTerm(stack);
 
         if(closestTerm->type == DOLLAR){
@@ -66,7 +70,7 @@ int main(){
         else{
             stackTokenType = tokenTypeToeType(closestTerm->token);
         }
-        eStackPrintItem(curritem);
+        // eStackPrintItem(curritem);
         if(curritem->type == DOLLAR){
             currItemToken = P_DOLLAR;
         }
@@ -80,16 +84,16 @@ int main(){
         
         switch(operantion){
             case '<':
-                printf("SHIFT\n");
+                // printf("SHIFT\n");
                 eStackShift(stack,curritem);
                 break;
             case '>':
-                printf("REDUCE\n");
+                // printf("REDUCE\n");
                 exprReduce(stack);
                 break;
             case '=':
-                printf("EQUAL\n");
-                eItem_t *newItem = eItemInit(curritem->token, TERM);
+                // printf("EQUAL\n");
+                newItem = eItemInit(curritem->token, TERM);
                 eStackPushItem(stack,newItem);
                 break;
             case '!':
@@ -105,11 +109,12 @@ int main(){
             curritem = curritem->next;
         }
         // eStackPrint(expr);
+        stackPrint(stack);
     }
-
     while(stack->head->next->type != DOLLAR){
         exprReduce(stack);
-        eStackPrint(stack);
+        stackPrint(stack);
+        // eStackPrint(stack);
     }
 
 		

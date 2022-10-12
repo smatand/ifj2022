@@ -40,7 +40,7 @@ void eStackPushIndent(eStack_t *stack);
 void eStackPushDollar(eStack_t *stack);
 void eStackDeleteFirst(eStack_t *stack);
 void eStackPushNonTerm(eStack_t *stack);
-
+void stackPrint(eStack_t *stack);
 
 void eStackShift(eStack_t *stack, eItem_t *item);
 void eStackPrintItem(eItem_t *item);

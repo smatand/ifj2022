@@ -12,7 +12,7 @@
 void eStackInit(eStack_t *stack){
     //error
     stack->head = NULL;
-    int currSize = 0;
+    stack->currSize = 0;
 }
 
 //dostane param token a tak a to sa mallocne
@@ -68,9 +68,7 @@ eItem_t *eStackPopItem(eStack_t *stack){
     }
     eItem_t *item = stack->head;
     stack->head = item->next;
-    if(item != NULL){
-        stack->currSize--;
-    }
+    stack->currSize--;
     return item;
 }
 
@@ -82,6 +80,13 @@ void eStackDeleteFirst(eStack_t *stack){
     }
     free(itemToDelete);
 }
+
+void eStackShift(eStack_t *stack, eItem_t *item){
+    eStackPushIndent(stack);
+    eItem_t *newItem = eItemInit(item->token,TERM);
+    eStackPushItem(stack,newItem);
+}
+
 void eStackPrintItem(eItem_t *item){
     // printf("Item:\n");
     if(item == NULL){
@@ -90,40 +95,39 @@ void eStackPrintItem(eItem_t *item){
     }
     switch(item->type){
         case TERM: 
-                printf("[%s]",tokenTypeToStr(item->token));
+                printf("%s",tokenTypeToStr(item->token));
                 break;
         case NONTERM: 
-            printf("[E]"); break;    
+            printf("E"); break;    
         case INDENT: 
-            printf("|"); break;
+            printf("<"); break;
         case DOLLAR:
             printf("$"); break;
 
     }
 }
-void eStackShift(eStack_t *stack, eItem_t *item){
-    eStackPushIndent(stack);
-    eItem_t *newItem = eItemInit(item->token,TERM);
-    eStackPushItem(stack,newItem);
-}
 
+void stackPrint(eStack_t *stack){
+    eItem_t *currItem;
+    size_t size = stack->currSize;
+    size_t i;
+    // printf("\n");
+    while(size != 0){
+        currItem = stack->head;
+        i = 1;
+        while(i != size){
+            currItem = currItem->next;
+            i++;
+        }
+        eStackPrintItem(currItem);
+        size--;
+    }
+    printf("\n");
+}
 void eStackPrint(eStack_t *stack){
     eItem_t *item = stack->head;
     printf("\n------------------------------\n");
     while(item != NULL){
-        // // printf("[");
-        // if(item->type == INDENT){
-        //     printf("[<] -> ");
-        // }
-        // else if(item->type == TERM){
-        //     printf("[TERM:%d] -> ",item->token->type);
-        // }
-        // else if(item->type == NONTERM){
-        //     printf("[NONTERM] -> ");
-        // }
-        // else{
-        //     printf("ERROR -> ");
-        // }
         eStackPrintItem(item);
         if(item->next == NULL){
             printf(" -> NULL");

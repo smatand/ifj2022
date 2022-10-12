@@ -109,7 +109,7 @@ void exprReduce(eStack_t *stack){
 				free(currItem);
 				currItem = eStackPopItem(stack);
 				if(currItem->type == INDENT){
-					printf("3: E -> E*E\n");
+					// printf("3: E -> E*E\n");
 					free(currItem);
 					eStackPushNonTerm(stack);
 					repeat = false;
@@ -136,7 +136,7 @@ void exprReduce(eStack_t *stack){
 				free(currItem);
 				currItem = eStackPopItem(stack);
 				if(currItem->type == INDENT){
-					printf("2: E -> (E)\n");
+					// printf("2: E -> (E)\n");
 					free(currItem);
 					eStackPushNonTerm(stack);
 					repeat = false;
@@ -150,7 +150,7 @@ void exprReduce(eStack_t *stack){
 				if(tokenType == P_ID){
 					currItem = eStackPopItem(stack);
 					if(currItem->type == INDENT){//todo else error aj u ostatnych
-						printf("3: E -> i\n");
+						// printf("3: E -> i\n");
 						free(currItem);
 						eStackPushNonTerm(stack);
 						repeat = false;
