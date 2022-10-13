@@ -9,6 +9,10 @@
 
 #include <stdlib.h>
 #include "scanner.h"
+#include "error.h"
+#include "symtable.h"
+
+#define INITIAL_BUCKET_COUNT 113
 
 #define CALL_RULE(ruleFunction)     \
 	do                              \
@@ -18,22 +22,26 @@
 			return error;           \
 	} while (0)
 
+/** @brief Parser structure */
 typedef struct Parser
 {
-	// TODO: symtable, bools, etc.
-	scanner_t* scanner;
+	// TODO: bools, etc.
+	htab_t* symTable;
+	token_t* currentToken;
+	token_t* nextToken;
 } Parser_t;
 
 /**
  * @brief Initialize the parser
- * @param
- * @return Error code
+ * 
+ * @return Pointer to initialized parser, or NULL in case of failure
  */
 Parser_t* initParser();
 
 /**
  * @brief Free all memory allocated by the parser
  * @param
+ * 
  * @return Error code
  */
 int destroyParser();
@@ -41,6 +49,7 @@ int destroyParser();
 /**
  * @brief Get the next token from the scanner
  * @param
+ * 
  * @return Error code
  */
 int getNextToken();
@@ -48,13 +57,15 @@ int getNextToken();
 /**
  * @brief Check the type of the current token
  * @param TokenType Type of token to check against
- * @return True if token types match, otherwise false
+ * 
+ * @return 0 if token types match, otherwise 1
  */
-bool checkTokenType(TokenType type);
+int checkTokenType(tokenType_t type);
 
 /**
  * @brief Parse the source code
  * @param
+ * 
  * @return Error code
  */
 int parseSource();
