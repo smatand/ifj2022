@@ -46,6 +46,9 @@ int main() {
             case TOK_EOF:
                 printf("TOK_EOF\n");
                 break;
+            case TOK_ASSIGN:
+                printf("TOK_ASSIGN\n");
+                break;
             case TOK_KEYWORD:
                 switch (token->attribute.kwVal) {
                     case KW_INT:
