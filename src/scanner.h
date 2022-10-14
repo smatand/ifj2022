@@ -155,7 +155,8 @@ int checkKeyword(token_t * token, string_t * s);
  * @param fp file pointer
  * 
  * @return SUCCESS, otherwise ERR_CODE
-int fillStrWithKeyword(string_t * s, FILE * fp) {
+ */
+int fillStrWithKeyword(string_t * s, FILE * fp);
 
 /**
  * @brief Converts string to integer

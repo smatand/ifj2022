@@ -186,11 +186,14 @@ int fillStr(string_t * s, token_t * token, FILE * fp, int flag) {
     if (flag != 1) {
         token->type = TOK_IDENTIFIER;
         token->attribute.strVal = calloc(1, s->realLen);
+
         if (token->attribute.strVal == NULL) {
             free(buff);
+            stringDestroy(s);
             fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
             return ERR_INTERNAL;
         }
+
         memcpy(token->attribute.strVal, s->str, s->realLen);
         stringDestroy(s);
     }
@@ -219,71 +222,85 @@ int scanToken(token_t * token) {
                     ;
                 } else if(c == '(') {
                     token->type = TOK_LEFT_BRACE;
+
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == ')') {
                     token->type = TOK_RIGHT_BRACE;
+
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == ';') {
                     token->type = TOK_SEMICOLON;
+
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == ':') {
                     token->type = TOK_COLON;
+
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == ',') {
                     token->type = TOK_COMMA;
+
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == '{') {
                     token->type = TOK_LEFT_PAREN;
+
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == '}') {
                     token->type = TOK_RIGHT_PAREN;
+
                     stringDestroy(str);
                     return SUCCESS;
-                    /////////////////////////
                 } else if(c == '!') {
-                    stringDestroy(str);
                     fsmState = S_STRT_NEG_COMP;
                 } else if (c == '=') {
-                    stringDestroy(str);
                     fsmState = S_ASSIGN;
                 } else if (c == '<') {
-                    stringDestroy(str);
                     // if there is a char other than '=' or '?' after, it is just the < operator
-                    if (lookAheadByOneChar(fp) != '=' || lookAheadByOneChar(fp) != '?') {
+                    int c2 = lookAheadByOneChar(fp);
+                    if (c2 != '=' && c2 != '?') {
                         token->type = TOK_LESS;
+
+                        stringDestroy(str);
                         return SUCCESS;
                     }
+
                     fsmState = S_LESSER;
                 } else if (c == '>') {
-                    stringDestroy(str);
                     if (lookAheadByOneChar(fp) != '=') {
-                        token->type = TOK_GREATER;
+                        token->type = TOK_GREATER; // S_GREATER
+
+                        stringDestroy(str);
                         return SUCCESS;
                     } else {
-                        token->type = TOK_GREATER_EQUAL;
+                        token->type = TOK_GREATER_EQUAL; // S_GREATER_EQ
+
+                        stringDestroy(str);
                         return SUCCESS;
                     }
                 } else if (c == '+') { 
-                    stringDestroy(str);
                     token->type = TOK_PLUS;
+
+                    stringDestroy(str);
                     return SUCCESS;
                 } else if (c == '-') { 
-                    stringDestroy(str);
                     token->type = TOK_MINUS;
+
+                    stringDestroy(str);
                     return SUCCESS;
                 } else if (c == '*') { 
-                    stringDestroy(str);
                     token->type = TOK_STAR;
+
+                    stringDestroy(str);
                     return SUCCESS;
                 } else if (c == '.') { 
-                    stringDestroy(str);
                     token->type = TOK_DOT;
+
+                    stringDestroy(str);
                     return SUCCESS;
                 } else if (c == '"') { 
                     fsmState = S_STRT_STR;
@@ -310,82 +327,100 @@ int scanToken(token_t * token) {
                 }
                 break;
             case S_EOL:
-                // todo: ??
                 fsmState = S_START;
                 break;
             case S_STRT_NEG_COMP:
                 if (c == '=') {
                     fsmState = S_MID_NEG_COMP;
                 } else {
-                    fsmState = S_ERROR;
-                    return ERR_LEX_ANALYSIS;
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS; // S_ERROR
                 }
                 break;
             case S_MID_NEG_COMP:
                 if (c == '=') {
-                    token->type = TOK_NEG_COMPARISON;
+                    token->type = TOK_NEG_COMPARISON; // S_NEG_COMP
+
+                    stringDestroy(str);
                     return SUCCESS;
                 } else {
-                    fsmState = S_ERROR;
-                    return ERR_LEX_ANALYSIS;
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS; // S_ERROR
                 }
             case S_ASSIGN:
                 if (c == '=') {
-                    fsmState = S_STRT_COMP;
+                    fsmState = S_STRT_COMP; 
                 } else { 
                     token->type = TOK_ASSIGN;
+
+                    stringDestroy(str);
                     return SUCCESS;
                 }
                 break;
             case S_STRT_COMP:
                 if (c == '=') {
                     token->type = TOK_COMPARISON;
-                    return SUCCESS;
+
+                    stringDestroy(str);
+                    return SUCCESS; // S_COMPARISON (nonexistent)
                 } else {
-                    fsmState = S_ERROR;
-                    return ERR_LEX_ANALYSIS;
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS; // S_ERROR
                 }
             case S_LESSER:
                 if (c == '=') {
                     token->type = TOK_LESS_EQUAL;
-                    return SUCCESS;
+
+                    stringDestroy(str);
+                    return SUCCESS; // S_LESSER_EQ
                 } else if (c == '?'){
                     if(!checkForPrologue(fp)) {
-                        token->type = TOK_PROLOGUE;
+                        token->type = TOK_PROLOGUE; // TOK_PROLOGUE is the whole expression "<?php" TODO should it be taken as syntax error (2) ?
+
+                        stringDestroy(str);
                         return SUCCESS;
                     } else {
                         token->type = TOK_ERROR;
+
+                        stringDestroy(str);
                         return ERR_LEX_ANALYSIS; // prologue was not loaded
                     }
                 } 
+                break;
             case S_INT_LIT:
                 if (isdigit(c)) {
                     if (strPushBack(str, c) != SUCCESS) {
+
+                        stringDestroy(str);
                         return ERR_INTERNAL;
                     }
-                    break;
                 } else if (c == '.') {
                     if (strPushBack(str, c) != SUCCESS) {
+
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_DEC;
-                    break;
                 } else if (c == 'E' || c == 'e') {
                     if (strPushBack(str, c) != SUCCESS) {
+
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_EXP;
-                    break;
+                } else {
+                    convertStringToInt(str, token);
+
+                    ungetc(c, fp); // return last read char to stream if it's not 'E', 'e', '.', or a number
+
+                    stringDestroy(str);
+                    return SUCCESS;
                 }
-                convertStringToInt(str, token);
-                ungetc(c, fp); // return last read char to stream if it's not 'E', 'e', '.', or a number
-                stringDestroy(str);
-                return SUCCESS;
+                break;
             case S_STRT_EXP:
                 if (c == '+' || c == '-') {
                     if (strPushBack(str, c) != SUCCESS) {
+
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
@@ -393,42 +428,47 @@ int scanToken(token_t * token) {
                     break;
                 } else if (isdigit(c)) {
                     if (strPushBack(str, c) != SUCCESS) {
+
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_EXP_LIT;
                     break;
+                } else {
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS; // S_ERROR, missing number or +- 
                 }
-                fsmState = S_ERROR;
-                break;
             case S_MID_EXP:
                 if (isdigit(c)) {
                     if (strPushBack(str, c) != SUCCESS) {
+
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
+
                     fsmState = S_EXP_LIT;
                 } else {
-//                    fsmState = S_ERROR;
                     stringDestroy(str);
-                    return ERR_LEX_ANALYSIS;
+                    return ERR_LEX_ANALYSIS; // S_ERROR, missing number
                 }
-                break;
             case S_EXP_LIT:
                 if (isdigit(c)) {
                     if (strPushBack(str, c) != SUCCESS) {
+
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                 } else {
-                    fsmState = S_END;
+                    convertStringToDouble(str, token); // uses strdol() function, which works with exponents
+
+                    stringDestroy(str);
+                    return SUCCESS;
                 }
-                convertStringToDouble(str, token);
-                return SUCCESS;
                 break;
             case S_STRT_DEC:
                 if (isdigit(c)) {
                     if (strPushBack(str, c) != SUCCESS) {
+
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
@@ -436,11 +476,11 @@ int scanToken(token_t * token) {
                     break;
                 } else {
                     return ERR_LEX_ANALYSIS;
-//                    fsmState = S_ERROR;
                 }
             case S_DEC_LIT:
                 if (isdigit(c)) {
                     if (strPushBack(str, c) != SUCCESS) {
+
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
@@ -448,11 +488,12 @@ int scanToken(token_t * token) {
                 } else if (c == 'E' || c == 'e') {
                     fsmState = S_STRT_EXP;
                     break;
+                } else {
+                    convertStringToDouble(str, token);
+
+                    stringDestroy(str);
+                    return SUCCESS;
                 }
-                convertStringToDouble(str, token);
-                stringDestroy(str);
-                return SUCCESS;
-//                fsmState = S_END;
             case S_STRT_STR:
                 if (c == '"') {
                     token->type = TOK_STRING_LIT;
@@ -610,73 +651,61 @@ int scanToken(token_t * token) {
                     return ERR_LEX_ANALYSIS;
             case S_STRT_VAR:
                 if (isalpha(c) || '_') {
-//                    fsmState = S_VAR_ID; // DELETE THIS STATE MAYBE
                     ungetc(c, fp);
-//                    if (fillStrWithKeyword(str, fp)) != SUCCESS {
-//                        return ERR_LEX_ANALYSIS;
-//                    };
+
+                    // change token->type, attribute.strVal and so on
                     int ret = fillStr(str, token, fp, 0);
-                    return ret;
+
+                    return ret; // ERR_INTERNAL or SUCCESS
                 } else {
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 }
                 break;
-//            case S_VAR_ID:
-//                if (isalnum(c) || c == '_') {
-//                    strPushBack(str, c);
-//                } else {
-////                    fsmState = S_ERROR;
-//                }
-//                break;
             case S_SLASH:
                 if (c == '/') {
                     fsmState = S_S_COMMENT;
-                    stringDestroy(str);
                     break;
                 } else if (c == '*'){
                     fsmState = S_M_COMMENT;
-                    stringDestroy(str);
                     break;
+                } else {
+                    token->type = TOK_SLASH;
+
+                    ungetc(c, fp);
+                    stringDestroy(str);
+                    return SUCCESS;
                 }
-                fsmState = S_END;
-                break;
             case S_S_COMMENT:
                 if (c == EOF || c == '\n') {
                     token->type = TOK_EMPTY;
+
+                    stringDestroy(str);
                     return SUCCESS;
                 }
                 break;
             // multiline comments
             case S_M_COMMENT: 
                 if (c == '*') {
-                    int c2 = lookAheadByOneChar(fp);
-                    if (c2 == '/') {
+                    if (lookAheadByOneChar(fp) == '/') {
                         fsmState = S_M_COMMENT_FIN;
                     }
-                    break;
                 } else if (c == '\n') {
-                    fsmState = S_EOL_COUNT;
-                    break;
+                    break; // S_EOL_COUNT todo
                 } else if (c == EOF) {
-                    fsmState = S_ERROR; // TODO: is it really an error
-                    break;
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS; // missing ending of comment
                 }
-                break;
-            case S_EOL_COUNT:
-                if (c == EOF) {
-//                    fsmState = S_ERROR; // TODO: is it really an error
-                    return ERR_LEX_ANALYSIS;
-                } else {
-                    fsmState = S_STRT_M_COMMENT;
-                }
+
                 break;
             case S_M_COMMENT_FIN:
                 if (c == '/') {
                     token->type = TOK_EMPTY;
+
+                    stringDestroy(str);
                     return SUCCESS;
                 } else {
-//                   fsmState = S_ERROR;
+                    stringDestroy(str);
                     return ERR_LEX_ANALYSIS; // neither nested comment blocks should be there
                 }
             }
