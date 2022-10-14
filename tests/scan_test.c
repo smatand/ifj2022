@@ -62,6 +62,19 @@ int main() {
                         break;
                 }
                 break;
+            case TOK_TYPE_ID:
+                switch (token->attribute.kwVal) {
+                    case KW_INT:
+                        printf("TOK_TYPE_ID: KW_INT\n");
+                        break;
+                    case KW_FLOAT:
+                        printf("TOK_TYPE_ID: KW_FLOAT\n");
+                        break;
+                    case KW_STRING:
+                        printf("TOK_TYPE_ID: W_STRING\n");
+                        break;
+                }
+                break;
             case TOK_INT_LIT:
                 printf("TOK_INT_LIT: %d\n", token->attribute.intVal);
                 break;

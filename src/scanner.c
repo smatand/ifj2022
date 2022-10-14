@@ -51,14 +51,11 @@ int checkKeyword(token_t * token, string_t * s) {
     } else if (!strcmp(s->str, "false")) {
         token->attribute.kwVal = KW_FALSE;
     } else {
-        stringDestroy(s);
-        token->type = TOK_IDENTIFIER;
         return 0; // no keyword found, it is ID
     }
 
-    stringDestroy(s);
     token->type = TOK_KEYWORD;
-    return 1;
+    return 1; // caller must take care of stringDestroy()!
 }
 
 void convertStringToInt(string_t * s, token_t * token) {
@@ -135,7 +132,7 @@ int fillStrWithKeyword(string_t * s, FILE * fp) {
     return SUCCESS;
 }
 
-int fillStr(string_t * s, token_t * token, FILE * fp, int flag) {
+int fillStr(string_t * s, token_t * token, FILE * fp) {
     char * buff = calloc(1, MAX_KEYWORD_CHARS);
     if (buff == NULL) {
         fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
@@ -150,14 +147,8 @@ int fillStr(string_t * s, token_t * token, FILE * fp, int flag) {
         c = getc(fp);
 
         if (i == MAX_KEYWORD_CHARS) {
-            // flag 1 defines the function is meant for keywords
-            if (flag == 1) {
-                free(buff);
-                fprintf(stderr, "%d ERROR LEX, MAX_SIZE OF KEYWORD REACHED\n", __LINE__);
-                return ERR_LEX_ANALYSIS;
-            }
-
             buff = realloc(1, i + MAX_KEYWORD_CHARS);
+
             if (buff == NULL) {
                 //free(buff);
                 fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
@@ -169,7 +160,7 @@ int fillStr(string_t * s, token_t * token, FILE * fp, int flag) {
     if (c == EOF) {
         free(buff);
         fprintf(stderr, "%d ERROR EOF REACHED\n", __LINE__);
-        return ERR_LEX_ANALYSIS; // TODO: what ?
+        return ERR_LEX_ANALYSIS;
     }
 
     buff[i] = '\0';
@@ -179,24 +170,22 @@ int fillStr(string_t * s, token_t * token, FILE * fp, int flag) {
         fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
         return ERR_INTERNAL;
     }
+
     memcpy(s->str, buff, i);
     s->realLen = i;
 
-    // if not keyword, attach the string to the attribute.strVal
-    if (flag != 1) {
-        token->type = TOK_IDENTIFIER;
-        token->attribute.strVal = calloc(1, s->realLen);
+    token->type = TOK_IDENTIFIER;
+    token->attribute.strVal = calloc(1, s->realLen);
 
-        if (token->attribute.strVal == NULL) {
-            free(buff);
-            stringDestroy(s);
-            fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
-            return ERR_INTERNAL;
-        }
-
-        memcpy(token->attribute.strVal, s->str, s->realLen);
-        stringDestroy(s);
+    if (token->attribute.strVal == NULL) {
+        free(buff);
+        fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
+        return ERR_INTERNAL; // caller must take care of stringDestroy()!
     }
+
+    memcpy(token->attribute.strVal, s->str, s->realLen);
+
+    // caller must take care of stringDestroy()!
     free(buff);
     return SUCCESS;
 }
@@ -306,6 +295,7 @@ int scanToken(token_t * token) {
                     fsmState = S_STRT_STR;
                 }  else if(c == '_' || isalpha(c)) {
                     fsmState = S_KEYW_OR_ID;
+                    ungetc(c, fp);
                 } else if(c == '?') {
                     fsmState = S_QSTN_MARK;
                 } else if(c == '$') {
@@ -614,18 +604,23 @@ int scanToken(token_t * token) {
                 fsmState = S_STRT_STR;
                 break;
             case S_KEYW_OR_ID:
-                if (isalnum(c) || c == '_') {
-                    fsmState = S_KEYW_OR_ID;
-                } else {
-                    fsmState = S_END;
-                }
-                break;
+                ungetc(c, fp); // again to manipulate with c correctly
+                fillStr(str, token, fp);
+
+                checkKeyword(token, str); // changes token->type
+
+                stringDestroy(str);
+
+                return SUCCESS;
             case S_QSTN_MARK:
                 if (c == '>') {
                     token->type = TOK_END_PROLOGUE;
+
+                    stringDestroy(str);
                     return SUCCESS;
-                } else if ((c > 113 && c < 118) || (c > 101 && c < 104) || c == 'i' || c == 'n' || c == 'l' || c == 'o' || c == 'a') { // in FSM => TypeChar
+                } else { 
                     ungetc(c, fp);
+
                     fsmState = S_TYPE_ID;
                     break;
                 }
@@ -634,28 +629,37 @@ int scanToken(token_t * token) {
             case S_TYPE_ID:
                     // need to check for 'string', 'int' or 'float'
                     ungetc(c, fp);
-                    if (fillStrWithKeyword(str, fp) != SUCCESS) {
+                    if (fillStr(str, token, fp) != SUCCESS) {
+
+                        stringDestroy(str);
                         return ERR_LEX_ANALYSIS;
                     }
 
-                    if (!checkKeyword(token, str)) {
-                        // it doesn't match any keyword, throw err_lex
-                        // checkKeyword() already contains stringDestroy(str)
+                    if (checkKeyword(token, str) == 0) {
+
+                        stringDestroy(str); // it doesn't match any keyword, throw err_lex
                         return ERR_LEX_ANALYSIS;
-                    } else if ( token->attribute.kwVal == KW_STRING 
-                            ||  token->attribute.kwVal == KW_INT 
-                            ||  token->attribute.kwVal == KW_FLOAT
-                            || token->attribute.kwVal == KW_NULL ) {
+                    } else if ( token->attribute.kwVal == KW_STRING ||  token->attribute.kwVal == KW_INT 
+                            ||  token->attribute.kwVal == KW_FLOAT) {
+                        
+                        token->type = TOK_TYPE_ID;
+
+                        stringDestroy(str);
                         return SUCCESS; // token->type is set, attribute too
+                    } else { // other keywords are not allowed as TYPE
+                        token->type = TOK_EMPTY;
+
+                        stringDestroy(str);
+                        return ERR_LEX_ANALYSIS;
                     }
-                    return ERR_LEX_ANALYSIS;
+                    break;
             case S_STRT_VAR:
                 if (isalpha(c) || '_') {
                     ungetc(c, fp);
 
-                    // change token->type, attribute.strVal and so on
-                    int ret = fillStr(str, token, fp, 0);
+                    int ret = fillStr(str, token, fp);
 
+                    stringDestroy(str);
                     return ret; // ERR_INTERNAL or SUCCESS
                 } else {
                     stringDestroy(str);
