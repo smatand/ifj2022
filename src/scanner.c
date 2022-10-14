@@ -142,12 +142,12 @@ int fillStr(string_t * s, token_t * token, FILE * fp) {
     int c = getc(fp);
     int i = 0;
 
-    while (c != EOF && !isspace(c) && c != '=') {
+    while (c != EOF && !isspace(c) && c != '=' && (isalnum(c) || c == '_')) {
         buff[i++] = c;
         c = getc(fp);
 
         if (i == MAX_KEYWORD_CHARS) {
-            buff = realloc(1, i + MAX_KEYWORD_CHARS);
+            buff = realloc(buff, i + MAX_KEYWORD_CHARS);
 
             if (buff == NULL) {
                 //free(buff);
@@ -186,6 +186,7 @@ int fillStr(string_t * s, token_t * token, FILE * fp) {
     memcpy(token->attribute.strVal, s->str, s->realLen);
 
     // caller must take care of stringDestroy()!
+    ungetc(c, fp);
     free(buff);
     return SUCCESS;
 }
