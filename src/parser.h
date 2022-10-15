@@ -14,58 +14,59 @@
 
 #define INITIAL_BUCKET_COUNT 113
 
-#define CALL_RULE(ruleFunction)     \
-	do                              \
-	{                               \
-		int error = ruleFunction(); \
-		if (error != 0)             \
-			return error;           \
-	} while (0)
-
 /** @brief Parser structure */
 typedef struct Parser
 {
 	// TODO: bools, etc.
-	htab_t* symTable;
-	token_t* currentToken;
-	token_t* nextToken;
+	htab_t *symTable;
+	token_t *currentToken;
+	token_t *nextToken;
 } Parser_t;
 
 /**
  * @brief Initialize the parser
- * 
+ *
  * @return Pointer to initialized parser, or NULL in case of failure
  */
-Parser_t* initParser();
+Parser_t *initParser();
 
 /**
  * @brief Free all memory allocated by the parser
  * @param
- * 
+ *
  * @return Error code
  */
 int destroyParser();
 
 /**
  * @brief Get the next token from the scanner
- * @param
- * 
+ *
  * @return Error code
  */
 int getNextToken();
 
 /**
- * @brief Check the type of the current token
- * @param TokenType Type of token to check against
- * 
+ * @brief Check the type of a token
+ * @param token token to check
+ * @param type type of token to check against
+ *
  * @return 0 if token types match, otherwise 1
  */
-int checkTokenType(tokenType_t type);
+int checkTokenType(token_t *token, tokenType_t type);
+
+/**
+ * @brief Check the keyword of a token
+ * @param token token to check
+ * @param keyword Type of token to check against
+ *
+ * @return 0 if keywords match, otherwise 1
+ */
+int checkTokenKeyword(token_t *token, keyword_t keyword);
 
 /**
  * @brief Parse the source code
  * @param
- * 
+ *
  * @return Error code
  */
 int parseSource();
@@ -73,47 +74,47 @@ int parseSource();
 //###############################~~~RULES~~~#######
 
 // Rule #1
-int rProgram();
+int rProgram(Parser_t *parser);
 // Rule #2
-int rProlog();
+int rProlog(Parser_t *parser);
 // Rule #3
-int rUnits();
+int rUnits(Parser_t *parser);
 // Rules #5, #6
-int rUnit();
+int rUnit(Parser_t *parser);
 // Rule #7
-int rFunctionDefinition();
+int rFunctionDefinition(Parser_t *parser);
 // Rule #9
-int rParams();
+int rParams(Parser_t *parser);
 // Rule #11
-int rParam();
+int rParam(Parser_t *parser);
 // Rule #12
-int rParam_n();
+int rParam_n(Parser_t *parser);
 // Rules #14, #15, #16
-int rType();
+int rType(Parser_t *parser);
 // Rules #17, #18, #19, #20, #21
-int rStatements();
+int rStatements(Parser_t *parser);
 // Rule #23
-int rAssignmentStatement();
+int rAssignmentStatement(Parser_t *parser);
 // Rule #24
-int rConditionalStatement();
+int rConditionalStatement(Parser_t *parser);
 // Rule #25
-int rWhileLoopStatement();
+int rWhileLoopStatement(Parser_t *parser);
 // Rule #26
-int rFunctionCallStatement();
+int rFunctionCallStatement(Parser_t *parser);
 // Rule #27
-int rReturnStatement();
+int rReturnStatement(Parser_t *parser);
 // Rules #28, #29
-int rAssignment();
+int rAssignment(Parser_t *parser);
 // Rule #30
-int rArguments();
+int rArguments(Parser_t *parser);
 // Rule #32
-int rArgument_n();
+int rArgument_n(Parser_t *parser);
 // Rule #34
-int rReturnValue();
+int rReturnValue(Parser_t *parser);
 // Rules #36, #37, #38, #39, #40
-int rTerm();
+int rTerm(Parser_t *parser);
 // Rule #41
-int rProgramEnd();
+int rProgramEnd(Parser_t *parser);
 
 //#################################################
 

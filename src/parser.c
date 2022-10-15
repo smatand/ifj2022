@@ -88,3 +88,24 @@ int getNextToken(Parser_t *parser)
 
 	return SUCCESS;
 }
+
+int checkTokenType(token_t* token, tokenType_t type)
+{
+	if (token->type == type)
+	{
+		return 0;
+	}
+	return 1;
+}
+
+int checkTokenKeyword(token_t* token, keyword_t keyword)
+{
+	if (token->type == TOK_KEYWORD)
+	{
+		if (token->attribute == keyword)
+		{
+			return 0;
+		}
+	}
+	return 1;
+}

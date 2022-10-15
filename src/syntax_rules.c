@@ -5,8 +5,9 @@
  */
 
 #include "parser.h"
+#include "parser_macros.h"
 
-int rProgram()
+int rProgram(Parser_t *parser)
 {
 	CALL_RULE(rProlog);
 	CALL_RULE(rUnits);
@@ -14,99 +15,100 @@ int rProgram()
 	return 0;
 }
 
-int rProlog()
+int rProlog(Parser_t *parser)
 {
-	checkTokenType(TOK_PROLOGUE);
+	CURRENT_TOKEN_TYPE(TOK_PROLOGUE);
 	return 0;
 }
 
-int rUnits()
+int rUnits(Parser_t *parser)
 {
 	CALL_RULE(rUnit);
 	return 0;
 }
 
-int rUnit()
+int rUnit(Parser_t *parser)
+{
+	
+	return 0;
+}
+
+int rFunctionDefinition(Parser_t *parser)
 {
 	return 0;
 }
 
-int rFunctionDefinition()
+int rParams(Parser_t *parser)
 {
 	return 0;
 }
 
-int rParams()
+int rParam(Parser_t *parser)
 {
 	return 0;
 }
 
-int rParam()
+int rParam_n(Parser_t *parser)
 {
 	return 0;
 }
 
-int rParam_n()
+int rType(Parser_t *parser)
 {
 	return 0;
 }
 
-int rType()
+int rStatements(Parser_t *parser)
 {
 	return 0;
 }
 
-int rStatements()
+int rAssignmentStatement(Parser_t *parser)
 {
 	return 0;
 }
 
-int rAssignmentStatement()
+int rConditionalStatement(Parser_t *parser)
 {
 	return 0;
 }
 
-int rConditionalStatement()
+int rWhileLoopStatement(Parser_t *parser)
 {
 	return 0;
 }
 
-int rWhileLoopStatement()
+int rFunctionCallStatement(Parser_t *parser)
 {
 	return 0;
 }
 
-int rFunctionCallStatement()
+int rReturnStatement(Parser_t *parser)
 {
 	return 0;
 }
 
-int rReturnStatement()
+int rAssignment(Parser_t *parser)
 {
 	return 0;
 }
 
-int rAssignment()
+int rArguments(Parser_t *parser)
 {
 	return 0;
 }
 
-int rArguments()
+int rArgument_n(Parser_t *parser)
 {
 	return 0;
 }
 
-int rArgument_n()
+int rReturnValue(Parser_t *parser)
 {
 	return 0;
 }
 
-int rReturnValue()
-{
-	return 0;
-}
-
-int rTerm()
+int rTerm(Parser_t *parser)
 {
 	return 0;
 }
