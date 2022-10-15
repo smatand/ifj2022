@@ -38,7 +38,7 @@ int lookAheadByOneChar(FILE * fp);
  * 
  * @return SUCCESS, otherwise ERR_INTERNAL
  */
-int strPushBack(string_t * s, int c);
+int charPushBack(string_t * s, int c);
 
 /**
  * @brief Resizes string
