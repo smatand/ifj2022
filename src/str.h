@@ -32,6 +32,15 @@ void stringDestroy(string_t * s);
 int lookAheadByOneChar(FILE * fp);
 
 /**
+ * @brief Resizes string
+ * @param s struct to operate with
+ * @param toSize new size
+ * 
+ * @return SUCCESS, otherwise ERR_CODE
+ */
+int stringResize(string_t * s, int toSize);
+
+/**
  * @brief Pushes character to the end of the string
  * @param s struct to operate with
  * @param c char being pushed to the end
@@ -41,11 +50,13 @@ int lookAheadByOneChar(FILE * fp);
 int charPushBack(string_t * s, int c);
 
 /**
- * @brief Resizes string
+ * @brief Pushes multiple characters to the end of the string
  * @param s struct to operate with
- * @param toSize new size
+ * @param source pointer to chars being pushed to the string
+ * @param len length of string being pushed
  * 
- * @return SUCCESS, otherwise ERR_CODE
+ * @return SUCCESS, otherwise ERR_INTERNAL
  */
-int stringResize(string_t * s, int toSize);
+int strPushBack(string_t * s, char * source, int len);
+
 #endif // STR_H

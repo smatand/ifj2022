@@ -73,3 +73,12 @@ int charPushBack(string_t * s, int c) {
 
     return SUCCESS;
 }
+
+int strPushBack(string_t * s, char * source, int len) {
+    for (size_t i = 0; i < len; i++){
+        if (charPushBack(s, source[i]) != SUCCESS) {
+            return ERR_INTERNAL;
+        }
+    }
+    return SUCCESS;
+}
