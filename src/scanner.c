@@ -513,7 +513,7 @@ int scanToken(token_t * token) {
                     escpStr[1] = c;
                     fsmState = S_HEX_SCP_SQNC;
                     break;
-                } else if (c < 47 && c > 57) { // [0-8]
+                } else if (c > 47 && c < 57) { // [0-8]
                     escpStr[1] = c;
                     fsmState = S_OCT_SCP_SQNC;
                     break;
@@ -541,7 +541,8 @@ int scanToken(token_t * token) {
                         escpStr[3] = temp;
                         escpStr[0] = '0'; // making a convertible format
                         temp = convertStringToInt(escpStr, 16);
-                        if (temp > 32 || temp < 127) { // if convertible to a printable and allowed char, will do so
+                        escpStr[0] = '\\'; // in case of pushBack, it'll be in the original form
+                        if (temp > 32 && temp < 127) { // if convertible to a printable and allowed char, will do so
                             if (charPushBack(str, temp) != SUCCESS) {
                                 stringDestroy(str);
                                 return ERR_INTERNAL;
@@ -590,18 +591,64 @@ int scanToken(token_t * token) {
                     fsmState = S_STRT_STR;
                     break;
                 }
-                fsmState = S_STRT_STR;
-                break;
             case S_OCT_SCP_SQNC:
-                if (c < 47 && c > 57) {
-                    fsmState = S_OCT_SCP_SQNC;
-                    break;
+                if (c > 47 && c < 57) { // checking octal number
+                    escpStr[2] = c;
+                    int temp = lookAheadByOneChar(fp);
+                    if(temp > 47 && temp < 57){ // checking octal number
+                        escpStr[3] = temp;
+                        escpStr[0] = '0'; // making a convertible format
+                        temp = convertStringToInt(escpStr, 8);
+                        escpStr[0] = '\\'; // in case of pushBack, it'll be in the original form
+                        if(temp > 32 && temp < 127){ // if convertible to a printable and allowed char, will do so
+                            if (charPushBack(str, temp) != SUCCESS) {
+                                stringDestroy(str);
+                                return ERR_INTERNAL;
+                            }
+                            fsmState = S_STRT_STR;
+                            break;
+                        } else { // else append the escape sequence to the end of the string literal
+                            if(strPushBack(str, escpStr, 4) != SUCCESS){
+                                stringDestroy(str);
+                                return ERR_INTERNAL;
+                            }
+                            fsmState = S_STRT_STR;
+                            break;
+                        }
+                    } else if(temp = EOF){
+                        token->type = TOK_ERROR;
+                        if(strPushBack(str, escpStr, 4) != SUCCESS){
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                        strcpy(token->attribute.strVal, str->str);
+                        stringDestroy(str);
+                        return ERR_LEX_ANALYSIS;
+                    } else {
+                        if(strPushBack(str, escpStr, 4) != SUCCESS){// pushing back "\[0-8][0-8][not octal char]"
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                        fsmState = S_STRT_STR;
+                        break;
+                    }
                 } else if(c == EOF) {
-                    fsmState = S_ERROR;
+                    token->type = TOK_ERROR;
+                    if(strPushBack(str, escpStr, 3) != SUCCESS){
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    strcpy(token->attribute.strVal, str->str);
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
+                } else {
+                    if(strPushBack(str, escpStr, 3) != SUCCESS){// pushing back "\[0-8][not octal char]"
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
                     break;
                 }
-                fsmState = S_STRT_STR;
-                break;
             case S_KEYW_OR_ID:
                 ungetc(c, fp); // again to manipulate with c correctly
                 fillStr(str, token, fp);
