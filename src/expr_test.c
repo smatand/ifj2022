@@ -18,7 +18,13 @@ eItem_t *findClosestTerm(eStack_t *stack){
     eItem_t *currItem = stack->head;
     while(currItem->type == INDENT || currItem->type == NONTERM){
         currItem = currItem->next;
+        // printf("vraciam az dalsi item\n");
     }
+    // printf("vraciam currentitem\n");
+        // if(currItem->type == TERM){
+        //     printf(">NASIEL SOM TERM NAJBLIZSIE: \n");
+        //     eStackPrintItem(currItem);
+        // }
     return currItem;
 }
 char ownScanner(){
@@ -44,12 +50,10 @@ int charToToken(char s){
             return TOK_SLASH;
         case '.':
             return TOK_DOT;
-        case '=':
-            return TOK_ASSIGN;
-        // case '===':      // getc bere len znak po znaku
-            // return TOK_COMPARISON;
-        case '$':
+        case ';':
             return 100;
+        default:
+            return 99;
     }
 }
 
@@ -71,18 +75,20 @@ int main(){
     eItem_t *newItem = NULL;
     token_t *newToken = NULL;
     bool scan = true;
+    bool exit = false;
     while(true){
         if(scan){
-            freeItem(newItem);
             c = ownScanner();
             incomingTokenType = charToToken(c);
+            if(incomingTokenType == TOK_INT_LIT){
+            }
             if(incomingTokenType != 100){
                 newToken = myTokenInit(incomingTokenType);
                 incomingTokenType_newType = tokenTypeToeType(newToken);
                 newItem = eItemInit(newToken,TERM);
             }
             else{
-                newToken = myTokenInit(TOK_COMMA);
+                newToken = myTokenInit(TOK_SEMICOLON);
                 newItem = eItemInit(newToken,DOLLAR);
                 incomingTokenType_newType = P_DOLLAR;
             }
@@ -96,6 +102,7 @@ int main(){
         else{
             stackTokenType = tokenTypeToeType(closestTerm->token);
         }
+        
         char operation = precedenceTable[stackTokenType][incomingTokenType_newType];
         
         switch(operation){
@@ -109,12 +116,22 @@ int main(){
                 eStackPushItem(stack,newItem);
                 break;
             case '!':
+            // printf("trying recovery\n");
+                if(incomingTokenType_newType == P_RIGHT_PAREN){
+                    while(stack->head->next->type != DOLLAR){
+                        exprReduce(stack);
+                        stackPrint(stack);
+                    }
+                    exit = true;
+                    //staci return )
+                    break;
+                }
                 printf("ERROR\n");
                 break;
             default:
                 printf("SWITCH error\n");
         }
-        if(newItem->type == DOLLAR){
+        if(newItem->type == DOLLAR || exit){
             freeItem(newItem);
             break;
         }
@@ -123,10 +140,12 @@ int main(){
         }
         stackPrint(stack);
     }
-        stackPrint(stack);
-    while(stack->head->next->type != DOLLAR){
-        exprReduce(stack);
-        stackPrint(stack);
+    if(stack->head->next->type != DOLLAR){
+            stackPrint(stack);
+        while(stack->head->next->type != DOLLAR){
+            exprReduce(stack);
+            stackPrint(stack);
+        }
     }
 
     eStackEmptyAll(stack);

@@ -308,7 +308,7 @@ int scanToken(token_t * token) {
                     fsmState = S_EOL;
                 } else if (isdigit(c)) {
                     fsmState = S_INT_LIT;
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
                         return ERR_INTERNAL;
                     }
                 } else if(c == EOF) {
@@ -380,20 +380,20 @@ int scanToken(token_t * token) {
                 break;
             case S_INT_LIT:
                 if (isdigit(c)) {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                 } else if (c == '.') {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_DEC;
                 } else if (c == 'E' || c == 'e') {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -410,7 +410,7 @@ int scanToken(token_t * token) {
                 break;
             case S_STRT_EXP:
                 if (c == '+' || c == '-') {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -418,7 +418,7 @@ int scanToken(token_t * token) {
                     fsmState = S_MID_EXP;
                     break;
                 } else if (isdigit(c)) {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -431,7 +431,7 @@ int scanToken(token_t * token) {
                 }
             case S_MID_EXP:
                 if (isdigit(c)) {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -444,7 +444,7 @@ int scanToken(token_t * token) {
                 }
             case S_EXP_LIT:
                 if (isdigit(c)) {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -458,7 +458,7 @@ int scanToken(token_t * token) {
                 break;
             case S_STRT_DEC:
                 if (isdigit(c)) {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -470,7 +470,7 @@ int scanToken(token_t * token) {
                 }
             case S_DEC_LIT:
                 if (isdigit(c)) {
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
 
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -496,98 +496,95 @@ int scanToken(token_t * token) {
                 } else if (c == EOF) {
                     token->type = TOK_ERROR;
                     strcpy(token->attribute.strVal, str->str);
+                    stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else { // else it is part of string literal
-                    if (strPushBack(str, c) != SUCCESS) {
+                    if (charPushBack(str, c) != SUCCESS) {
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_STR;
                 }
                 break;
-            case S_STRT_ESCP_SQNC:
+            case S_STRT_ESCP_SQNC:; // necessary ';', so the declaration of escpStr is valid, and not flagged by gcc
+            char escpStr[4] = {'\\', '\0', '\0', '\0', '\0'}; // escape sequence buffer
                 if (c == 'x') {
+                    escpStr[1] = c;
                     fsmState = S_HEX_SCP_SQNC;
                     break;
                 } else if (c < 47 && c > 57) { // [0-8]
+                    escpStr[1] = c;
                     fsmState = S_OCT_SCP_SQNC;
                     break;
                 } else if (c == 't' || c == 'n' || c == '"' || c == '$' || c == '\\') {
+                    escpStr[1] = c;
                     fsmState = S_SNGL_SCP_SQNC;
                     break;
                 } else if (c == EOF) {
-                    fsmState = S_ERROR;
-                    break;
+                    token->type = TOK_ERROR;
+                    strcpy(token->attribute.strVal, str->str);
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
                 }
-                if (strPushBack(str, c) != SUCCESS) { // if no valid escapes were read, treat it as part of the string
+                if (charPushBack(str, c) != SUCCESS) { // if no valid escapes were read, treat it as part of the string
                     stringDestroy(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
                 break;
             case S_HEX_SCP_SQNC:
-                char escpStr[5] = {'0', 'x', '\0', '\0', '\0'}; // convertible format of hexa number
                 if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F] first hexa char
                     escpStr[2] = c;
                     int temp = lookAheadByOneChar(fp);
                     if (isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103)) { // second hexa char
-                        escpStr[3] = c;
+                        escpStr[3] = temp;
+                        escpStr[0] = '0'; // making a convertible format
                         temp = convertHexToInt(escpStr);
                         if (temp > 32 || temp < 127) { // if convertible to a printable and allowed char, will do so
-                            if (strPushBack(str, temp) != SUCCESS) {
+                            if (charPushBack(str, temp) != SUCCESS) {
                                 stringDestroy(str);
                                 return ERR_INTERNAL;
                             }
                             fsmState = S_STRT_STR;
                             break;
                         } else { // else append the escape sequence to the end of the string literal
-                            escpStr[0] = '\\'; // putting back the backslash
-                            for (size_t i = 0; i < 5; i++){
-                                if (strPushBack(str, escpStr[i]) != SUCCESS) {
-                                    stringDestroy(str);
-                                    return ERR_INTERNAL;
-                                }
+                            if(strPushBack(str, escpStr, 4) != SUCCESS){
+                                stringDestroy(str);
+                                return ERR_INTERNAL;
                             }
                             fsmState = S_STRT_STR;
                             break;
                         }
                     } else if (c == EOF){ // error caused by EOF
                         token->type = TOK_ERROR;
-                        for (size_t i = 0; i < 4; i++){
-                            if (strPushBack(str, escpStr[i]) != SUCCESS) {
-                                stringDestroy(str);
-                                return ERR_INTERNAL;
-                            }
+                        if(strPushBack(str, escpStr, 4) != SUCCESS){
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
                         }
                         strcpy(token->attribute.strVal, str->str);
+                        stringDestroy(str);
                         return ERR_LEX_ANALYSIS;
                     } else { // incorrect hexa escp. seq. -> part of string
-                        for (size_t i = 0; i < 4; i++){
-                            if (strPushBack(str, escpStr[i]) != SUCCESS) {
-                                stringDestroy(str);
-                                return ERR_INTERNAL;
-                            }
+                        if(strPushBack(str, escpStr, 4) != SUCCESS){
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
                         }
                         fsmState = S_STRT_STR;
                         break;
                     }
                 } else if (c == EOF){
                     token->type = TOK_ERROR;
-                    for (size_t i = 0; i < 3; i++){
-                        if (strPushBack(str, escpStr[i]) != SUCCESS) {
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
+                    if(strPushBack(str, escpStr, 3) != SUCCESS){
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
                     }
                     strcpy(token->attribute.strVal, str->str);
+                    stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else {
-                    escpStr[0] = '\\'; // putting back the backslash
-                    for (size_t i = 0; i < 3; i++){ // pushing back "\x[invalid hexa char]"
-                        if (strPushBack(str, escpStr[i]) != SUCCESS) {
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
+                    if(strPushBack(str, escpStr, 3) != SUCCESS){// pushing back "\x[invalid hexa char]"
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_STR;
                     break;

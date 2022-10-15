@@ -11,24 +11,24 @@
 #include"scanner.h"
 
 
-#define TABLE_SIZE 16
+#define TABLE_SIZE 15 //size of precedence table
 
-
+/** @brief state rules */
 typedef enum{
     E_STATE_START,
 
-    RULE1_EXPECTED1,
+    RULE1_EXPECTED1, //E->E+E, E->E<E, ...
     RULE1_EXPECTED2,
     RULE1_EXPECTED3,
 
-    RULE2_EXPECTED1,
+    RULE2_EXPECTED1, //E->(E)
     RULE2_EXPECTED2,
     RULE2_EXPECTED3,
 
-    RULE3_EXPECTED1,
+    RULE3_EXPECTED1, //E->i
 }eStates_t;
 
-
+/** @brief struct of tokens that are valid in precedence table*/
 typedef enum{
     P_MUL, 
     P_PLUS,
@@ -41,22 +41,37 @@ typedef enum{
     P_LESS_EQUAL,
     P_COMPARISON,
     P_NEG_COMPARISON,
-    P_ASSIGN,
     P_LEFT_PAREN,
     P_RIGHT_PAREN,
     P_ID,
     P_DOLLAR,
-    P_SEMICOLON,
+    P_SEMICOLON, 
     P_ERROR,
 }precTokenType_t;
 
-// ; )
-//, ->FUNEXP rozsirenie'
 
+/**
+ * @brief precedence table, used to decide which operation should occur
+ * precedenceTable[token in the stack][incoming token]
+ */
 const char precedenceTable[TABLE_SIZE][TABLE_SIZE];
 
-char *tokenTypeToStr(token_t *token);
+/**
+ * @brief converting token type from scanner to own precedence token type,(for the table)
+ * 
+ * @param token pointer to token
+ * @return precTokenType_t return the relevant token type
+ */
 precTokenType_t tokenTypeToeType(token_t *token);
+
+/**
+ * @brief if reduce operation occurs, we use reducing rules to reduce the expression
+ * 
+ * @param stack pointer to stack
+ */
 void exprReduce(eStack_t *stack);
+
+//used for debugging
+char *tokenTypeToStr(token_t *token);
 
 #endif /* EXPR_H */ 
