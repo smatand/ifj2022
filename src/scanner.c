@@ -496,6 +496,7 @@ int scanToken(token_t * token) {
                 } else if (c == EOF) {
                     token->type = TOK_ERROR;
                     strcpy(token->attribute.strVal, str->str);
+                    stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else { // else it is part of string literal
                     if (charPushBack(str, c) != SUCCESS) {
@@ -516,8 +517,10 @@ int scanToken(token_t * token) {
                     fsmState = S_SNGL_SCP_SQNC;
                     break;
                 } else if (c == EOF) {
-                    fsmState = S_ERROR;
-                    break;
+                    token->type = TOK_ERROR;
+                    strcpy(token->attribute.strVal, str->str);
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
                 }
                 if (charPushBack(str, c) != SUCCESS) { // if no valid escapes were read, treat it as part of the string
                     stringDestroy(str);
@@ -542,52 +545,47 @@ int scanToken(token_t * token) {
                             break;
                         } else { // else append the escape sequence to the end of the string literal
                             escpStr[0] = '\\'; // putting back the backslash
-                            for (size_t i = 0; i < 5; i++){
-                                if (charPushBack(str, escpStr[i]) != SUCCESS) {
-                                    stringDestroy(str);
-                                    return ERR_INTERNAL;
-                                }
+                            if(strPushBack(str, escpStr, 4) != SUCCESS){
+                                stringDestroy(str);
+                                return ERR_INTERNAL;
                             }
                             fsmState = S_STRT_STR;
                             break;
                         }
                     } else if (c == EOF){ // error caused by EOF
                         token->type = TOK_ERROR;
-                        for (size_t i = 0; i < 4; i++){
-                            if (charPushBack(str, escpStr[i]) != SUCCESS) {
-                                stringDestroy(str);
-                                return ERR_INTERNAL;
-                            }
+                        escpStr[0] = '\\'; // putting back the backslash
+                        if(strPushBack(str, escpStr, 4) != SUCCESS){
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
                         }
                         strcpy(token->attribute.strVal, str->str);
+                        stringDestroy(str);
                         return ERR_LEX_ANALYSIS;
                     } else { // incorrect hexa escp. seq. -> part of string
-                        for (size_t i = 0; i < 4; i++){
-                            if (charPushBack(str, escpStr[i]) != SUCCESS) {
-                                stringDestroy(str);
-                                return ERR_INTERNAL;
-                            }
+                        escpStr[0] = '\\'; // putting back the backslash
+                        if(strPushBack(str, escpStr, 4) != SUCCESS){
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
                         }
                         fsmState = S_STRT_STR;
                         break;
                     }
                 } else if (c == EOF){
                     token->type = TOK_ERROR;
-                    for (size_t i = 0; i < 3; i++){
-                        if (charPushBack(str, escpStr[i]) != SUCCESS) {
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
+                    escpStr[0] = '\\'; // putting back the backslash
+                    if(strPushBack(str, escpStr, 3) != SUCCESS){
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
                     }
                     strcpy(token->attribute.strVal, str->str);
+                    stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else {
                     escpStr[0] = '\\'; // putting back the backslash
-                    for (size_t i = 0; i < 3; i++){ // pushing back "\x[invalid hexa char]"
-                        if (charPushBack(str, escpStr[i]) != SUCCESS) {
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
+                    if(strPushBack(str, escpStr, 3) != SUCCESS){// pushing back "\x[invalid hexa char]"
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_STR;
                     break;
