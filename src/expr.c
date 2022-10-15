@@ -3,6 +3,7 @@
  *
  * @brief Implementation of precedence alanysis for IFJ22
  */
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
@@ -29,49 +30,20 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
   {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
 };
 
-
-//bude brat parameter token?
-//alebo bude si ich sam nacitavat aj s tym prvym
-// int exprMain(token_t *token){
-//   bool continue = true;
-//   while(continue){
-
-//   }
-// }
-
-
-void exprMain(){
-	// bool continueParsing = true;
-
-	// eStack_t estack;
-	// eStack_t *stack = &estack;
-	// eStackInit(stack);
-	// eStackPushDollar(stack);
-	// token_t *currtoken;
-	// int errorHandle;
-	// while(continueParsing){
-	// 	tokenInit(currtoken);
-	// 	scanToken(currtoken);
-	// 	eItem_t *item = eItemInit(currtoken,TERM);
-	// 	eStackPushItem(stack,item);
-	// 	eStackPrint(stack);
-
-		
-	// }
-}
-
 void exprReduce(eStack_t *stack){
 	int currState = E_STATE_START;
 	bool repeat = true;
 	int tokenType;
 	eItem_t *currItem;
+
 	while(repeat){
 		switch(currState){
 			//starting state
 			case E_STATE_START:
 				currItem = eStackPopItem(stack);
-				if(currItem->type == TERM){		
-					//E -> i	
+				//if term is at the top of stack, 
+				//then it can only be rule E->i or E->(E)
+				if(currItem->type == TERM){	
 					tokenType = tokenTypeToeType(currItem->token);
 					if(tokenType ==  P_RIGHT_PAREN){
 						currState = RULE2_EXPECTED1;
@@ -79,23 +51,30 @@ void exprReduce(eStack_t *stack){
 					}
 						currState = RULE3_EXPECTED1;
 				}
+				//if not then it is rule 1 = E->E+E,...
 				if(currItem->type == NONTERM){
 					//E -> E operand E, for instance: E -> E*E
 					currState = RULE1_EXPECTED1;
 				}
 				break;
 				//we fount nonterm -> E on top of stack
-			//rule: E->E*E
+
+			/* 
+			 * rule: E->E+E
+			 * now we expect that the next token will be operant
+			 */
 			case RULE1_EXPECTED1:
-				//next token needs to be operand
-				free(currItem);
+				free(currItem); //free previoud item ')'
 				currItem = eStackPopItem(stack);
 				tokenType = tokenTypeToeType(currItem->token);
 				if(tokenType != P_ID || tokenType != P_LEFT_PAREN || tokenType != P_RIGHT_PAREN){
 					currState = RULE1_EXPECTED2;
 				}
 				break;
-			//rule: E->E*E
+			/* 
+			 * rule: E->E+E
+			 * now we expect that the next token will be NONTERM E
+			 */
 			case RULE1_EXPECTED2:
 				free(currItem);
 				currItem = eStackPopItem(stack);
@@ -103,7 +82,10 @@ void exprReduce(eStack_t *stack){
 					currState = RULE1_EXPECTED3;
 				}
 				break;
-			//rule: E->E*E
+			/* 
+			 * rule: E->E+E
+			 * now we expect that the next token will be INDENT '<'
+			 */
 			case RULE1_EXPECTED3:
 				free(currItem);
 				currItem = eStackPopItem(stack);
@@ -134,6 +116,7 @@ void exprReduce(eStack_t *stack){
 			case RULE2_EXPECTED3:
 				free(currItem);
 				currItem = eStackPopItem(stack);
+				//next item needs to be indent
 				if(currItem->type == INDENT){
 					// printf("2: E -> (E)\n");
 					free(currItem);
@@ -146,17 +129,17 @@ void exprReduce(eStack_t *stack){
 			case RULE3_EXPECTED1:
 				tokenType = tokenTypeToeType(currItem->token);
 				free(currItem);
-				if(tokenType == P_ID){
+				if(tokenType == P_ID){ //if we found i
 					currItem = eStackPopItem(stack);
+					//next item needs to be indent
 					if(currItem->type == INDENT){//todo else error aj u ostatnych
-						// printf("3: E -> i\n");
 						free(currItem);
 						eStackPushNonTerm(stack);
 						repeat = false;
 						return;
 					}
 				}
-			default:
+			default: //todo errors
 				printf("Reduce error\n!");
 				exit(1);
 
@@ -168,7 +151,7 @@ void exprReduce(eStack_t *stack){
 precTokenType_t tokenTypeToeType(token_t *token){
 	
 	tokenType_t type = token->type;
-	if(type == TOK_KEYWORD){
+	if(type == TOK_KEYWORD){ //if type of token is keyword, we check keywords
 		keyword_t keyword = token->attribute.kwVal;
 		switch(keyword){
 			case KW_TRUE:
@@ -179,7 +162,6 @@ precTokenType_t tokenTypeToeType(token_t *token){
 				return P_ERROR;
 		}
 	}
-	// printf("TYPE = %s\n",tokenTypeToStr(token));
 	switch(type){
 		case TOK_STAR:
 			return P_MUL;
@@ -260,7 +242,7 @@ char *tokenTypeToStr(token_t *token){
 			return "(";
 		case TOK_RIGHT_PAREN:
 			return ")";
-		case TOK_SEMICOLON:
+		case TOK_SEMICOLON: //semicolon behaves like DOLLAR, so end of expression
 			return ";";
 		case TOK_STRING_LIT:            
     	case TOK_INT_LIT:             

@@ -50,8 +50,6 @@ int charToToken(char s){
             return TOK_SLASH;
         case '.':
             return TOK_DOT;
-        // case '===':      // getc bere len znak po znaku
-            // return TOK_COMPARISON;
         case ';':
             return 100;
         default:
@@ -118,7 +116,7 @@ int main(){
                 eStackPushItem(stack,newItem);
                 break;
             case '!':
-            printf("trying recovery\n");
+            // printf("trying recovery\n");
                 if(incomingTokenType_newType == P_RIGHT_PAREN){
                     while(stack->head->next->type != DOLLAR){
                         exprReduce(stack);
@@ -142,10 +140,12 @@ int main(){
         }
         stackPrint(stack);
     }
-        stackPrint(stack);
-    while(stack->head->next->type != DOLLAR){
-        exprReduce(stack);
-        stackPrint(stack);
+    if(stack->head->next->type != DOLLAR){
+            stackPrint(stack);
+        while(stack->head->next->type != DOLLAR){
+            exprReduce(stack);
+            stackPrint(stack);
+        }
     }
 
     eStackEmptyAll(stack);

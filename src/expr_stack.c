@@ -3,19 +3,19 @@
  *
  * @brief Implementation of parser module for IFJ22
  */
+
 #include"expr_stack.h"
 #include"expr.h"
 #include<stdbool.h>
 #include<stdio.h>
 #include<stdlib.h>
 
+
 void eStackInit(eStack_t *stack){
     //error
     stack->head = NULL;
     stack->currSize = 0;
 }
-
-//dostane param token a tak a to sa mallocne
 
 void eStackEmptyAll(eStack_t *stack){
     while(stack->head != NULL) {
@@ -31,7 +31,6 @@ eItem_t *eItemInit(token_t *token, int itemType){
     item->next = NULL;
     return item;
 }
-
 
 void eStackPushItem(eStack_t *stack,eItem_t *item){
     item->next = stack->head;
@@ -70,6 +69,7 @@ eItem_t *eStackPopItem(eStack_t *stack){
     stack->currSize--;
     return item;
 }
+
 void freeItem(eItem_t *item){
     if(item == NULL) return;
     if(item->token != NULL){
@@ -77,6 +77,7 @@ void freeItem(eItem_t *item){
     }
     free(item);
 }
+
 void eStackDeleteFirst(eStack_t *stack){
     eItem_t *itemToDelete = eStackPopItem(stack);
     //free tokens ?
@@ -128,20 +129,4 @@ void stackPrint(eStack_t *stack){
         size--;
     }
     printf("\n");
-}
-void eStackPrint(eStack_t *stack){
-    eItem_t *item = stack->head;
-    printf("\n------------------------------\n");
-    while(item != NULL){
-        eStackPrintItem(item);
-        if(item->next == NULL){
-            printf(" -> NULL");
-        }
-        else{
-            printf(" -> ");
-        }
-        item = item->next;
-        
-    }
-        printf("\n------------------------------\n");
 }
