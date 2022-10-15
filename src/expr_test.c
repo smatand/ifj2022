@@ -50,11 +50,9 @@ int charToToken(char s){
             return TOK_SLASH;
         case '.':
             return TOK_DOT;
-        case '=':
-            return TOK_ASSIGN;
         // case '===':      // getc bere len znak po znaku
             // return TOK_COMPARISON;
-        case '$':
+        case ';':
             return 100;
         default:
             return 99;
@@ -79,6 +77,7 @@ int main(){
     eItem_t *newItem = NULL;
     token_t *newToken = NULL;
     bool scan = true;
+    bool exit = false;
     while(true){
         if(scan){
             c = ownScanner();
@@ -91,7 +90,7 @@ int main(){
                 newItem = eItemInit(newToken,TERM);
             }
             else{
-                newToken = myTokenInit(TOK_COMMA);
+                newToken = myTokenInit(TOK_SEMICOLON);
                 newItem = eItemInit(newToken,DOLLAR);
                 incomingTokenType_newType = P_DOLLAR;
             }
@@ -119,12 +118,22 @@ int main(){
                 eStackPushItem(stack,newItem);
                 break;
             case '!':
+            printf("trying recovery\n");
+                if(incomingTokenType_newType == P_RIGHT_PAREN){
+                    while(stack->head->next->type != DOLLAR){
+                        exprReduce(stack);
+                        stackPrint(stack);
+                    }
+                    exit = true;
+                    //staci return )
+                    break;
+                }
                 printf("ERROR\n");
                 break;
             default:
                 printf("SWITCH error\n");
         }
-        if(newItem->type == DOLLAR){
+        if(newItem->type == DOLLAR || exit){
             freeItem(newItem);
             break;
         }

@@ -11,7 +11,7 @@
 #include"scanner.h"
 
 
-#define TABLE_SIZE 16
+#define TABLE_SIZE 15
 
 
 typedef enum{
@@ -41,12 +41,11 @@ typedef enum{
     P_LESS_EQUAL,
     P_COMPARISON,
     P_NEG_COMPARISON,
-    P_ASSIGN,
     P_LEFT_PAREN,
     P_RIGHT_PAREN,
     P_ID,
     P_DOLLAR,
-    P_SEMICOLON,
+    P_SEMICOLON, 
     P_ERROR,
 }precTokenType_t;
 
