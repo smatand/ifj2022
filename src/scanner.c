@@ -506,7 +506,7 @@ int scanToken(token_t * token) {
                     fsmState = S_STRT_STR;
                 }
                 break;
-            case S_STRT_ESCP_SQNC:
+            case S_STRT_ESCP_SQNC:; // necessary ';', so the declaration of escpStr is valid, and not flagged by gcc
             char escpStr[4] = {'\\', '\0', '\0', '\0', '\0'}; // escape sequence buffer
                 if (c == 'x') {
                     escpStr[1] = c;
