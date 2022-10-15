@@ -507,13 +507,17 @@ int scanToken(token_t * token) {
                 }
                 break;
             case S_STRT_ESCP_SQNC:
+            char escpStr[4] = {'\\', '\0', '\0', '\0', '\0'}; // escape sequence buffer
                 if (c == 'x') {
+                    escpStr[1] = c;
                     fsmState = S_HEX_SCP_SQNC;
                     break;
                 } else if (c < 47 && c > 57) { // [0-8]
+                    escpStr[1] = c;
                     fsmState = S_OCT_SCP_SQNC;
                     break;
                 } else if (c == 't' || c == 'n' || c == '"' || c == '$' || c == '\\') {
+                    escpStr[1] = c;
                     fsmState = S_SNGL_SCP_SQNC;
                     break;
                 } else if (c == EOF) {
@@ -529,12 +533,12 @@ int scanToken(token_t * token) {
                 fsmState = S_STRT_STR;
                 break;
             case S_HEX_SCP_SQNC:
-                char escpStr[5] = {'0', 'x', '\0', '\0', '\0'}; // convertible format of hexa number
                 if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F] first hexa char
                     escpStr[2] = c;
                     int temp = lookAheadByOneChar(fp);
                     if (isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103)) { // second hexa char
-                        escpStr[3] = c;
+                        escpStr[3] = temp;
+                        escpStr[0] = '0'; // making a convertible format
                         temp = convertHexToInt(escpStr);
                         if (temp > 32 || temp < 127) { // if convertible to a printable and allowed char, will do so
                             if (charPushBack(str, temp) != SUCCESS) {
@@ -544,7 +548,6 @@ int scanToken(token_t * token) {
                             fsmState = S_STRT_STR;
                             break;
                         } else { // else append the escape sequence to the end of the string literal
-                            escpStr[0] = '\\'; // putting back the backslash
                             if(strPushBack(str, escpStr, 4) != SUCCESS){
                                 stringDestroy(str);
                                 return ERR_INTERNAL;
@@ -554,7 +557,6 @@ int scanToken(token_t * token) {
                         }
                     } else if (c == EOF){ // error caused by EOF
                         token->type = TOK_ERROR;
-                        escpStr[0] = '\\'; // putting back the backslash
                         if(strPushBack(str, escpStr, 4) != SUCCESS){
                             stringDestroy(str);
                             return ERR_INTERNAL;
@@ -563,7 +565,6 @@ int scanToken(token_t * token) {
                         stringDestroy(str);
                         return ERR_LEX_ANALYSIS;
                     } else { // incorrect hexa escp. seq. -> part of string
-                        escpStr[0] = '\\'; // putting back the backslash
                         if(strPushBack(str, escpStr, 4) != SUCCESS){
                             stringDestroy(str);
                             return ERR_INTERNAL;
@@ -573,7 +574,6 @@ int scanToken(token_t * token) {
                     }
                 } else if (c == EOF){
                     token->type = TOK_ERROR;
-                    escpStr[0] = '\\'; // putting back the backslash
                     if(strPushBack(str, escpStr, 3) != SUCCESS){
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -582,7 +582,6 @@ int scanToken(token_t * token) {
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else {
-                    escpStr[0] = '\\'; // putting back the backslash
                     if(strPushBack(str, escpStr, 3) != SUCCESS){// pushing back "\x[invalid hexa char]"
                         stringDestroy(str);
                         return ERR_INTERNAL;
