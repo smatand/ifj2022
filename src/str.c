@@ -59,7 +59,7 @@ int stringResize(string_t * s, int toSize) {
     return SUCCESS;
 }
 
-int strPushBack(string_t * s, int c) {
+int charPushBack(string_t * s, int c) {
     if (s->realLen == s->allocatedSize - 1) {
         s->str = realloc(s->str, s->realLen + DEFAULT_LEN);
         if (s->str == NULL) {
@@ -71,5 +71,14 @@ int strPushBack(string_t * s, int c) {
     s->str[s->realLen++] = c;
     s->str[s->realLen] = '\0';
 
+    return SUCCESS;
+}
+
+int strPushBack(string_t * s, char * source, int len) {
+    for (size_t i = 0; i < len; i++){
+        if (charPushBack(s, source[i]) != SUCCESS) {
+            return ERR_INTERNAL;
+        }
+    }
     return SUCCESS;
 }
