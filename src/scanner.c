@@ -58,14 +58,12 @@ int checkKeyword(token_t * token, string_t * s) {
     return 1; // caller must take care of stringDestroy()!
 }
 
-void convertStringToInt(string_t * s, token_t * token) {
-    // todo: make it converting hexadecimal too
+int convertStringToInt(char * s, int base) {
     char * endPtr;
 
-    int res = strtol(s->str, &endPtr, 10);
+    int res = strtol(s, &endPtr, base);
 
-    token->type = TOK_INT_LIT;
-    token->attribute.intVal = res;
+    return res;
 }
 
 void convertStringToDouble(string_t * s, token_t * token) {
@@ -400,7 +398,10 @@ int scanToken(token_t * token) {
                     }
                     fsmState = S_STRT_EXP;
                 } else {
-                    convertStringToInt(str, token);
+                    int res = convertStringToInt(str->str, 10);
+
+                    token->type = TOK_INT_LIT;
+                    token->attribute.intVal = res;
 
                     ungetc(c, fp); // return last read char to stream if it's not 'E', 'e', '.', or a number
 
@@ -539,7 +540,7 @@ int scanToken(token_t * token) {
                     if (isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103)) { // second hexa char
                         escpStr[3] = temp;
                         escpStr[0] = '0'; // making a convertible format
-                        temp = convertStringToInt(escpStr);
+                        temp = convertStringToInt(escpStr, 16);
                         if (temp > 32 || temp < 127) { // if convertible to a printable and allowed char, will do so
                             if (charPushBack(str, temp) != SUCCESS) {
                                 stringDestroy(str);

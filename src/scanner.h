@@ -161,9 +161,11 @@ int fillStrWithKeyword(string_t * s, FILE * fp);
 /**
  * @brief Converts string to integer
  * @param s string to be converted
- * @param token token to be operated with
+ * @param base base of numeric value to be converted
+ * 
+ * @return converted integer value
  */
-void convertStringToInt(string_t * s, token_t * token);
+int convertStringToInt(char * s, int base);
 
 /**
  * @brief Converts string to double
