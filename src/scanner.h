@@ -173,12 +173,6 @@ void convertStringToInt(string_t * s, token_t * token);
 void convertStringToDouble(string_t * s, token_t * token);
 
 /**
- * @brief Converts hexadecimal string to int
- * @param s string to be converted
- */
-int convertHexToInt(char * s);
-
-/**
  * @brief Compares first 3 characters of source to "php"
  * @param fp pointer to input stream
  */

@@ -77,13 +77,13 @@ void convertStringToDouble(string_t * s, token_t * token) {
     token->attribute.decVal = res;
 }
 
-int convertHexToInt(char * s){
+/*int convertHexToInt(char * s, int base){
     char * endPtr;
 
-    int res = strtol(s, &endPtr, 16);
+    int res = strtol(s, &endPtr, base);
 
     return res;
-}
+}*/
 
 int checkForPrologue(FILE * fp) {
     // just simply get first 3 chars and compare them with "php"
@@ -539,7 +539,7 @@ int scanToken(token_t * token) {
                     if (isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103)) { // second hexa char
                         escpStr[3] = temp;
                         escpStr[0] = '0'; // making a convertible format
-                        temp = convertHexToInt(escpStr);
+                        temp = convertStringToInt(escpStr);
                         if (temp > 32 || temp < 127) { // if convertible to a printable and allowed char, will do so
                             if (charPushBack(str, temp) != SUCCESS) {
                                 stringDestroy(str);
