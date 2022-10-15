@@ -81,7 +81,6 @@ int main(){
     bool scan = true;
     while(true){
         if(scan){
-            // freeItem(newItem);
             c = ownScanner();
             incomingTokenType = charToToken(c);
             if(incomingTokenType == TOK_INT_LIT){
@@ -100,22 +99,13 @@ int main(){
         scan = true;
 
         eItem_t *closestTerm = findClosestTerm(stack);
-        // if(closestTerm->token != NULL && closestTerm->token->type == TOK_INT_LIT){
-        //     printf("je to INT LIT \n");
-        // }
-        // printf("najblizsi typ: ");
-        // eStackPrintItem(closestTerm);
-        // printf("\n");
         if(closestTerm->type == DOLLAR){
-            // printf("najblizzsi je dolalar\n");
             stackTokenType = P_DOLLAR;
         }
         else{
             stackTokenType = tokenTypeToeType(closestTerm->token);
         }
         
-        // printf("%d\n",stackTokenType);
-        // printf("table[%d][%d]",stackTokenType,incomingTokenType_newType);
         char operation = precedenceTable[stackTokenType][incomingTokenType_newType];
         
         switch(operation){
