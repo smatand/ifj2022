@@ -71,7 +71,13 @@ eItem_t *eStackPopItem(eStack_t *stack){
     stack->currSize--;
     return item;
 }
-
+void freeItem(eItem_t *item){
+    if(item == NULL) return;
+    if(item->token != NULL){
+        free(item->token);
+    }
+    free(item);
+}
 void eStackDeleteFirst(eStack_t *stack){
     eItem_t *itemToDelete = eStackPopItem(stack);
     //free tokens ?
