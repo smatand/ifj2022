@@ -164,6 +164,7 @@ void exprReduce(eStack_t *stack){
 }
 //todo co patri pod id  co moze byt vo vyraze?
 precTokenType_t tokenTypeToeType(token_t *token){
+	
 	tokenType_t type = token->type;
 	if(type == TOK_KEYWORD){
 		keyword_t keyword = token->attribute.kwVal;
@@ -176,6 +177,7 @@ precTokenType_t tokenTypeToeType(token_t *token){
 				return P_ERROR;
 		}
 	}
+	// printf("TYPE = %s\n",tokenTypeToStr(token));
 	switch(type){
 		case TOK_STAR:
 			return P_MUL;
@@ -209,7 +211,8 @@ precTokenType_t tokenTypeToeType(token_t *token){
 			return P_SEMICOLON;
 		case TOK_STRING_LIT:            
     	case TOK_INT_LIT:             
-    	case TOK_DEC_LIT:                
+    	case TOK_DEC_LIT:      
+		case TOK_IDENTIFIER:
 			return P_ID;
 		default:
 			return P_ERROR;
@@ -263,9 +266,10 @@ char *tokenTypeToStr(token_t *token){
 			return ";";
 		case TOK_STRING_LIT:            
     	case TOK_INT_LIT:             
-    	case TOK_DEC_LIT:                
+    	case TOK_DEC_LIT: 
+		case TOK_IDENTIFIER:               
 			return "i";
 		default:
-			return "error";
+			return "<tokenTypeToStr error>";
     }
 }

@@ -20,7 +20,6 @@ void eStackInit(eStack_t *stack){
 void eStackEmptyAll(eStack_t *stack){
     while(stack->head != NULL) {
         eStackDeleteFirst(stack);
-        // eStackPrint(stack);
     }
 }
 
@@ -146,7 +145,3 @@ void eStackPrint(eStack_t *stack){
     }
         printf("\n------------------------------\n");
 }
-
-// void eStackReduce(eStack_t *stack){
-
-// }

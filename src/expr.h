@@ -50,9 +50,6 @@ typedef enum{
     P_ERROR,
 }precTokenType_t;
 
-// ; )
-//, ->FUNEXP rozsirenie'
-
 const char precedenceTable[TABLE_SIZE][TABLE_SIZE];
 
 char *tokenTypeToStr(token_t *token);

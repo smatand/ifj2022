@@ -18,7 +18,13 @@ eItem_t *findClosestTerm(eStack_t *stack){
     eItem_t *currItem = stack->head;
     while(currItem->type == INDENT || currItem->type == NONTERM){
         currItem = currItem->next;
+        // printf("vraciam az dalsi item\n");
     }
+    // printf("vraciam currentitem\n");
+        // if(currItem->type == TERM){
+        //     printf(">NASIEL SOM TERM NAJBLIZSIE: \n");
+        //     eStackPrintItem(currItem);
+        // }
     return currItem;
 }
 char ownScanner(){
@@ -50,6 +56,8 @@ int charToToken(char s){
             // return TOK_COMPARISON;
         case '$':
             return 100;
+        default:
+            return 99;
     }
 }
 
@@ -73,9 +81,11 @@ int main(){
     bool scan = true;
     while(true){
         if(scan){
-            freeItem(newItem);
+            // freeItem(newItem);
             c = ownScanner();
             incomingTokenType = charToToken(c);
+            if(incomingTokenType == TOK_INT_LIT){
+            }
             if(incomingTokenType != 100){
                 newToken = myTokenInit(incomingTokenType);
                 incomingTokenType_newType = tokenTypeToeType(newToken);
@@ -90,12 +100,22 @@ int main(){
         scan = true;
 
         eItem_t *closestTerm = findClosestTerm(stack);
+        // if(closestTerm->token != NULL && closestTerm->token->type == TOK_INT_LIT){
+        //     printf("je to INT LIT \n");
+        // }
+        // printf("najblizsi typ: ");
+        // eStackPrintItem(closestTerm);
+        // printf("\n");
         if(closestTerm->type == DOLLAR){
+            // printf("najblizzsi je dolalar\n");
             stackTokenType = P_DOLLAR;
         }
         else{
             stackTokenType = tokenTypeToeType(closestTerm->token);
         }
+        
+        // printf("%d\n",stackTokenType);
+        // printf("table[%d][%d]",stackTokenType,incomingTokenType_newType);
         char operation = precedenceTable[stackTokenType][incomingTokenType_newType];
         
         switch(operation){
