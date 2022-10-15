@@ -16,7 +16,7 @@ typedef struct {
  * 
  * @return SUCCESS, otherwise ERR_INTERNAL
  */
-string_t * stringInit(int ret);
+string_t * stringInit(int * ret);
 
 /**
  * @brief Destroys given string structure

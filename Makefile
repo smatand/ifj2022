@@ -1,9 +1,9 @@
 #Makefile
 
 CC=gcc
-CFLAGS=-std=c11 -pedantic -Wall -Wextra -g#-Werror
+CFLAGS=-std=c11 -pedantic -Wall -Wextra -g
 
-SCANNER_TEST=tests/scan_test.c src/scanner.c src/scanner.h
+SCANNER_TEST=tests/scan_test.c src/scanner.c src/scanner.h src/str.h src/str.c
 
 scanner_test: $(SCANNER_TEST)
 	$(CC) $(CFLAGS) -o scan_test $(SCANNER_TEST)

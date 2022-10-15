@@ -7,17 +7,22 @@
 #define DEFAULT_LEN 16
 
 
-string_t * stringInit(int ret) {
+string_t * stringInit(int * ret) {
     string_t * s = calloc(1, sizeof(string_t));
     if (s == NULL) {
         fprintf(stderr, "Memory allocation of string_t failed\n");
-        return ERR_INTERNAL;
+
+        ret = ERR_INTERNAL;;
+        return NULL;
     }
 
     s->str = calloc(1, DEFAULT_LEN);
     if (s->str == NULL) {
         fprintf(stderr, "Memory allocation of string failed\n");
-        return ERR_INTERNAL;
+
+        free(s);
+        ret = ERR_INTERNAL;
+        return NULL;
     }
 
     s->allocatedSize = DEFAULT_LEN;

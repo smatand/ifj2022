@@ -36,7 +36,7 @@ typedef enum {
 
     // identifiers
     TOK_IDENTIFIER,     // $foo
-    TOK_TYPE_ID,        // ?foo
+    TOK_TYPE_ID,        // ?int, ?float, ?string, stored in token->attribute.kwVal
     TOK_FUN_ID,         // built-in or user made function IDs
 
     // literals
@@ -155,7 +155,8 @@ int checkKeyword(token_t * token, string_t * s);
  * @param fp file pointer
  * 
  * @return SUCCESS, otherwise ERR_CODE
-int fillStrWithKeyword(string_t * s, FILE * fp) {
+ */
+int fillStrWithKeyword(string_t * s, FILE * fp);
 
 /**
  * @brief Converts string to integer
@@ -191,7 +192,7 @@ int checkForPrologue(FILE * fp);
  * 
  * @return SUCCESS, otherwise ERR_CODE
  */
-int fillStr(string_t * s, token_t * token, FILE * fp, int flag);
+int fillStr(string_t * s, token_t * token, FILE * fp);
 
 /**
  * @brief Scans token

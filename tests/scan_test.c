@@ -46,6 +46,9 @@ int main() {
             case TOK_EOF:
                 printf("TOK_EOF\n");
                 break;
+            case TOK_ASSIGN:
+                printf("TOK_ASSIGN\n");
+                break;
             case TOK_KEYWORD:
                 switch (token->attribute.kwVal) {
                     case KW_INT:
@@ -59,6 +62,19 @@ int main() {
                         break;
                     case KW_NULL:
                         printf("KW_NULL\n");
+                        break;
+                }
+                break;
+            case TOK_TYPE_ID:
+                switch (token->attribute.kwVal) {
+                    case KW_INT:
+                        printf("TOK_TYPE_ID: KW_INT\n");
+                        break;
+                    case KW_FLOAT:
+                        printf("TOK_TYPE_ID: KW_FLOAT\n");
+                        break;
+                    case KW_STRING:
+                        printf("TOK_TYPE_ID: W_STRING\n");
                         break;
                 }
                 break;
