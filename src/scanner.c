@@ -509,16 +509,48 @@ int scanToken(token_t * token) {
                 break;
             case S_STRT_ESCP_SQNC:; // necessary ';', so the declaration of escpStr is valid, and not flagged by gcc
             char escpStr[5] = {'\\', '\0', '\0', '\0', '\0'}; // escape sequence buffer
-                if (c == 'x') {
+                if (c == 'x') { // hexa escape sequence
                     escpStr[1] = c;
                     fsmState = S_HEX_SCP_SQNC;
                     break;
-                } else if (c > 47 && c < 57) { // [0-8]
+                } else if (c > 47 && c < 57) { // [0-8] octal escape seq
                     escpStr[1] = c;
                     fsmState = S_OCT_SCP_SQNC;
                     break;
-                } else if (c == 't' || c == 'n' || c == '"' || c == '$' || c == '\\') {
-                    
+                } else if (c == 't') { // single char escape sequences
+                    if (charPushBack(str, '\t') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
+                } else if (c == 'n') {
+                    if (charPushBack(str, '\n') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
+                } else if (c == '"') {
+                    if (charPushBack(str, '"') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
+                } else if (c == '$') {
+                    if (charPushBack(str, '$') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
+                } else if (c == '\\'){
+                    if (charPushBack(str, '\\') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
                     break;
                 } else if (c == EOF) {
                     token->type = TOK_ERROR;
