@@ -542,7 +542,7 @@ int scanToken(token_t * token) {
                         escpStr[0] = '0'; // making a convertible format
                         temp = convertStringToInt(escpStr, 16);
                         escpStr[0] = '\\'; // in case of pushBack, it'll be in the original form
-                        if (temp > 32 && temp < 127) { // if convertible to a printable and allowed char, will do so
+                        if (temp > 31 && temp < 127) { // if convertible to a printable and allowed char, will do so
                             if (charPushBack(str, temp) != SUCCESS) {
                                 stringDestroy(str);
                                 return ERR_INTERNAL;
@@ -600,7 +600,7 @@ int scanToken(token_t * token) {
                         escpStr[0] = '0'; // making a convertible format
                         temp = convertStringToInt(escpStr, 8);
                         escpStr[0] = '\\'; // in case of pushBack, it'll be in the original form
-                        if(temp > 32 && temp < 127){ // if convertible to a printable and allowed char, will do so
+                        if(temp > 31 && temp < 127){ // if convertible to a printable and allowed char, will do so
                             if (charPushBack(str, temp) != SUCCESS) {
                                 stringDestroy(str);
                                 return ERR_INTERNAL;
