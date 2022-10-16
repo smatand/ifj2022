@@ -111,7 +111,6 @@ typedef enum {
     S_STRT_ESCP_SQNC, // start escape sequence
     S_HEX_SCP_SQNC, // hexadecimal escape sequence
     S_OCT_SCP_SQNC, // octal escape sequence
-    S_SNGL_SCP_SQNC, // single char escape sequence
     S_KEYW_OR_ID, // keyword or id
     S_QSTN_MARK,
     S_TYPE_ID,

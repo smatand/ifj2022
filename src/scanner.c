@@ -518,8 +518,7 @@ int scanToken(token_t * token) {
                     fsmState = S_OCT_SCP_SQNC;
                     break;
                 } else if (c == 't' || c == 'n' || c == '"' || c == '$' || c == '\\') {
-                    escpStr[1] = c;
-                    fsmState = S_SNGL_SCP_SQNC;
+                    
                     break;
                 } else if (c == EOF) {
                     token->type = TOK_ERROR;
