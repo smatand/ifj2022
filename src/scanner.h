@@ -37,7 +37,7 @@ typedef enum {
     // identifiers
     TOK_IDENTIFIER,     // $foo
     TOK_TYPE_ID,        // ?int, ?float, ?string, stored in token->attribute.kwVal
-    TOK_FUN_ID,         // built-in or user made function IDs
+
 
     // literals
     TOK_STRING_LIT,
@@ -48,7 +48,6 @@ typedef enum {
     TOK_KEYWORD,
 
     TOK_PROLOGUE,
-    //TOK_KEY_ID
     TOK_END_PROLOGUE,
 
     TOK_EOF
@@ -183,7 +182,6 @@ int checkForPrologue(FILE * fp);
  * @brief Fills string with characters
  * @param s struct to operate with
  * @param token struct to operate with for declaring type, attributes
- * @param flag 1 for keyword, 0 for other
  * 
  * @return SUCCESS, otherwise ERR_CODE
  */

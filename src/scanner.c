@@ -158,7 +158,7 @@ int fillStr(string_t * s, token_t * token, FILE * fp) {
     if (c == EOF) {
         free(buff);
         fprintf(stderr, "%d ERROR EOF REACHED\n", __LINE__);
-        return ERR_LEX_ANALYSIS;
+        return EOF;
     }
 
     buff[i] = '\0';
@@ -246,6 +246,12 @@ int scanToken(token_t * token) {
                 } else if(c == '!') {
                     fsmState = S_STRT_NEG_COMP;
                 } else if (c == '=') {
+                    if (lookAheadByOneChar(fp) != '=') {
+                        token->type = TOK_ASSIGN;
+
+                        stringDestroy(str);
+                        return SUCCESS;
+                    }
                     fsmState = S_ASSIGN;
                 } else if (c == '<') {
                     // if there is a char other than '=' or '?' after, it is just the < operator
@@ -267,6 +273,7 @@ int scanToken(token_t * token) {
                     } else {
                         token->type = TOK_GREATER_EQUAL; // S_GREATER_EQ
 
+                        c = getc(fp); // move the fp to the next char
                         stringDestroy(str);
                         return SUCCESS;
                     }
@@ -286,6 +293,7 @@ int scanToken(token_t * token) {
                     stringDestroy(str);
                     return SUCCESS;
                 } else if (c == '.') { 
+                    // ".92" or etc are taken as a syntax error
                     token->type = TOK_DOT;
 
                     stringDestroy(str);
@@ -340,10 +348,9 @@ int scanToken(token_t * token) {
                 if (c == '=') {
                     fsmState = S_STRT_COMP; 
                 } else { 
-                    token->type = TOK_ASSIGN;
 
                     stringDestroy(str);
-                    return SUCCESS;
+                    return ERR_LEX_ANALYSIS;
                 }
                 break;
             case S_STRT_COMP:
@@ -443,6 +450,7 @@ int scanToken(token_t * token) {
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS; // S_ERROR, missing number
                 }
+                break;
             case S_EXP_LIT:
                 if (isdigit(c)) {
                     if (charPushBack(str, c) != SUCCESS) {
@@ -450,11 +458,15 @@ int scanToken(token_t * token) {
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
-                } else {
+                } else if (isspace(c)) {
                     convertStringToDouble(str, token); // uses strdol() function, which works with exponents
 
                     stringDestroy(str);
                     return SUCCESS;
+                } else {
+
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
                 }
                 break;
             case S_STRT_DEC:
@@ -513,62 +525,62 @@ int scanToken(token_t * token) {
                 }
                 break;
             case S_STRT_ESCP_SQNC:; // necessary ';', so the declaration of escpStr is valid, and not flagged by gcc
-            char escpStr[5] = {'\\', '\0', '\0', '\0', '\0'}; // escape sequence buffer
-                if (c == 'x') { // hexa escape sequence
-                    escpStr[1] = c;
-                    fsmState = S_HEX_SCP_SQNC;
-                    break;
-                } else if (c > 47 && c < 57) { // [0-8] octal escape seq
-                    escpStr[1] = c;
-                    fsmState = S_OCT_SCP_SQNC;
-                    break;
-                } else if (c == 't') { // single char escape sequences
-                    if (charPushBack(str, '\t') != SUCCESS) { 
+                char escpStr[5] = {'\\', '\0', '\0', '\0', '\0'}; // escape sequence buffer
+                    if (c == 'x') { // hexa escape sequence
+                        escpStr[1] = c;
+                        fsmState = S_HEX_SCP_SQNC;
+                        break;
+                    } else if (c > 47 && c < 57) { // [0-8] octal escape seq
+                        escpStr[1] = c;
+                        fsmState = S_OCT_SCP_SQNC;
+                        break;
+                    } else if (c == 't') { // single char escape sequences
+                        if (charPushBack(str, '\t') != SUCCESS) { 
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                        fsmState = S_STRT_STR;
+                        break;
+                    } else if (c == 'n') {
+                        if (charPushBack(str, '\n') != SUCCESS) { 
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                        fsmState = S_STRT_STR;
+                        break;
+                    } else if (c == '"') {
+                        if (charPushBack(str, '"') != SUCCESS) { 
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                        fsmState = S_STRT_STR;
+                        break;
+                    } else if (c == '$') {
+                        if (charPushBack(str, '$') != SUCCESS) { 
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                        fsmState = S_STRT_STR;
+                        break;
+                    } else if (c == '\\'){
+                        if (charPushBack(str, '\\') != SUCCESS) { 
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                        fsmState = S_STRT_STR;
+                        break;
+                    } else if (c == EOF) {
+                        token->type = TOK_ERROR;
+                        strcpy(token->attribute.strVal, str->str);
+                        stringDestroy(str);
+                        return ERR_LEX_ANALYSIS;
+                    }
+                    if (charPushBack(str, c) != SUCCESS) { // if no valid escapes were read, treat it as part of the string
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_STR;
                     break;
-                } else if (c == 'n') {
-                    if (charPushBack(str, '\n') != SUCCESS) { 
-                        stringDestroy(str);
-                        return ERR_INTERNAL;
-                    }
-                    fsmState = S_STRT_STR;
-                    break;
-                } else if (c == '"') {
-                    if (charPushBack(str, '"') != SUCCESS) { 
-                        stringDestroy(str);
-                        return ERR_INTERNAL;
-                    }
-                    fsmState = S_STRT_STR;
-                    break;
-                } else if (c == '$') {
-                    if (charPushBack(str, '$') != SUCCESS) { 
-                        stringDestroy(str);
-                        return ERR_INTERNAL;
-                    }
-                    fsmState = S_STRT_STR;
-                    break;
-                } else if (c == '\\'){
-                    if (charPushBack(str, '\\') != SUCCESS) { 
-                        stringDestroy(str);
-                        return ERR_INTERNAL;
-                    }
-                    fsmState = S_STRT_STR;
-                    break;
-                } else if (c == EOF) {
-                    token->type = TOK_ERROR;
-                    strcpy(token->attribute.strVal, str->str);
-                    stringDestroy(str);
-                    return ERR_LEX_ANALYSIS;
-                }
-                if (charPushBack(str, c) != SUCCESS) { // if no valid escapes were read, treat it as part of the string
-                    stringDestroy(str);
-                    return ERR_INTERNAL;
-                }
-                fsmState = S_STRT_STR;
-                break;
             case S_HEX_SCP_SQNC:
                 if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F] first hexa char
                     escpStr[2] = c;
