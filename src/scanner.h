@@ -132,7 +132,7 @@ typedef enum {
  * 
  * @return SUCCESS, otherwise ERR_INTERNAL
  */
-int tokenInit(token_t * token);
+token_t * tokenInit();
 
 /**
  * @brief Frees token
@@ -146,15 +146,6 @@ void freeToken(token_t * token);
  * @return 0 in case of no keyword, otherwise 1 in case it is keyword
  */
 int checkKeyword(token_t * token, string_t * s);
-
-/**
- * @brief Fills s->str with following string
- * @param s struct to operate with
- * @param fp file pointer
- * 
- * @return SUCCESS, otherwise ERR_CODE
- */
-int fillStrWithKeyword(string_t * s, FILE * fp);
 
 /**
  * @brief Converts string to integer

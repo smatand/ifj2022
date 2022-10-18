@@ -23,14 +23,14 @@ Parser_t *initParser()
 		parser = NULL;
 	}
 
-	if (tokenInit(parser->currentToken) != SUCCESS) // scan and store first token
+	if ((parser->currentToken = tokenInit()) == NULL) // scan and store first token
 	{
 		fprintf(stderr, "PARSER ERROR (initParser): Parser current token initialization failure");
 		free(parser);
 		parser = NULL;
 	}
 
-	if (tokenInit(parser->nextToken) != SUCCESS) // scan and store first token
+	if ((parser->nextToken = tokenInit() == NULL) // scan and store first token
 	{
 		fprintf(stderr, "PARSER ERROR (initParser): Parser next token initialization failure");
 		free(parser);

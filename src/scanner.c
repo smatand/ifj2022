@@ -9,19 +9,17 @@
 
 #define MAX_KEYWORD_CHARS 9 // 8 + 1 for /0 (function + '\0')
 
-int tokenInit(token_t * token) {
-    token = malloc(sizeof(token_t));
-    if (token == NULL) {
-        fprintf(stderr, "Memory allocation of token_t failed");
-        return ERR_INTERNAL;
-    }
+token_t * tokenInit() {
+    token_t * token = malloc(sizeof(token_t));
 
-    token->type = TOK_EMPTY;
-
-    return SUCCESS;
+    return token;
 }
 
 void freeToken(token_t * token) {
+    if (token->attribute.strVal != NULL) {
+        free(token->attribute.strVal);
+    }
+
     free(token);
 }
 
@@ -104,36 +102,9 @@ int checkForPrologue(FILE * fp) {
     return strcmp(loadedChars, prologue);
 }
 
-int fillStrWithKeyword(string_t * s, FILE * fp) {
-    char buff[MAX_KEYWORD_CHARS];
-    int c = getc(fp);
-    int i = 0;
-
-    while (c != EOF && !isspace(c) && c != '=') {
-        buff[i++] = c;
-        c = getc(fp);
-
-        if (i == MAX_KEYWORD_CHARS) {
-            return ERR_LEX_ANALYSIS;
-        }
-    }
-    
-    if (c == EOF) {
-        return ERR_LEX_ANALYSIS;
-    }
-
-    buff[i] = '\0';
-
-    memcpy(s->str, buff, i); // s->str should contain DEFAULT_LEN (16) space
-    s->realLen = i;
-
-    return SUCCESS;
-}
-
 int fillStr(string_t * s, token_t * token, FILE * fp) {
     char * buff = calloc(1, MAX_KEYWORD_CHARS);
     if (buff == NULL) {
-        fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
         return ERR_INTERNAL;
     }
 
@@ -148,8 +119,6 @@ int fillStr(string_t * s, token_t * token, FILE * fp) {
             buff = realloc(buff, i + MAX_KEYWORD_CHARS);
 
             if (buff == NULL) {
-                //free(buff);
-                fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
                 return ERR_INTERNAL;
             }
         }
@@ -157,15 +126,13 @@ int fillStr(string_t * s, token_t * token, FILE * fp) {
 
     if (c == EOF) {
         free(buff);
-        fprintf(stderr, "%d ERROR EOF REACHED\n", __LINE__);
-        return EOF;
+        return ERR_LEX_ANALYSIS;
     }
 
     buff[i] = '\0';
 
     if (stringResize(s, i + MAX_KEYWORD_CHARS) != SUCCESS) {
         free(buff);
-        fprintf(stderr, "ERROR %d ALLOCATION FAILED", __LINE__);
         return ERR_INTERNAL;
     }
 
@@ -376,7 +343,6 @@ int scanToken(token_t * token) {
                         stringDestroy(str);
                         return SUCCESS;
                     } else {
-                        token->type = TOK_ERROR;
 
                         stringDestroy(str);
                         return ERR_LEX_ANALYSIS; // prologue was not loaded
@@ -479,6 +445,7 @@ int scanToken(token_t * token) {
                     fsmState = S_DEC_LIT;
                     break;
                 } else {
+                    stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 }
             case S_DEC_LIT:
@@ -699,12 +666,21 @@ int scanToken(token_t * token) {
                 }
             case S_KEYW_OR_ID:
                 ungetc(c, fp); // again to manipulate with c correctly
-                fillStr(str, token, fp);
+                ret = fillStr(str, token, fp);
+
+                if (ret == ERR_INTERNAL) {
+
+                    stringDestroy(str);
+                    return ERR_INTERNAL;
+                } else if (ret == ERR_LEX_ANALYSIS) {
+
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
+                }
 
                 checkKeyword(token, str); // changes token->type
 
                 stringDestroy(str);
-
                 return SUCCESS;
             case S_QSTN_MARK:
                 if (c == '>') {
@@ -721,32 +697,39 @@ int scanToken(token_t * token) {
                 stringDestroy(str);
                 return ERR_LEX_ANALYSIS;
             case S_TYPE_ID:
-                    // need to check for 'string', 'int' or 'float'
-                    ungetc(c, fp);
-                    if (fillStr(str, token, fp) != SUCCESS) {
+                // need to check for 'string', 'int' or 'float'
+                ungetc(c, fp);
 
-                        stringDestroy(str);
-                        return ERR_LEX_ANALYSIS;
-                    }
+                ret = fillStr(str, token, fp);
 
-                    if (checkKeyword(token, str) == 0) {
+                if (ret == ERR_INTERNAL) {
 
-                        stringDestroy(str); // it doesn't match any keyword, throw err_lex
-                        return ERR_LEX_ANALYSIS;
-                    } else if ( token->attribute.kwVal == KW_STRING ||  token->attribute.kwVal == KW_INT 
-                            ||  token->attribute.kwVal == KW_FLOAT) {
-                        
-                        token->type = TOK_TYPE_ID;
+                    stringDestroy(str);
+                    return ERR_INTERNAL;
+                } else if (ret == ERR_LEX_ANALYSIS) {
 
-                        stringDestroy(str);
-                        return SUCCESS; // token->type is set, attribute too
-                    } else { // other keywords are not allowed as TYPE
-                        token->type = TOK_EMPTY;
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
+                }
 
-                        stringDestroy(str);
-                        return ERR_LEX_ANALYSIS;
-                    }
-                    break;
+                if (checkKeyword(token, str) == 0) {
+
+                    stringDestroy(str); // it doesn't match any keyword, throw err_lex
+                    return ERR_LEX_ANALYSIS;
+                } else if ( token->attribute.kwVal == KW_STRING ||  token->attribute.kwVal == KW_INT 
+                        ||  token->attribute.kwVal == KW_FLOAT) {
+                    
+                    token->type = TOK_TYPE_ID;
+
+                    stringDestroy(str);
+                    return SUCCESS; // token->type is set, attribute too
+                } else { // other keywords are not allowed as TYPE
+                    token->type = TOK_EMPTY;
+
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
+                }
+                break;
             case S_STRT_VAR:
                 if (isalpha(c) || '_') {
                     ungetc(c, fp);
