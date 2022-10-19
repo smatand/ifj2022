@@ -30,7 +30,57 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
   {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
 };
 
+
+
+
+void exprShift(eStack_t *stack, eItem_t *item){
+    eStackPushIndent(stack);
+    eItem_t *newItem = eItemInit(item->token,TERM);
+    eStackPushItem(stack,newItem);
+}
+
 void exprReduce(eStack_t *stack){
+	int ruleType = exprFindRule(stack);
+	eItem_t *currItem = stack->head;
+	switch(ruleType){
+		case RULE1:
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			eStackPushNonTerm(stack);
+			break;
+		case RULE2:
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			eStackPushNonTerm(stack);
+			break;
+		case RULE3:
+			// stackPrint(stack);
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			currItem = eStackPopItem(stack);	
+			free(currItem);
+			eStackPushNonTerm(stack);
+			break;
+		case RULE_ERROR:
+			printf("rule error");
+			break;
+	}
+}
+
+
+eRules_t exprFindRule(eStack_t *stack){
 	int currState = E_STATE_START;
 	bool repeat = true;
 	int tokenType;
@@ -40,16 +90,18 @@ void exprReduce(eStack_t *stack){
 		switch(currState){
 			//starting state
 			case E_STATE_START:
-				currItem = eStackPopItem(stack);
+				currItem = stack->head;
 				//if term is at the top of stack, 
 				//then it can only be rule E->i or E->(E)
-				if(currItem->type == TERM){	
+				if(currItem->type == TERM){	 //todo: handle if null
 					tokenType = tokenTypeToeType(currItem->token);
 					if(tokenType ==  P_RIGHT_PAREN){
 						currState = RULE2_EXPECTED1;
 						break;
 					}
+					else if(tokenType == P_ID){
 						currState = RULE3_EXPECTED1;
+					}
 				}
 				//if not then it is rule 1 = E->E+E,...
 				if(currItem->type == NONTERM){
@@ -64,8 +116,7 @@ void exprReduce(eStack_t *stack){
 			 * now we expect that the next token will be operant
 			 */
 			case RULE1_EXPECTED1:
-				free(currItem); //free previoud item ')'
-				currItem = eStackPopItem(stack);
+				currItem = currItem->next;
 				tokenType = tokenTypeToeType(currItem->token);
 				if(tokenType != P_ID || tokenType != P_LEFT_PAREN || tokenType != P_RIGHT_PAREN){
 					currState = RULE1_EXPECTED2;
@@ -76,8 +127,7 @@ void exprReduce(eStack_t *stack){
 			 * now we expect that the next token will be NONTERM E
 			 */
 			case RULE1_EXPECTED2:
-				free(currItem);
-				currItem = eStackPopItem(stack);
+				currItem = currItem->next;
 				if(currItem->type == NONTERM){
 					currState = RULE1_EXPECTED3;
 				}
@@ -87,57 +137,41 @@ void exprReduce(eStack_t *stack){
 			 * now we expect that the next token will be INDENT '<'
 			 */
 			case RULE1_EXPECTED3:
-				free(currItem);
-				currItem = eStackPopItem(stack);
+				currItem = currItem->next;
 				if(currItem->type == INDENT){
-					// printf("3: E -> E*E\n");
-					free(currItem);
-					eStackPushNonTerm(stack);
 					repeat = false;
-					return;
+					return RULE1;
 				}
 				break;
 			//rule E -> (E)
 			case RULE2_EXPECTED1:
-				free(currItem);
-				currItem = eStackPopItem(stack);
+				currItem = currItem->next;
 				if(currItem->type == NONTERM){
 					currState = RULE2_EXPECTED2;
 				}
 				break;
 			//rule E -> (E)
 			case RULE2_EXPECTED2:
-				free(currItem);
-				currItem = eStackPopItem(stack);
+				currItem = currItem->next;
 				tokenType = tokenTypeToeType(currItem->token);
 				if(tokenType ==  P_LEFT_PAREN){
 					currState = RULE2_EXPECTED3;
 				}
 			case RULE2_EXPECTED3:
-				free(currItem);
-				currItem = eStackPopItem(stack);
+				currItem = currItem->next;
 				//next item needs to be indent
 				if(currItem->type == INDENT){
-					// printf("2: E -> (E)\n");
-					free(currItem);
-					eStackPushNonTerm(stack);
 					repeat = false;
-					return;
+					return RULE2;
 				}
 
 			//rule E -> i
 			case RULE3_EXPECTED1:
-				tokenType = tokenTypeToeType(currItem->token);
-				free(currItem);
-				if(tokenType == P_ID){ //if we found i
-					currItem = eStackPopItem(stack);
-					//next item needs to be indent
-					if(currItem->type == INDENT){//todo else error aj u ostatnych
-						free(currItem);
-						eStackPushNonTerm(stack);
-						repeat = false;
-						return;
-					}
+				currItem = currItem->next;
+				//next item needs to be indent
+				if(currItem->type == INDENT){//todo else error aj u ostatnych
+					repeat = false;
+					return RULE3;
 				}
 			default: //todo errors
 				printf("Reduce error\n!");

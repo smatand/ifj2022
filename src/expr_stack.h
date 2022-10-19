@@ -106,14 +106,6 @@ void stackPrint(eStack_t *stack);
  */
 void freeItem(eItem_t *item);
 
-/**
- * @brief pushes INDENT and then pushed item
- * 
- * @param stack pointer to stack
- * @param item pointer to item
- */
-void eStackShift(eStack_t *stack, eItem_t *item);
-
 //prints item -> for debugging
 void eStackPrintItem(eItem_t *item);
 

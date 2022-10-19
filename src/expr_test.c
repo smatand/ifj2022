@@ -107,13 +107,13 @@ int main(){
         
         switch(operation){
             case '<':
-                eStackShift(stack,newItem);
+                exprShift(stack,newItem);
                 break;
             case '>':
                 exprReduce(stack);
                 break;
             case '=':
-                eStackPushItem(stack,newItem);
+                eStackPushItem(stack,newItem); 
                 break;
             case '!':
             // printf("trying recovery\n");
