@@ -23,10 +23,6 @@ token_t * tokenInit() {
 }
 
 void freeToken(token_t * token) {
-    if (token->attribute.strVal != NULL) {
-        free(token->attribute.strVal);
-    }
-
     free(token);
 }
 
@@ -289,10 +285,12 @@ int scanToken(token_t * token) {
                 } else if (isdigit(c)) {
                     fsmState = S_INT_LIT;
                     if (charPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                 } else if(c == EOF) {
                     token->type = TOK_EOF;
+
                     stringDestroy(str);
                     return SUCCESS;
                 }
@@ -799,5 +797,6 @@ int scanToken(token_t * token) {
             }
     }
 
+    stringDestroy(str);
     return SUCCESS;
 }
