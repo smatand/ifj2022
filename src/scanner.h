@@ -1,3 +1,9 @@
+/**
+ * @file scanner.h
+ * @author János László Vasík, Andrej Smatana
+ * @brief Scanner header file
+ */
+
 #ifndef SCANNER_H
 #define SCANNER_H
 

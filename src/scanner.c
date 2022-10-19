@@ -1,3 +1,10 @@
+/**
+ * @file scanner.c
+ * @author János László Vasík, Andrej Smatana
+ *
+ * @brief Implementation of scanner module for IFJ22
+ */
+
 #include "scanner.h"
 #include "error.h"
 #include "str.h"
