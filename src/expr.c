@@ -39,6 +39,16 @@ void exprShift(eStack_t *stack, eItem_t *item){
     eStackPushItem(stack,newItem);
 }
 
+// token_t *exprMain(token_t *firstToken,)
+
+eItem_t *findClosestTerm(eStack_t *stack){
+    eItem_t *currItem = stack->head;
+    while(currItem->type == INDENT || currItem->type == NONTERM){
+        currItem = currItem->next;
+    }
+    return currItem;
+}
+
 void exprReduce(eStack_t *stack){
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;

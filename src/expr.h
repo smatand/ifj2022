@@ -87,6 +87,19 @@ char *tokenTypeToStr(token_t *token);
  * @param item pointer to item
  */
 void exprShift(eStack_t *stack, eItem_t *item);
+/**
+ * @brief finds one of relevant rules
+ * 
+ * @param stack pointer to stack    
+ * @return eRules_t returns which rule has occured
+ */
 eRules_t exprFindRule(eStack_t *stack);
+/**
+ * @brief function that finds the closest term in the stack
+ * 
+ * @param stack pointer tu stack
+ * @return eItem_t* pointer to found token
+ */
+eItem_t *findClosestTerm(eStack_t *stack);
 
 #endif /* EXPR_H */ 
