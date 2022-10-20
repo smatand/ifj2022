@@ -10,9 +10,8 @@
 string_t * stringInit(int * ret) {
     string_t * s = calloc(1, sizeof(string_t));
     if (s == NULL) {
-        fprintf(stderr, "Memory allocation of string_t failed\n");
 
-        ret = ERR_INTERNAL;;
+        *ret = ERR_INTERNAL;;
         return NULL;
     }
 
@@ -21,7 +20,7 @@ string_t * stringInit(int * ret) {
         fprintf(stderr, "Memory allocation of string failed\n");
 
         free(s);
-        ret = ERR_INTERNAL;
+        *ret = ERR_INTERNAL;
         return NULL;
     }
 
@@ -33,9 +32,11 @@ string_t * stringInit(int * ret) {
 }
 
 void stringDestroy(string_t * s) {
-    free(s->str);
     s->realLen = 0;
     s->allocatedSize = 0;
+
+    free(s->str);
+    free(s);
 }
 
 int lookAheadByOneChar(FILE * fp) {
@@ -75,7 +76,7 @@ int charPushBack(string_t * s, int c) {
 }
 
 int strPushBack(string_t * s, char * source, int len) {
-    for (size_t i = 0; i < len; i++){
+    for (int i = 0; i < len; i++){
         if (charPushBack(s, source[i]) != SUCCESS) {
             return ERR_INTERNAL;
         }

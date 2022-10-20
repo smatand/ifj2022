@@ -617,7 +617,12 @@ int scanToken(token_t * token) {
                             fsmState = S_STRT_STR;
                             break;
                         }
-                    } else if(temp = EOF){
+                    } else if(temp == EOF){
+                        if(strPushBack(str, escpStr, 4) != SUCCESS){
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                        strcpy(token->attribute.strVal, str->str);
                         stringDestroy(str);
                         return ERR_LEX_ANALYSIS;
                     } else {

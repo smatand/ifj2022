@@ -87,12 +87,6 @@ typedef struct {
 typedef enum {
     // end states
     S_START,
-    S_NEG_COMP, // negative comparison
-    S_GREATER_EQ, // greater or equals
-    S_LESSER_EQ, // lesser or equals
-    S_STR_LIT, // string literal
-    S_ERROR,
-    S_END,
 
     // mid-states
     S_STRT_NEG_COMP, // start negative comparison
@@ -100,7 +94,6 @@ typedef enum {
     S_ASSIGN,
     S_STRT_COMP, // start comparison
     S_LESSER,
-    S_GREATER,
 
     S_INT_LIT, // integer literal
     S_STRT_EXP, // start exponent
@@ -116,17 +109,12 @@ typedef enum {
     S_KEYW_OR_ID, // keyword or id
     S_QSTN_MARK,
     S_TYPE_ID,
-    S_END_SIGN,
     S_STRT_VAR, // start variable
-    S_VAR_ID, // variable ID
     S_SLASH,
     S_S_COMMENT, // single line comment
-    S_STRT_M_COMMENT, // start multiline comment
     S_M_COMMENT_FIN, // multiline comment finish
     S_M_COMMENT, // multiline comment
-    S_EOL_COUNT,
     S_EOL,
-    S_EOF,
 } machineState_t;
 
 /** 
