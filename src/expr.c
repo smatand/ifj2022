@@ -30,7 +30,7 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
   {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
 };
 
-int main(){
+int main(){ //
 	// token_t *firstToken;
 	// firstToken= myTokenInit(firstToken);
 	// exprParse(firstToken);

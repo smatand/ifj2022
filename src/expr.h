@@ -8,8 +8,6 @@
 
 #include<stdio.h>
 #include"scanner.h"
-
-
 #define TABLE_SIZE 15 //size of precedence table
 
 typedef enum{
