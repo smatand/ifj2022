@@ -31,28 +31,88 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
 };
 
 int main(){ //
-	// token_t *firstToken;
-	// firstToken= myTokenInit(firstToken);
-	// exprParse(firstToken);
-	exprParse();
-	printf("test");
+	token_t *returnToken = tokenInit();
+	token_t *token = tokenInit();
+	scanToken(token);
+	exprParse(token,returnToken);
+
 }
 
-// token_t *exprParse(token_t *firstToken){
-void exprParse(){
-	// bool continueParsing = true;
-	//initializing new stack
+int exprParse(token_t *firstToken,token_t* returnToken){
+	bool continueParsing = true;	
+	bool scanAnotherToken = true;
+	//init stack
 	eStack_t estack;
 	eStack_t *stack = &estack; 
 	eStackInit(stack);
 	eStackPushDollar(stack);
 	//
+	int stackTokenType;
+	int incomingTokenType;
+	token_t *incomingToken = firstToken;
+	eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
 
-	token_t *token = tokenInit();
-	scanToken(token);
-	eItem_t *item = eItemInit(token,TERM);
-	eStackPushItem(stack,item);
-	stackPrint(stack);
+	while(continueParsing){
+
+		if(scanAnotherToken){
+			incomingTokenType = tokenTypeToeType(incomingToken);
+			eItem_t *closestTerm = findClosestTerm(stack); //closest term in stack
+			if(closestTerm->type == DOLLAR){ //if it is the end of stack
+				stackTokenType = P_DOLLAR;
+			}
+			else{
+				stackTokenType = tokenTypeToeType(closestTerm->token);
+			}
+		}
+		scanAnotherToken = true;
+        char operation = precedenceTable[stackTokenType][incomingTokenType];
+		switch(operation){
+					case '<': //shift with indent
+						exprShift(stack,incomingTokenItem);
+						break;
+					case '>': //reduce
+						exprReduce(stack);
+						break;
+					case '=': //shift without pushing indent
+						eStackPushItem(stack,incomingTokenItem); 
+						break;
+					case '!': //we found error
+						/**
+						 * error still can be correct, if it is right parenthesis ')'
+						 * because this could be case of if where we encounter right closing 
+						 * bracket of if statement, therefore we sent this to top bottom to analyse this
+						 */
+						if(incomingTokenType == P_RIGHT_PAREN){
+							//we need to end expression with $E
+							while(stack->head->next->type != DOLLAR){ 
+								exprReduce(stack);
+								stackPrint(stack);
+							}
+							continueParsing = false;
+							// staci return )
+							return 0;
+							break;
+						}
+						printf("ERROR\n");
+						break;
+					default:
+						printf("SWITCH error\n");
+				}
+		if(incomingTokenItem->type == DOLLAR || !continueParsing){
+            freeItem(incomingTokenItem);
+            break;
+        }
+		//reduction = we loop thru while again with same token
+        if(operation == '>'){
+            scanAnotherToken = false;
+        }
+        // stackPrint(stack);
+
+		if(scanAnotherToken){
+			incomingToken = tokenInit();
+			scanToken(incomingToken);
+		}
+	}
 
 }
 

@@ -100,6 +100,12 @@ eRules_t exprFindRule(eStack_t *stack);
  */
 eItem_t *findClosestTerm(eStack_t *stack);
 
-// token_t *exprParse(token_t *firstToken);
-void exprParse();
+/**
+ * @brief function reads incoming tokens, till we find ';' or error occurs with 
+ * term type ')' (this is for if, while statements)
+ * 
+ * @param firstToken pointer to first token of expression
+ * @return token_t* returning token which ended expression
+ */
+int exprParse(token_t *firstToken,token_t *returnToken);
 #endif /* EXPR_H */ 
