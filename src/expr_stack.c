@@ -58,6 +58,10 @@ void eStackPushNonTerm(eStack_t *stack){
     eItem_t *nonTermItem = eItemInit(NULL,NONTERM);
     eStackPushItem(stack,nonTermItem);
 }
+// void eStackPushNonTerm(eStack_t *stack,token_t *token){
+//     eItem_t *nonTermItem = eItemInit(token,NONTERM);
+//     eStackPushItem(stack,nonTermItem);
+// }
 
 eItem_t *eStackPopItem(eStack_t *stack){
     if(stack->head == NULL){

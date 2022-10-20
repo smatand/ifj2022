@@ -95,7 +95,9 @@ void eStackDeleteFirst(eStack_t *stack);
  * @brief pushes NONTERM (E) to the top of stack
  * 
  * @param stack pointer to stack
+ * @param token pointer to given token
  */
+// void eStackPushNonTerm(eStack_t *stack,token_t *token);
 void eStackPushNonTerm(eStack_t *stack);
 void stackPrint(eStack_t *stack);
 

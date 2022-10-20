@@ -43,7 +43,7 @@ void exprReduce(eStack_t *stack){
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;
 	switch(ruleType){
-		case RULE1:
+		case RULE1://4 times repeating, is just for now, waiting for code generation
 			currItem = eStackPopItem(stack);	
 			free(currItem);
 			currItem = eStackPopItem(stack);	
