@@ -20,10 +20,6 @@ int main() {
                 printf("\n");
                 break;
 
-            case TOK_ERROR: 
-                printf("TOK_ERROR\n");
-                break;
-
             case TOK_LEFT_PAREN:
                 printf("TOK_LEFT_PAREN\n");
                 break;

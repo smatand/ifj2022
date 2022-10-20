@@ -1,3 +1,10 @@
+/**
+ * @file scanner.c
+ * @author János László Vasík, Andrej Smatana
+ *
+ * @brief Implementation of scanner module for IFJ22
+ */
+
 #include "scanner.h"
 #include "error.h"
 #include "str.h"
@@ -16,10 +23,6 @@ token_t * tokenInit() {
 }
 
 void freeToken(token_t * token) {
-    if (token->attribute.strVal != NULL) {
-        free(token->attribute.strVal);
-    }
-
     free(token);
 }
 
@@ -282,10 +285,12 @@ int scanToken(token_t * token) {
                 } else if (isdigit(c)) {
                     fsmState = S_INT_LIT;
                     if (charPushBack(str, c) != SUCCESS) {
+                        stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                 } else if(c == EOF) {
                     token->type = TOK_EOF;
+
                     stringDestroy(str);
                     return SUCCESS;
                 }
@@ -474,13 +479,9 @@ int scanToken(token_t * token) {
                 } else if (c == '\\') {
                     fsmState = S_STRT_ESCP_SQNC;
                 } else if(c == '$') { // dollar sign is not allowed without a backslash before it
-                    token->type = TOK_ERROR;
-                    strcpy(token->attribute.strVal, str->str);
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else if (c == EOF) {
-                    token->type = TOK_ERROR;
-                    strcpy(token->attribute.strVal, str->str);
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else { // else it is part of string literal
@@ -537,8 +538,6 @@ int scanToken(token_t * token) {
                         fsmState = S_STRT_STR;
                         break;
                     } else if (c == EOF) {
-                        token->type = TOK_ERROR;
-                        strcpy(token->attribute.strVal, str->str);
                         stringDestroy(str);
                         return ERR_LEX_ANALYSIS;
                     }
@@ -573,12 +572,6 @@ int scanToken(token_t * token) {
                             break;
                         }
                     } else if (c == EOF){ // error caused by EOF
-                        token->type = TOK_ERROR;
-                        if(strPushBack(str, escpStr, 4) != SUCCESS){
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
-                        strcpy(token->attribute.strVal, str->str);
                         stringDestroy(str);
                         return ERR_LEX_ANALYSIS;
                     } else { // incorrect hexa escp. seq. -> part of string
@@ -590,12 +583,6 @@ int scanToken(token_t * token) {
                         break;
                     }
                 } else if (c == EOF){
-                    token->type = TOK_ERROR;
-                    if(strPushBack(str, escpStr, 3) != SUCCESS){
-                        stringDestroy(str);
-                        return ERR_INTERNAL;
-                    }
-                    strcpy(token->attribute.strVal, str->str);
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else {
@@ -630,8 +617,7 @@ int scanToken(token_t * token) {
                             fsmState = S_STRT_STR;
                             break;
                         }
-                    } else if(temp = EOF){
-                        token->type = TOK_ERROR;
+                    } else if(temp == EOF){
                         if(strPushBack(str, escpStr, 4) != SUCCESS){
                             stringDestroy(str);
                             return ERR_INTERNAL;
@@ -648,12 +634,6 @@ int scanToken(token_t * token) {
                         break;
                     }
                 } else if(c == EOF) {
-                    token->type = TOK_ERROR;
-                    if(strPushBack(str, escpStr, 3) != SUCCESS){
-                        stringDestroy(str);
-                        return ERR_INTERNAL;
-                    }
-                    strcpy(token->attribute.strVal, str->str);
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else {
@@ -792,5 +772,6 @@ int scanToken(token_t * token) {
             }
     }
 
+    stringDestroy(str);
     return SUCCESS;
 }
