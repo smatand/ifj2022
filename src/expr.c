@@ -30,8 +30,31 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
   {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
 };
 
+int main(){
+	// token_t *firstToken;
+	// firstToken= myTokenInit(firstToken);
+	// exprParse(firstToken);
+	exprParse();
+	printf("test");
+}
 
+// token_t *exprParse(token_t *firstToken){
+void exprParse(){
+	// bool continueParsing = true;
+	//initializing new stack
+	eStack_t estack;
+	eStack_t *stack = &estack; 
+	eStackInit(stack);
+	eStackPushDollar(stack);
+	//
 
+	token_t *token = tokenInit();
+	scanToken(token);
+	eItem_t *item = eItemInit(token,TERM);
+	eStackPushItem(stack,item);
+	stackPrint(stack);
+
+}
 
 void exprShift(eStack_t *stack, eItem_t *item){
     eStackPushIndent(stack);
@@ -39,7 +62,6 @@ void exprShift(eStack_t *stack, eItem_t *item){
     eStackPushItem(stack,newItem);
 }
 
-// token_t *exprMain(token_t *firstToken,)
 
 eItem_t *findClosestTerm(eStack_t *stack){
     eItem_t *currItem = stack->head;
@@ -167,6 +189,7 @@ eRules_t exprFindRule(eStack_t *stack){
 				if(tokenType ==  P_LEFT_PAREN){
 					currState = RULE2_EXPECTED3;
 				}
+				break;
 			case RULE2_EXPECTED3:
 				currItem = currItem->next;
 				//next item needs to be indent
@@ -174,7 +197,7 @@ eRules_t exprFindRule(eStack_t *stack){
 					repeat = false;
 					return RULE2;
 				}
-
+				break;
 			//rule E -> i
 			case RULE3_EXPECTED1:
 				currItem = currItem->next;
@@ -183,6 +206,7 @@ eRules_t exprFindRule(eStack_t *stack){
 					repeat = false;
 					return RULE3;
 				}
+				break;
 			default: //todo errors
 				printf("Reduce error\n!");
 				exit(1);
@@ -190,6 +214,7 @@ eRules_t exprFindRule(eStack_t *stack){
 
 		}
 	}
+	return RULE_ERROR;
 }
 //todo co patri pod id  co moze byt vo vyraze?
 precTokenType_t tokenTypeToeType(token_t *token){

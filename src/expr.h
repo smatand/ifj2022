@@ -102,4 +102,6 @@ eRules_t exprFindRule(eStack_t *stack);
  */
 eItem_t *findClosestTerm(eStack_t *stack);
 
+// token_t *exprParse(token_t *firstToken);
+void exprParse();
 #endif /* EXPR_H */ 

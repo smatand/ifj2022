@@ -12,21 +12,6 @@ token_t *myTokenInit(int type){
     return token;
 }
 
-//i+i*i
-//i
-eItem_t *findClosestTerm(eStack_t *stack){
-    eItem_t *currItem = stack->head;
-    while(currItem->type == INDENT || currItem->type == NONTERM){
-        currItem = currItem->next;
-        // printf("vraciam az dalsi item\n");
-    }
-    // printf("vraciam currentitem\n");
-        // if(currItem->type == TERM){
-        //     printf(">NASIEL SOM TERM NAJBLIZSIE: \n");
-        //     eStackPrintItem(currItem);
-        // }
-    return currItem;
-}
 char ownScanner(){
     int c = fgetc(stdin);
     return c;

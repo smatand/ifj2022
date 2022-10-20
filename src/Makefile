@@ -6,17 +6,23 @@ CFLAGS= -std=c11 -pedantic -Wall -Wextra -Werror -g
 
 
 test: expr_test
+main: expr
 
 
 #main
 expr_test: expr_test.o expr.o expr_stack.o
 	$(CC) $(CFLAGS) expr_test.o expr.o expr_stack.o -o expr_test
 
-# expr: expr.o expr_stack.o
-# 	$(CC) $(CFLAG) expr.o expr_stack.o -o expr
+expr: expr.o expr_stack.o scanner.o str.o
+	$(CC) $(CFLAGS) expr.o expr_stack.o scanner.o str.o -o expr
+
+
 #.o
-# scanenr.o: scanner.c scanner.h
-# 	$(CC) -c scanner.c
+str.o: str.c str.h
+	$(CC) -c str.c
+
+scanenr.o: scanner.c scanner.h
+	$(CC) -c scanner.c
 
 expr.o: expr.c expr.h
 	$(CC) -c expr.c
