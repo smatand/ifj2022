@@ -36,14 +36,14 @@ Parser_t *initParser();
  *
  * @return Error code
  */
-int destroyParser();
+int destroyParser(Parser_t *parser);
 
 /**
  * @brief Get the next token from the scanner
  *
  * @return Error code
  */
-int getNextToken();
+int getNextToken(Parser_t *parser);
 
 /**
  * @brief Check the type of a token
@@ -69,7 +69,7 @@ int checkTokenKeyword(token_t *token, keyword_t keyword);
  *
  * @return Error code
  */
-int parseSource();
+int parseSource(Parser_t *parser);
 
 //###############################~~~RULES~~~#######
 

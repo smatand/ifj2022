@@ -30,7 +30,7 @@ Parser_t *initParser()
 		parser = NULL;
 	}
 
-	if ((parser->nextToken = tokenInit() == NULL) // scan and store first token
+	if ((parser->nextToken = tokenInit() == NULL)) // scan and store first token
 	{
 		fprintf(stderr, "PARSER ERROR (initParser): Parser next token initialization failure");
 		free(parser);
@@ -69,10 +69,10 @@ int destroyParser(Parser_t *parser)
 	parser = NULL;
 }
 
-int parseSource()
+int parseSource(Parser_t *parser)
 {
 	int error;
-	error = program();
+	error = rProgram(parser);
 
 	return 0;
 }
@@ -102,7 +102,7 @@ int checkTokenKeyword(token_t* token, keyword_t keyword)
 {
 	if (token->type == TOK_KEYWORD)
 	{
-		if (token->attribute == keyword)
+		if (token->attribute.kwVal == keyword)
 		{
 			return 0;
 		}

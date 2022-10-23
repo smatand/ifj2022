@@ -14,12 +14,30 @@
 			return check;                                            \
 	} while (0)
 
+#define CURRENT_TOKEN_TYPE_GETNEXT(tokenType)                        \
+	do                                                               \
+	{                                                                \
+		int check = checkTokenType(parser->currentToken, tokenType); \
+		if (check != 0)                                              \
+			return check;                                            \
+		getNextToken(parser);                                        \
+	} while (0)
+
 #define CURRENT_TOKEN_KWORD(keyword)                                  \
 	do                                                                \
 	{                                                                 \
 		int check = checkTokenKeyword(parser->currentToken, keyword); \
 		if (check != 0)                                               \
 			return check;                                             \
+	} while (0)
+
+#define CURRENT_TOKEN_KWORD_GETNEXT(keyword)                          \
+	do                                                                \
+	{                                                                 \
+		int check = checkTokenKeyword(parser->currentToken, keyword); \
+		if (check != 0)                                               \
+			return check;                                             \
+		getNextToken(parser);                                         \
 	} while (0)
 
 #define NEXT_TOKEN_TYPE(tokenType)                                \
