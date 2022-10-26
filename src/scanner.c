@@ -471,9 +471,13 @@ int scanToken(token_t * token) {
             case S_STRT_STR:
                 if (c == '"') {
                     token->type = TOK_STRING_LIT;
-                    token->attribute.strVal = str->str;
-                    stringDestroy(str);
-                    return SUCCESS;
+                    if (copyString(token, str) != SUCCESS) {
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    } else {
+                        stringDestroy(str);
+                        return SUCCESS;
+                    }
                 } else if (c == '\\') {
                     fsmState = S_STRT_ESCP_SQNC;
                 } else if(c == '$') { // dollar sign is not allowed without a backslash before it
