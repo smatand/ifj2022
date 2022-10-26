@@ -93,6 +93,9 @@ int main() {
                     case KW_STRING:
                         printf("TOK_TYPE_ID: W_STRING\n");
                         break;
+                    default:
+                        printf("TOK_TYPE_ID: ---------- INVALID ----------");
+                        break;
                 }
                 break;
             
