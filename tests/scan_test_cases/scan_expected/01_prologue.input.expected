@@ -1,7 +1,10 @@
 TOK_PROLOGUE
- // ifj2022, no whitespaces/comments should appear before prologue
-
-declare(strict_types=1
-);
-
-?>
+TOK_EMPTY
+TOK_IDENTIFIER: declare
+TOK_LEFT_PAREN
+TOK_IDENTIFIER: strict_types
+TOK_ASSIGN
+TOK_INT_LIT: 1
+TOK_RIGHT_PAREN
+TOK_SEMICOLON
+TOK_END_PROLOGUE
