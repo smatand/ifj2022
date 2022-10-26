@@ -76,14 +76,6 @@ void convertStringToDouble(string_t * s, token_t * token) {
     token->attribute.decVal = res;
 }
 
-/*int convertHexToInt(char * s, int base){
-    char * endPtr;
-
-    int res = strtol(s, &endPtr, base);
-
-    return res;
-}*/
-
 int checkForPrologue(FILE * fp) {
     // just simply get first 3 chars and compare them with "php"
     char prologue[4] = "php";
