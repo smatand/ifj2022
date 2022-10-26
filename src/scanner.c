@@ -76,6 +76,17 @@ void convertStringToDouble(string_t * s, token_t * token) {
     token->attribute.decVal = res;
 }
 
+int copyString(token_t * token, string_t * str){
+    token->attribute.strVal = malloc(str->realLen * sizeof(char)); 
+    if (token->attribute.strVal != NULL) {
+        memcpy(token->attribute.strVal, str->str, str->realLen);
+        return SUCCESS;    
+    } else {
+        stringDestroy(str);
+        return ERR_INTERNAL;
+    }
+}
+
 int checkForPrologue(FILE * fp) {
     // just simply get first 3 chars and compare them with "php"
     char prologue[4] = "php";
