@@ -179,12 +179,12 @@ int scanToken(token_t * token) {
                 if(isspace(c)) {
                     ;
                 } else if(c == '(') {
-                    token->type = TOK_LEFT_BRACE;
+                    token->type = TOK_LEFT_PAREN;
 
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == ')') {
-                    token->type = TOK_RIGHT_BRACE;
+                    token->type = TOK_RIGHT_PAREN;
 
                     stringDestroy(str);
                     return SUCCESS;
@@ -204,12 +204,12 @@ int scanToken(token_t * token) {
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == '{') {
-                    token->type = TOK_LEFT_PAREN;
+                    token->type = TOK_LEFT_BRACE;
 
                     stringDestroy(str);
                     return SUCCESS;
                 } else if(c == '}') {
-                    token->type = TOK_RIGHT_PAREN;
+                    token->type = TOK_RIGHT_BRACE;
 
                     stringDestroy(str);
                     return SUCCESS;
