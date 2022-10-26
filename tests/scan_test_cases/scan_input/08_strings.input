@@ -1,12 +1,15 @@
 //empty
 """"
 
-//correct
-"\x \x1 \xA2"
-"asd \t\n\"\$\\x asd\x20asd"
-"\x058\x38\x3D\x3D\x44" "\x7E"
-"\173\040\377\040\"
+//translatable
+"xasd \t\nxasd\"\$\\xasd\""
+"xXx\x38\x3D\x3D\x44xXx" "\x7E"
+"\173\040\076\040\176"
 
+//non translatable
+"\a \r \0 \8 \e"
+"\x \xT \x1 \x5P \xT2 \x05 \xA2"
+"\377 \37 \177"
+"\\\\\999\$"
 //incorrect
-"$" "asd" "\x99" "asd" "\\\\\999\$" "ads" ""\xDD"
-"asd" "\n" "Ahoj\n\"Sve'te \\\042"
+"$"
