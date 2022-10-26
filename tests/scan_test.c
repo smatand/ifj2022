@@ -4,20 +4,27 @@
 #include "../src/error.h"
 
 int main() {
-    token_t * token = calloc(1, sizeof(token_t));
-    if (tokenInit(token) != SUCCESS) {
+    token_t * token = tokenInit();
+    if (token == NULL) {
+        printf("RETURNED ERR_INTERNAL\n");
         return ERR_INTERNAL;
     }
 
-    if (scanToken(token) == ERR_LEX_ANALYSIS) {
-        printf("RETURNED ERR_LEX_ANALYSIS\n");
-        token->type = TOK_EMPTY;
-    }
+    do{ int ret = scanToken(token);
+        if (ret == ERR_LEX_ANALYSIS) {
+            printf("RETURNED ERR_LEX_ANALYSIS\n");
+            token->type = TOK_EMPTY;
+            break;
 
-    while (token->type != TOK_EOF) {
+        } else if (ret == ERR_INTERNAL){
+            printf("RETURNED ERR_INTERNAL\n");
+            token->type = TOK_EMPTY;
+            break;
+        }
+        
         switch (token->type) {
             case TOK_EMPTY: // comments
-                printf("\n");
+                printf("TOK_EMPTY\n");
                 break;
 
             case TOK_LEFT_PAREN:
@@ -164,13 +171,7 @@ int main() {
                 printf("unknown");
                 break;
         }
-
-        // we want to test the edge cases without terminating the program
-        while (scanToken(token) == ERR_LEX_ANALYSIS) {
-            printf("RETURNED ERR_LEX_ANALYSIS\n");
-            token->type = TOK_EMPTY;
-        }
-    }
+    } while (token->type != TOK_EOF && token->type != TOK_END_PROLOGUE); // detecting the end
 
     freeToken(token);
     return 0;

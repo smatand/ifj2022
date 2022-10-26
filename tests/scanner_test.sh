@@ -1,25 +1,42 @@
 #!/bin/sh
 
 INPUT_CASES=$(ls scan_test_cases/scan_input)
-EXPECTED_OUTPUT_CASES=$(ls scan_test_cases/scan_expected)
+#EXPECTED_OUTPUT_CASES=$(ls scan_test_cases/scan_expected)
 
-WORKING_DIR="scan_results/"
-if [ ! -d "$WORKING_DIR" ]; then
-    mkdir "$WORKING_DIR"
+INPUT_DIR="scan_test_cases/scan_input"
+EXPECTED_DIR="scan_test_cases/scan_expected"
+OUTPUT_DIR="scan_results/output"
+RESULT_DIR="scan_results/diff"
+
+# creating or emptying ouput directories
+if [ ! -d "$OUTPUT_DIR" ]; then
+    mkdir "$OUTPUT_DIR"
 else
-    rm -rf "$WORKING_DIR"
-    mkdir "$WORKING_DIR"
+    rm -rf "$OUTPUT_DIR"
+    mkdir "$OUTPUT_DIR"
 fi
 
+if [ ! -d "$RESULT_DIR" ]; then
+    mkdir "$RESULT_DIR"
+else
+    rm -rf "$RESULT_DIR"
+    mkdir "$RESULT_DIR"
+fi
+
+# remaking scanner_test binary
+cd .. && make scanner_test && cd tests
+
 for file in $INPUT_CASES; do
-    ../scanner_test <$file >$WORKING_DIR$file.out
-    diff $WORKING_DIR$file.out scan_test_cases/scan_expected/$file >$WORKING_DIR$file.diff
-    if [ -s $WORKING_DIR$file.diff ]; then
-        echo "Test case $file failed"
-        cat $WORKING_DIR$file.diff
-        echo "----------------------------------------"
+    ../scan_test < "$INPUT_DIR/$file" > "$OUTPUT_DIR/$file.out"
+    diff -u "$OUTPUT_DIR/$file.out" "$EXPECTED_DIR/$file.expected" > "$RESULT_DIR/$file.diff"
+    if [ -s "$RESULT_DIR/$file.diff" ]; then
+        echo "TEST CASE: $file";
+        echo "-------------------- FAILED --------------------";
+        cat "$RESULT_DIR/$file.diff"
+        echo "------------------------------------------------";
     else
-        echo "Test case $file passed"
-        echo "----------------------------------------"
+        echo "TEST CASE: $file";
+        echo "-------------------- PASSED --------------------";
+        echo "------------------------------------------------";
     fi
 done
