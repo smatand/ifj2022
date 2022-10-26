@@ -1,3 +1,4 @@
 src/.vscode
 .vscode
 src/*.o
+scan_test
