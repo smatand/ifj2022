@@ -114,7 +114,6 @@ typedef enum {
     S_S_COMMENT, // single line comment
     S_M_COMMENT_FIN, // multiline comment finish
     S_M_COMMENT, // multiline comment
-    S_EOL,
 } machineState_t;
 
 /** 

@@ -280,8 +280,6 @@ int scanToken(token_t * token) {
                 } else if(c == '/') {
                     fsmState = S_SLASH;
                     token->type = TOK_SLASH;
-                } else if(c == '\n') {
-                    fsmState = S_EOL;
                 } else if (isdigit(c)) {
                     fsmState = S_INT_LIT;
                     if (charPushBack(str, c) != SUCCESS) {
@@ -294,9 +292,6 @@ int scanToken(token_t * token) {
                     stringDestroy(str);
                     return SUCCESS;
                 }
-                break;
-            case S_EOL:
-                fsmState = S_START;
                 break;
             case S_STRT_NEG_COMP:
                 if (c == '=') {
@@ -752,7 +747,7 @@ int scanToken(token_t * token) {
                         fsmState = S_M_COMMENT_FIN;
                     }
                 } else if (c == '\n') {
-                    break; // S_EOL_COUNT todo
+                    break;
                 } else if (c == EOF) {
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS; // missing ending of comment
