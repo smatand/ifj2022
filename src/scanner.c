@@ -460,7 +460,7 @@ int scanToken(token_t * token) {
             case S_STRT_STR:
                 if (c == '"') {
                     token->type = TOK_STRING_LIT;
-                    strcpy(token->attribute.strVal, str->str);
+                    token->attribute.strVal = str->str;
                     stringDestroy(str);
                     return SUCCESS;
                 } else if (c == '\\') {
