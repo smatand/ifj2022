@@ -471,6 +471,13 @@ int scanToken(token_t * token) {
             case S_STRT_STR:
                 if (c == '"') {
                     token->type = TOK_STRING_LIT;
+                    if (str->str != NULL){ // if str is empty, add ""
+                        char * tmp = "\"\"";
+                        if (strPushBack(str, tmp, 2) != SUCCESS) {
+                            stringDestroy(str);
+                            return ERR_INTERNAL;
+                        }
+                    }
                     if (copyString(token, str) != SUCCESS) {
                         stringDestroy(str);
                         return ERR_INTERNAL;
@@ -480,7 +487,7 @@ int scanToken(token_t * token) {
                     }
                 } else if (c == '\\') {
                     fsmState = S_STRT_ESCP_SQNC;
-                } else if(c == '$') { // dollar sign is not allowed without a backslash before it
+                } else if (c == '$') { // dollar sign is not allowed without a backslash before it
                     stringDestroy(str);
                     return ERR_LEX_ANALYSIS;
                 } else if (c == EOF) {
