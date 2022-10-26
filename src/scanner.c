@@ -471,7 +471,7 @@ int scanToken(token_t * token) {
             case S_STRT_STR:
                 if (c == '"') {
                     token->type = TOK_STRING_LIT;
-                    if (str->str != NULL){ // if str is empty, add ""
+                    if (str->realLen == 0){ // if str is empty, add ""
                         char * tmp = "\"\"";
                         if (strPushBack(str, tmp, 2) != SUCCESS) {
                             stringDestroy(str);
@@ -503,65 +503,64 @@ int scanToken(token_t * token) {
                 break;
             case S_STRT_ESCP_SQNC:; // necessary ';', so the declaration of escpStr is valid, and not flagged by gcc
                 char escpStr[5] = {'\\', '\0', '\0', '\0', '\0'}; // escape sequence buffer
-                    if (c == 'x') { // hexa escape sequence
-                        escpStr[1] = c;
-                        fsmState = S_HEX_SCP_SQNC;
-                        break;
-                    } else if (c > 47 && c < 57) { // [0-8] octal escape seq
-                        escpStr[1] = c;
-                        fsmState = S_OCT_SCP_SQNC;
-                        break;
-                    } else if (c == 't') { // single char escape sequences
-                        if (charPushBack(str, '\t') != SUCCESS) { 
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
-                        fsmState = S_STRT_STR;
-                        break;
-                    } else if (c == 'n') {
-                        if (charPushBack(str, '\n') != SUCCESS) { 
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
-                        fsmState = S_STRT_STR;
-                        break;
-                    } else if (c == '"') {
-                        if (charPushBack(str, '"') != SUCCESS) { 
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
-                        fsmState = S_STRT_STR;
-                        break;
-                    } else if (c == '$') {
-                        if (charPushBack(str, '$') != SUCCESS) { 
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
-                        fsmState = S_STRT_STR;
-                        break;
-                    } else if (c == '\\'){
-                        if (charPushBack(str, '\\') != SUCCESS) { 
-                            stringDestroy(str);
-                            return ERR_INTERNAL;
-                        }
-                        fsmState = S_STRT_STR;
-                        break;
-                    } else if (c == EOF) {
-                        stringDestroy(str);
-                        return ERR_LEX_ANALYSIS;
-                    }
-                    if (charPushBack(str, c) != SUCCESS) { // if no valid escapes were read, treat it as part of the string
+                escpStr[1] = c;
+                if (c == 'x') { // hexa escape sequence
+                    fsmState = S_HEX_SCP_SQNC;
+                    break;
+                } else if (c > 47 && c < 57) { // [0-8] octal escape seq
+                    fsmState = S_OCT_SCP_SQNC;
+                    break;
+                } else if (c == 't') { // single char escape sequences
+                    if (charPushBack(str, '\t') != SUCCESS) { 
                         stringDestroy(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_STR;
                     break;
+                } else if (c == 'n') {
+                    if (charPushBack(str, '\n') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
+                } else if (c == '"') {
+                    if (charPushBack(str, '"') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
+                } else if (c == '$') {
+                    if (charPushBack(str, '$') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
+                } else if (c == '\\'){
+                    if (charPushBack(str, '\\') != SUCCESS) { 
+                        stringDestroy(str);
+                        return ERR_INTERNAL;
+                    }
+                    fsmState = S_STRT_STR;
+                    break;
+                } else if (c == EOF) {
+                    stringDestroy(str);
+                    return ERR_LEX_ANALYSIS;
+                }
+                if (strPushBack(str, escpStr, 2) != SUCCESS) { // if no valid escapes were read, treat it as part of the string
+                    stringDestroy(str);
+                    return ERR_INTERNAL;
+                }
+                fsmState = S_STRT_STR;
+                break;
             case S_HEX_SCP_SQNC:
+                escpStr[2] = c;
                 if (isdigit(c) || (c > 64 && c < 71) || (c > 96 && c < 103)) { // [0-9] [a-f] [A-F] first hexa char
-                    escpStr[2] = c;
-                    int temp = lookAheadByOneChar(fp);
+                    int temp = getc(fp);
+                    escpStr[3] = temp;
                     if (isdigit(temp) || (temp > 64 && temp < 71) || (temp > 96 && temp < 103)) { // second hexa char
-                        escpStr[3] = temp;
                         escpStr[0] = '0'; // making a convertible format
                         temp = convertStringToInt(escpStr, 16);
                         escpStr[0] = '\\'; // in case of pushBack, it'll be in the original form
@@ -603,11 +602,11 @@ int scanToken(token_t * token) {
                     break;
                 }
             case S_OCT_SCP_SQNC:
+                escpStr[2] = c;
                 if (c > 47 && c < 57) { // checking octal number
-                    escpStr[2] = c;
-                    int temp = lookAheadByOneChar(fp);
+                    int temp = getc(fp);
+                    escpStr[3] = temp;
                     if(temp > 47 && temp < 57){ // checking octal number
-                        escpStr[3] = temp;
                         escpStr[0] = '0'; // making a convertible format
                         temp = convertStringToInt(escpStr, 8);
                         escpStr[0] = '\\'; // in case of pushBack, it'll be in the original form
