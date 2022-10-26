@@ -2,4 +2,5 @@ src/.vscode
 .vscode
 src/*.o
 scan_test
-tests/scan_results/*
+tests/scan_results/diff/*
+tests/scan_results/output/*
