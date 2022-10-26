@@ -107,7 +107,7 @@ int main() {
                 break;
             
             case TOK_STRING_LIT:
-                printf("TOK_STRING_LIT: %s", token->attribute.strVal);
+                printf("TOK_STRING_LIT: %s\n", token->attribute.strVal);
                 break;
             case TOK_INT_LIT:
                 printf("TOK_INT_LIT: %d\n", token->attribute.intVal);
