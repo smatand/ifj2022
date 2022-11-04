@@ -5,7 +5,8 @@
 *
 .
 =
-!
 <=
 >=
+!==
+===
 <==> // TOK_LESS_EQ TOK_ASSIGN TOK_GREATER
