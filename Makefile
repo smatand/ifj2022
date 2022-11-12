@@ -8,7 +8,7 @@ SCANNER_TEST=tests/scan_test.c src/scanner.c src/scanner.h src/str.h src/str.c
 
 
 scanner_test: $(SCANNER_TEST)
-	$(CC) $(CFLAGS) -o scan_test $(SCANNER_TEST)
+	$(CC) $(CFLAGS) -o tests/scan_test $(SCANNER_TEST)
 
 
 
