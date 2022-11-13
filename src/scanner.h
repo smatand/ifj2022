@@ -183,6 +183,6 @@ int fillStr(string_t * s, token_t * token, FILE * fp);
  * 
  * @return SUCCESS, otherwise ERR_CODE
  */ 
-int scanToken(token_t * token);
+int scanToken(token_t * token, string_t * str);
 
 #endif // SCANNER_H

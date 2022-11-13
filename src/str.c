@@ -39,6 +39,11 @@ void stringDestroy(string_t * s) {
     free(s);
 }
 
+void stringClear(string_t * s) {
+    memset(s->str, 0, s->allocatedSize);
+    s->realLen = 0;
+}
+
 int lookAheadByOneChar(FILE * fp) {
     int c = 0;
     c = getc(fp);
