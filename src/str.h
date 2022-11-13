@@ -24,6 +24,13 @@ string_t * stringInit(int * ret);
 void stringDestroy(string_t * s);
 
 /**
+ * @brief Clears the string up to the 1st null character
+ * 
+ * Useful for clearing after converting to int/decimals
+ */
+void stringClear(string_t * s);
+
+/**
  * @brief Looks ahead by one characters
  * @param fp file pointer
  * 
