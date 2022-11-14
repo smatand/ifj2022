@@ -85,6 +85,13 @@ int strPushBack(string_t * s, char * source, int len) {
         if (charPushBack(s, source[i]) != SUCCESS) {
             return ERR_INTERNAL;
         }
+        // resize if needed
+        if (s->realLen == s->allocatedSize - 1) {
+            if (stringResize(s, s->allocatedSize + DEFAULT_LEN) != SUCCESS) {
+                return ERR_INTERNAL;
+            }
+        }
     }
+
     return SUCCESS;
 }
