@@ -232,49 +232,42 @@ int scanToken(token_t *token, string_t *str)
             {
                 token->type = TOK_LEFT_PAREN;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == ')')
             {
                 token->type = TOK_RIGHT_PAREN;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == ';')
             {
                 token->type = TOK_SEMICOLON;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == ':')
             {
                 token->type = TOK_COLON;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == ',')
             {
                 token->type = TOK_COMMA;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == '{')
             {
                 token->type = TOK_LEFT_BRACE;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == '}')
             {
                 token->type = TOK_RIGHT_BRACE;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == '!')
@@ -287,7 +280,6 @@ int scanToken(token_t *token, string_t *str)
                 {
                     token->type = TOK_ASSIGN;
 
-                    //(str);
                     return SUCCESS;
                 }
                 fsmState = S_ASSIGN;
@@ -300,7 +292,6 @@ int scanToken(token_t *token, string_t *str)
                 {
                     token->type = TOK_LESS;
 
-                    //(str);
                     return SUCCESS;
                 }
 
@@ -312,7 +303,6 @@ int scanToken(token_t *token, string_t *str)
                 {
                     token->type = TOK_GREATER; // S_GREATER
 
-                    //(str);
                     return SUCCESS;
                 }
                 else
@@ -320,7 +310,6 @@ int scanToken(token_t *token, string_t *str)
                     token->type = TOK_GREATER_EQUAL; // S_GREATER_EQ
 
                     c = getc(fp); // move the fp to the next char
-                    //(str);
                     return SUCCESS;
                 }
             }
@@ -328,21 +317,18 @@ int scanToken(token_t *token, string_t *str)
             {
                 token->type = TOK_PLUS;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == '-')
             {
                 token->type = TOK_MINUS;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == '*')
             {
                 token->type = TOK_STAR;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == '.')
@@ -350,7 +336,6 @@ int scanToken(token_t *token, string_t *str)
                 // ".92" or etc are taken as a syntax error
                 token->type = TOK_DOT;
 
-                //(str);
                 return SUCCESS;
             }
             else if (c == '"')
@@ -382,7 +367,6 @@ int scanToken(token_t *token, string_t *str)
                 stringClear(str); // clear the string from previous values
                 if (charPushBack(str, c) != SUCCESS)
                 {
-                    //(str);
                     return ERR_INTERNAL;
                 }
             }
@@ -390,7 +374,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 token->type = TOK_EOF;
 
-                //(str);
                 return SUCCESS;
             }
             break;
@@ -401,7 +384,6 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
-                //(str);
                 return ERR_LEX_ANALYSIS; // S_ERROR
             }
             break;
@@ -410,12 +392,10 @@ int scanToken(token_t *token, string_t *str)
             {
                 token->type = TOK_NEG_COMPARISON; // S_NEG_COMP
 
-                //(str);
                 return SUCCESS;
             }
             else
             {
-                //(str);
                 return ERR_LEX_ANALYSIS; // S_ERROR
             }
         case S_ASSIGN:
@@ -426,7 +406,6 @@ int scanToken(token_t *token, string_t *str)
             else
             {
 
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             break;
@@ -435,12 +414,10 @@ int scanToken(token_t *token, string_t *str)
             {
                 token->type = TOK_COMPARISON;
 
-                //(str);
                 return SUCCESS; // S_COMPARISON (nonexistent)
             }
             else
             {
-                //(str);
                 return ERR_LEX_ANALYSIS; // S_ERROR
             }
         case S_LESSER:
@@ -448,7 +425,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 token->type = TOK_LESS_EQUAL;
 
-                //(str);
                 return SUCCESS; // S_LESSER_EQ
             }
             else if (c == '?')
@@ -457,13 +433,11 @@ int scanToken(token_t *token, string_t *str)
                 {
                     token->type = TOK_PROLOGUE; // TOK_PROLOGUE is the whole expression "<?php" TODO should it be taken as syntax error (2) ?
 
-                    ////(str);
                     return SUCCESS;
                 }
                 else
                 {
 
-                    //(str);
                     return ERR_LEX_ANALYSIS; // prologue was not loaded
                 }
             }
@@ -474,7 +448,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
             }
@@ -483,7 +456,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_DEC;
@@ -493,7 +465,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_EXP;
@@ -505,12 +476,9 @@ int scanToken(token_t *token, string_t *str)
                 token->type = TOK_INT_LIT;
                 token->attribute.intVal = res;
 
-//                if (c != '\n' || c != EOF)
-//                {
-                    ungetc(c, fp);
-//                }
+                ungetc(c, fp);
 
-                //(str);
+
                 stringClear(str);
                 return SUCCESS;
             }
@@ -521,7 +489,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_MID_EXP;
@@ -532,7 +499,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_EXP_LIT;
@@ -540,7 +506,6 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
-                //(str);
                 return ERR_LEX_ANALYSIS; // S_ERROR, missing number or +-
             }
         case S_MID_EXP:
@@ -549,7 +514,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
 
@@ -557,7 +521,6 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
-                //(str);
                 return ERR_LEX_ANALYSIS; // S_ERROR, missing number
             }
             break;
@@ -567,7 +530,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
             }
@@ -581,7 +543,6 @@ int scanToken(token_t *token, string_t *str)
             else
             {
 
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             break;
@@ -591,7 +552,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_DEC_LIT;
@@ -599,7 +559,6 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
         case S_DEC_LIT:
@@ -608,7 +567,6 @@ int scanToken(token_t *token, string_t *str)
                 if (charPushBack(str, c) != SUCCESS)
                 {
 
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 break;
@@ -634,18 +592,15 @@ int scanToken(token_t *token, string_t *str)
                     char *tmp = "\"\"";
                     if (strPushBack(str, tmp, 2) != SUCCESS)
                     {
-                        //(str);
                         return ERR_INTERNAL;
                     }
                 }
                 if (copyString(token, str) != SUCCESS)
                 {
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 else
                 {
-                    //(str);
                     return SUCCESS;
                 }
             }
@@ -655,19 +610,16 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (c == '$')
             { // dollar sign is not allowed without a backslash before it
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             else if (c == EOF)
             {
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             else
             { // else it is part of string literal
                 if (charPushBack(str, c) != SUCCESS)
                 {
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -690,7 +642,6 @@ int scanToken(token_t *token, string_t *str)
             { // single char escape sequences
                 if (charPushBack(str, '\t') != SUCCESS)
                 {
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -700,7 +651,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, '\n') != SUCCESS)
                 {
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -710,7 +660,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, '"') != SUCCESS)
                 {
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -720,7 +669,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, '$') != SUCCESS)
                 {
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -730,7 +678,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, '\\') != SUCCESS)
                 {
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -738,12 +685,10 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (c == EOF)
             {
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             if (strPushBack(str, escpStr, 2) != SUCCESS)
             { // if no valid escapes were read, treat it as part of the string
-                //(str);
                 return ERR_INTERNAL;
             }
             fsmState = S_STRT_STR;
@@ -773,7 +718,6 @@ int scanToken(token_t *token, string_t *str)
                     { // else append the escape sequence to the end of the string literal
                         if (strPushBack(str, escpStr, 4) != SUCCESS)
                         {
-                            //(str);
                             return ERR_INTERNAL;
                         }
                         fsmState = S_STRT_STR;
@@ -782,14 +726,12 @@ int scanToken(token_t *token, string_t *str)
                 }
                 else if (c == EOF)
                 { // error caused by EOF
-                    //(str);
                     return ERR_LEX_ANALYSIS;
                 }
                 else
                 { // incorrect hexa escp. seq. -> part of string
                     if (strPushBack(str, escpStr, 4) != SUCCESS)
                     {
-                        //(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_STR;
@@ -798,14 +740,12 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (c == EOF)
             {
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             else
             {
                 if (strPushBack(str, escpStr, 3) != SUCCESS)
                 { // pushing back "\x[invalid hexa char]"
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -826,7 +766,6 @@ int scanToken(token_t *token, string_t *str)
                     { // if convertible to a printable and allowed char, will do so
                         if (charPushBack(str, temp) != SUCCESS)
                         {
-                            //(str);
                             return ERR_INTERNAL;
                         }
                         fsmState = S_STRT_STR;
@@ -836,7 +775,6 @@ int scanToken(token_t *token, string_t *str)
                     { // else append the escape sequence to the end of the string literal
                         if (strPushBack(str, escpStr, 4) != SUCCESS)
                         {
-                            //(str);
                             return ERR_INTERNAL;
                         }
                         fsmState = S_STRT_STR;
@@ -847,18 +785,15 @@ int scanToken(token_t *token, string_t *str)
                 {
                     if (strPushBack(str, escpStr, 4) != SUCCESS)
                     {
-                        //(str);
                         return ERR_INTERNAL;
                     }
                     strcpy(token->attribute.strVal, str->str);
-                    //(str);
                     return ERR_LEX_ANALYSIS;
                 }
                 else
                 {
                     if (strPushBack(str, escpStr, 4) != SUCCESS)
                     { // pushing back "\[0-8][0-8][not octal char]"
-                        //(str);
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_STR;
@@ -867,14 +802,12 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (c == EOF)
             {
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             else
             {
                 if (strPushBack(str, escpStr, 3) != SUCCESS)
                 { // pushing back "\[0-8][not octal char]"
-                    //(str);
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -887,26 +820,22 @@ int scanToken(token_t *token, string_t *str)
             if (ret == ERR_INTERNAL)
             {
 
-                //(str);
                 return ERR_INTERNAL;
             }
             else if (ret == ERR_LEX_ANALYSIS)
             {
 
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
 
             checkKeyword(token, str); // changes token->type
 
-            //                //(str);
             return SUCCESS;
         case S_QSTN_MARK:
             if (c == '>')
             {
                 token->type = TOK_END_PROLOGUE;
 
-                //(str);
                 return SUCCESS;
             }
             else
@@ -916,7 +845,6 @@ int scanToken(token_t *token, string_t *str)
                 fsmState = S_TYPE_ID;
                 break;
             }
-            //(str);
             return ERR_LEX_ANALYSIS;
         case S_TYPE_ID:
             // need to check for 'string', 'int' or 'float'
@@ -927,20 +855,18 @@ int scanToken(token_t *token, string_t *str)
             if (ret == ERR_INTERNAL)
             {
 
-                //(str);
                 return ERR_INTERNAL;
             }
             else if (ret == ERR_LEX_ANALYSIS)
             {
 
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
 
             if (checkKeyword(token, str) == 0)
             {
 
-                //(str); // it doesn't match any keyword, throw err_lex
+                // it doesn't match any keyword, throw err_lex
                 return ERR_LEX_ANALYSIS;
             }
             else if (token->attribute.kwVal == KW_STRING || token->attribute.kwVal == KW_INT || token->attribute.kwVal == KW_FLOAT)
@@ -948,14 +874,12 @@ int scanToken(token_t *token, string_t *str)
 
                 token->type = TOK_TYPE_ID;
 
-                //(str);
                 return SUCCESS; // token->type is set, attribute too
             }
             else
             { // other keywords are not allowed as TYPE
                 token->type = TOK_EMPTY;
 
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             break;
@@ -966,12 +890,10 @@ int scanToken(token_t *token, string_t *str)
 
                 int ret = fillStr(str, token, fp);
 
-                //(str);
                 return ret; // ERR_INTERNAL or SUCCESS
             }
             else
             {
-                //(str);
                 return ERR_LEX_ANALYSIS;
             }
             break;
@@ -991,7 +913,6 @@ int scanToken(token_t *token, string_t *str)
                 token->type = TOK_SLASH;
 
                 ungetc(c, fp);
-               // //(str);
                 return SUCCESS;
             }
         case S_S_COMMENT:
@@ -999,7 +920,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 token->type = TOK_EMPTY;
 
-                //(str);
                 return SUCCESS;
             }
             break;
@@ -1018,7 +938,6 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (c == EOF)
             {
-                //(str);
                 return ERR_LEX_ANALYSIS; // missing ending of comment
             }
 
@@ -1032,12 +951,10 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
-                //(str);
                 return ERR_LEX_ANALYSIS; // neither nested comment blocks should be there
             }
         }
     }
 
-    //(str);
     return SUCCESS;
 }
