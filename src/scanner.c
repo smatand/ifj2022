@@ -176,13 +176,6 @@ int fillStr(string_t *s, token_t *token, FILE *fp)
         }
     }
 
-    // unexpected end, every php code should end with TOK_END_PROLOGUE
-    if (c == EOF)
-    {
-        free(buff);
-        return ERR_LEX_ANALYSIS;
-    }
-
     buff[i] = '\0';
 
     if (stringResize(s, i + 1) != SUCCESS)
