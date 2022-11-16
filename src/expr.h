@@ -107,5 +107,5 @@ eItem_t *findClosestTerm(eStack_t *stack);
  * @param firstToken pointer to first token of expression
  * @return token_t* returning token which ended expression
  */
-int exprParse(token_t *firstToken,token_t *returnToken);
+int exprParse(token_t *firstToken,token_t *secondToken,token_t *returnToken);
 #endif /* EXPR_H */ 

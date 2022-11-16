@@ -36,16 +36,25 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
 int main(){ //
 	token_t *returnToken = tokenInit();
 	token_t *token = tokenInit();
+	token_t *secondToken = tokenInit();
 	int ret = 0;
+	int ret2 = 0;
 	string_t *string = stringInit(&ret);
+	string_t *string2 = stringInit(&ret2);
+	// secondToken = NULL;
 	scanToken(token,string);
-	// printf("TOKENTYPE: %d\n",token->type);
-	exprParse(token,returnToken);
+	scanToken(secondToken,string2);
+	exprParse(token,secondToken,returnToken);
 	stringClear(string);
 
 }
 
-int exprParse(token_t *firstToken,token_t* returnToken){
+int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
+	bool secondTokenDelay = false;
+	if(secondToken != NULL){
+		secondTokenDelay = true;
+	}
+
 	bool continueParsing = true;	
 	bool scanAnotherToken = true;
 	//init stack
@@ -130,12 +139,18 @@ int exprParse(token_t *firstToken,token_t* returnToken){
         stackPrint(stack);
 
 		if(scanAnotherToken){
-			incomingToken = tokenInit();
-			int ret = 0;
+			if(secondTokenDelay == false){
+				incomingToken = tokenInit();
+				int ret = 0;
 
-			string_t *string = stringInit(&ret);
-			scanToken(incomingToken,string);
-			stringClear(string);
+				string_t *string = stringInit(&ret);
+				scanToken(incomingToken,string);
+				stringClear(string);
+			}
+			else{
+				incomingToken = secondToken;
+				secondTokenDelay = false;
+			}
 		}
 	}
 	eStackEmptyAll(stack);
