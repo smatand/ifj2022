@@ -1,8 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include"expr_stack.h"
-#include"expr.h"
-#include"scanner.h"
+#include"./expr_stack.h"
+#include"./expr.h"
+#include"./scanner.h"
 
 
 //docasny generator testovacich tokenov

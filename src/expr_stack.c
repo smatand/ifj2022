@@ -4,8 +4,8 @@
  * @brief Implementation of parser module for IFJ22
  */
 
-#include"expr_stack.h"
-#include"expr.h"
+#include"./expr_stack.h"
+#include"./expr.h"
 #include<stdbool.h>
 #include<stdio.h>
 #include<stdlib.h>
@@ -105,8 +105,8 @@ void eStackPrintItem(eItem_t *item){
     }
     switch(item->type){
         case TERM: 
-                printf("%s",tokenTypeToStr(item->token));
-                break;
+            printf("%s",tokenTypeToStr(item->token));
+            break;
         case NONTERM: 
             printf("E"); break;    
         case INDENT: 

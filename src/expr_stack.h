@@ -8,7 +8,7 @@
 #define EXPR_STACK_H
 //test
 #include <stdbool.h>
-#include"scanner.h"
+#include"./scanner.h"
 
 /** @brief identify item type in stack */
 typedef enum eType{

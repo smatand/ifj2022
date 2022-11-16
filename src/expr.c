@@ -7,9 +7,10 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
-#include"expr_stack.h"
-#include"expr.h"
-#include"scanner.h"
+#include"./expr_stack.h"
+#include"./expr.h"
+#include"./scanner.h"
+#include"./str.h"
 
 const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
 //  *    +    -    /    .    <    >    >=   <=   ===  !==  (    )    i    $ 
@@ -30,11 +31,17 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
   {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
 };
 
+
+
 int main(){ //
 	token_t *returnToken = tokenInit();
 	token_t *token = tokenInit();
-	scanToken(token);
+	int ret = 0;
+	string_t *string = stringInit(&ret);
+	scanToken(token,string);
+	// printf("TOKENTYPE: %d\n",token->type);
 	exprParse(token,returnToken);
+	stringClear(string);
 
 }
 
@@ -42,6 +49,7 @@ int exprParse(token_t *firstToken,token_t* returnToken){
 	bool continueParsing = true;	
 	bool scanAnotherToken = true;
 	//init stack
+	(void) returnToken;
 	eStack_t estack;
 	eStack_t *stack = &estack; 
 	eStackInit(stack);
@@ -49,28 +57,39 @@ int exprParse(token_t *firstToken,token_t* returnToken){
 	//
 	int stackTokenType;
 	int incomingTokenType;
+	char operation;
+	returnToken = NULL;
 	token_t *incomingToken = firstToken;
-	eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
+	eItem_t *closestTerm = NULL;
+	stackPrint(stack);
 
 	while(continueParsing){
-
-		if(scanAnotherToken){
+		eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
+		// if(scanAnotherToken){
 			incomingTokenType = tokenTypeToeType(incomingToken);
-			eItem_t *closestTerm = findClosestTerm(stack); //closest term in stack
+			closestTerm = findClosestTerm(stack); //closest term in stack
 			if(closestTerm->type == DOLLAR){ //if it is the end of stack
 				stackTokenType = P_DOLLAR;
 			}
 			else{
 				stackTokenType = tokenTypeToeType(closestTerm->token);
-			}
+			// }
 		}
 		scanAnotherToken = true;
-        char operation = precedenceTable[stackTokenType][incomingTokenType];
+		// printf("stack: %d, incoming: %d,\n",stackTokenType,tokenTypeToeType(incomingToken));
+		if(incomingTokenType == P_SEMICOLON){
+			operation = '!';
+		}
+		else{
+        	operation = precedenceTable[stackTokenType][incomingTokenType];
+		}
+		
 		switch(operation){
 					case '<': //shift with indent
 						exprShift(stack,incomingTokenItem);
 						break;
 					case '>': //reduce
+						// (closestTerm->type == DOLLAR) ? printf("Najblizsi term: DOLLAR") : printf("Najblizsi term: %s\n",tokenTypeToStr(closestTerm->token));
 						exprReduce(stack);
 						break;
 					case '=': //shift without pushing indent
@@ -79,10 +98,11 @@ int exprParse(token_t *firstToken,token_t* returnToken){
 					case '!': //we found error
 						/**
 						 * error still can be correct, if it is right parenthesis ')'
-						 * because this could be case of if where we encounter right closing 
-						 * bracket of if statement, therefore we sent this to top bottom to analyse this
+						 * because this could be case where we encounter right closing 
+						 * bracket of its statement (like if(expressin) ),
+						 * therefore we send this to top bottom for further analysis
 						 */
-						if(incomingTokenType == P_RIGHT_PAREN){
+						if(incomingTokenType == P_RIGHT_PAREN || incomingTokenType == P_SEMICOLON){
 							//we need to end expression with $E
 							while(stack->head->next->type != DOLLAR){ 
 								exprReduce(stack);
@@ -90,6 +110,7 @@ int exprParse(token_t *firstToken,token_t* returnToken){
 							}
 							continueParsing = false;
 							// staci return )
+							//free stack a tak
 							return 0;
 							break;
 						}
@@ -106,13 +127,19 @@ int exprParse(token_t *firstToken,token_t* returnToken){
         if(operation == '>'){
             scanAnotherToken = false;
         }
-        // stackPrint(stack);
+        stackPrint(stack);
 
 		if(scanAnotherToken){
 			incomingToken = tokenInit();
-			scanToken(incomingToken);
+			int ret = 0;
+
+			string_t *string = stringInit(&ret);
+			scanToken(incomingToken,string);
+			stringClear(string);
 		}
 	}
+	eStackEmptyAll(stack);
+	return 0;
 
 }
 
@@ -181,6 +208,9 @@ eRules_t exprFindRule(eStack_t *stack){
 	while(repeat){
 		switch(currState){
 			//starting state
+
+
+			
 			case E_STATE_START:
 				currItem = stack->head;
 				//if term is at the top of stack, 
@@ -278,7 +308,7 @@ eRules_t exprFindRule(eStack_t *stack){
 }
 //todo co patri pod id  co moze byt vo vyraze?
 precTokenType_t tokenTypeToeType(token_t *token){
-	
+	// printf("TOKENTYPE: %s\n",tokenTypeToStr(token));
 	tokenType_t type = token->type;
 	if(type == TOK_KEYWORD){ //if type of token is keyword, we check keywords
 		keyword_t keyword = token->attribute.kwVal;
