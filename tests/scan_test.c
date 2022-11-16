@@ -10,7 +10,15 @@ int main() {
         return ERR_INTERNAL;
     }
 
-    do{ int ret = scanToken(token);
+    int strRet = 0;
+    string_t * str = stringInit(&strRet);
+    if (strRet == ERR_INTERNAL) {
+        printf("RETURNED ERR_INTERNAL\n");
+        return ERR_INTERNAL;
+    }
+
+    do { 
+        int ret = scanToken(token, str); 
         if (ret == ERR_LEX_ANALYSIS) {
             printf("RETURNED ERR_LEX_ANALYSIS\n");
             token->type = TOK_EMPTY;
@@ -108,6 +116,7 @@ int main() {
             
             case TOK_STRING_LIT:
                 printf("TOK_STRING_LIT: %s\n", token->attribute.strVal);
+                stringClear(str);
                 break;
             case TOK_INT_LIT:
                 printf("TOK_INT_LIT: %d\n", token->attribute.intVal);
