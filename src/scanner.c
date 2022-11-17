@@ -520,7 +520,7 @@ int scanToken(token_t *token, string_t *str)
                     return ERR_INTERNAL;
                 }
             }
-            else if (isspace(c))
+            else
             {
                 double res = convertStringToDouble(str); 
                 token->type = TOK_DEC_LIT;
@@ -529,11 +529,6 @@ int scanToken(token_t *token, string_t *str)
                 ungetc(c, fp); // return the char to the stream and end scanning
                 stringClear(str);
                 return SUCCESS;
-            }
-            else
-            {
-
-                return ERR_LEX_ANALYSIS;
             }
             break;
         case S_STRT_DEC:
