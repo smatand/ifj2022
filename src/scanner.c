@@ -269,12 +269,6 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (c == '=')
             {
-                if (lookAheadByOneChar(fp) != '=')
-                {
-                    token->type = TOK_ASSIGN;
-
-                    return SUCCESS;
-                }
                 fsmState = S_ASSIGN;
             }
             else if (c == '<')
@@ -398,8 +392,10 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
+                token->type = TOK_ASSIGN; // S_ASSIGN
+                ungetc(c, fp); // return the char to the stream (c != '=') 
 
-                return ERR_LEX_ANALYSIS;
+                return SUCCESS;
             }
             break;
         case S_STRT_COMP:
