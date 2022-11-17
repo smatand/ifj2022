@@ -149,9 +149,10 @@ int convertStringToInt(char * s, int base);
 /**
  * @brief Converts string to double
  * @param s string to be converted
- * @param token token to be operated with
+ * 
+ * @return converted double value
  */
-void convertStringToDouble(string_t * s, token_t * token);
+double convertStringToDouble(string_t * s);
 
 /**
  * @brief Copies previously allocated string value to token

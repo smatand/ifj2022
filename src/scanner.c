@@ -96,14 +96,13 @@ int convertStringToInt(char *s, int base)
     return res;
 }
 
-void convertStringToDouble(string_t *s, token_t *token)
+double convertStringToDouble(string_t *s)
 {
     char *endPtr;
 
     double res = strtod(s->str, &endPtr);
 
-    token->type = TOK_DEC_LIT;
-    token->attribute.decVal = res;
+    return res;
 }
 
 int copyString(token_t *token, string_t *str)
@@ -523,8 +522,11 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (isspace(c))
             {
-                convertStringToDouble(str, token); // uses strdol() function, which works with exponents
+                double res = convertStringToDouble(str); 
+                token->type = TOK_DEC_LIT;
+                token->attribute.decVal = res;
 
+                ungetc(c, fp); // return the char to the stream and end scanning
                 stringClear(str);
                 return SUCCESS;
             }
@@ -571,7 +573,9 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
-                convertStringToDouble(str, token);
+                double res = convertStringToDouble(str);
+                token->type = TOK_DEC_LIT;
+                token->attribute.decVal = res;
 
                 ungetc(c, fp); // return the char to the stream and end scanning
 
