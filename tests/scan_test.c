@@ -27,7 +27,7 @@ int main() {
         } else if (ret == ERR_INTERNAL){
             printf("RETURNED ERR_INTERNAL\n");
             token->type = TOK_EMPTY;
-            break;
+            break; // e. g. malloc error
         }
         
         switch (token->type) {
@@ -180,8 +180,9 @@ int main() {
                 printf("unknown");
                 break;
         }
-    } while (token->type != TOK_EOF && token->type != TOK_END_PROLOGUE); // detecting the end
+    } while (token->type != TOK_EOF); // detecting the end
 
     freeToken(token);
+    stringDestroy(str);
     return 0;
 }
