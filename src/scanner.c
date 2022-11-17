@@ -467,7 +467,6 @@ int scanToken(token_t *token, string_t *str)
 
                 ungetc(c, fp);
 
-
                 stringClear(str);
                 return SUCCESS;
             }
@@ -562,12 +561,19 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (c == 'E' || c == 'e')
             {
+                if (charPushBack(str, c) != SUCCESS)
+                {
+
+                    return ERR_INTERNAL;
+                }
                 fsmState = S_STRT_EXP;
                 break;
             }
             else
             {
                 convertStringToDouble(str, token);
+
+                ungetc(c, fp); // return the char to the stream and end scanning
 
                 stringClear(str);
                 return SUCCESS;
