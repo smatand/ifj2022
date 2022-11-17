@@ -10,15 +10,8 @@ int main() {
         return ERR_INTERNAL;
     }
 
-    int strRet = 0;
-    string_t * str = stringInit(&strRet);
-    if (strRet == ERR_INTERNAL) {
-        printf("RETURNED ERR_INTERNAL\n");
-        return ERR_INTERNAL;
-    }
-
     do { 
-        int ret = scanToken(token, str); 
+        int ret = scanToken(token); 
         if (ret == ERR_LEX_ANALYSIS) {
             printf("RETURNED ERR_LEX_ANALYSIS\n");
             token->type = TOK_EMPTY;
@@ -94,8 +87,10 @@ int main() {
                 printf("TOK_LESS_EQUAL\n");
                 break;
 
-            case TOK_IDENTIFIER:
-                printf("TOK_IDENTIFIER: %s\n", token->attribute.strVal);
+            case TOK_IDENTIFIER: // caller has to free IDs
+                printf("TOK_IDENTIFIER: %s\n", token->attribute.strVal->str);
+                free(token->attribute.strVal->str);
+                free(token->attribute.strVal);
                 break;
             case TOK_TYPE_ID:
                 switch (token->attribute.kwVal) {
@@ -114,9 +109,10 @@ int main() {
                 }
                 break;
             
-            case TOK_STRING_LIT:
-                printf("TOK_STRING_LIT: %s\n", token->attribute.strVal);
-                stringClear(str);
+            case TOK_STRING_LIT: // caller has to free string literal tokens
+                printf("TOK_STRING_LIT: %s\n", token->attribute.strVal->str);
+                free(token->attribute.strVal->str);
+                free(token->attribute.strVal);
                 break;
             case TOK_INT_LIT:
                 printf("TOK_INT_LIT: %d\n", token->attribute.intVal);

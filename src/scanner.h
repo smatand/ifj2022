@@ -78,7 +78,7 @@ typedef struct {
     union {
         int intVal;
         double decVal;
-        char * strVal;
+        string_t * strVal;
         keyword_t kwVal;
     } attribute;
 } token_t;
@@ -131,7 +131,7 @@ token_t * tokenInit();
 void freeToken(token_t * token);
 
 /**
- * @brief Checks for keyword (TOK_KEYWORD)
+ * @brief Checks for keyword (TOK_KEYWORD), destroys string_t if it finds a valid keyword
  * 
  * @return 0 in case of no keyword, otherwise 1 in case it is keyword
  */
@@ -149,18 +149,10 @@ int convertStringToInt(char * s, int base);
 /**
  * @brief Converts string to double
  * @param s string to be converted
- * @param token token to be operated with
- */
-void convertStringToDouble(string_t * s, token_t * token);
-
-/**
- * @brief Copies previously allocated string value to token
- * @param token token to be operated with
- * @param s string to be copied
  * 
- * @return SUCCESS, otherwise ERR_INTERNAL
+ * @return converted double value
  */
-int copyString(token_t * token, string_t * str);
+double convertStringToDouble(string_t * s);
 
 /**
  * @brief Compares first 3 characters of source to "php"
@@ -183,6 +175,6 @@ int fillStr(string_t * s, token_t * token, FILE * fp);
  * 
  * @return SUCCESS, otherwise ERR_CODE
  */ 
-int scanToken(token_t * token, string_t * str);
+int scanToken(token_t * token);
 
 #endif // SCANNER_H

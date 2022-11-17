@@ -36,7 +36,9 @@ void stringDestroy(string_t * s) {
     s->allocatedSize = 0;
 
     free(s->str);
+    s->str = NULL;
     free(s);
+    s = NULL;
 }
 
 void stringClear(string_t * s) {
@@ -57,6 +59,7 @@ int lookAheadByOneChar(FILE * fp) {
 int stringResize(string_t * s, int toSize) {
     s->str = realloc(s->str, toSize);
     if (s->str == NULL) {
+        stringDestroy(s); // if realloc fails, deallocating string
         return ERR_INTERNAL;
     }
 
@@ -66,12 +69,10 @@ int stringResize(string_t * s, int toSize) {
 }
 
 int charPushBack(string_t * s, int c) {
-    if (s->realLen == s->allocatedSize - 1) {
-        s->str = realloc(s->str, s->realLen + DEFAULT_LEN);
-        if (s->str == NULL) {
+    if (s->realLen == s->allocatedSize - 1) { // memory for string is full
+        if (stringResize(s, s->allocatedSize + DEFAULT_LEN) != SUCCESS) {
             return ERR_INTERNAL;
         }
-        s->allocatedSize = s->realLen + DEFAULT_LEN; // incrementing by DEFAULT_LEN
     }
 
     s->str[s->realLen++] = c;
@@ -82,14 +83,9 @@ int charPushBack(string_t * s, int c) {
 
 int strPushBack(string_t * s, char * source, int len) {
     for (int i = 0; i < len; i++){
+        // charPushBack checks for full memory internally
         if (charPushBack(s, source[i]) != SUCCESS) {
             return ERR_INTERNAL;
-        }
-        // resize if needed
-        if (s->realLen == s->allocatedSize - 1) {
-            if (stringResize(s, s->allocatedSize + DEFAULT_LEN) != SUCCESS) {
-                return ERR_INTERNAL;
-            }
         }
     }
 

@@ -6,7 +6,7 @@ varaibl
 ?int
 ?float
 ?string
-$return
+$return // lexical error, exit
 $if
 $void
 $false
