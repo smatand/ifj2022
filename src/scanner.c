@@ -159,7 +159,7 @@ int fillStr(string_t *s, token_t *token, FILE *fp)
     int c = getc(fp);
     int i = 0;
 
-    while (c != EOF && !isspace(c) && c != '=' && (isalnum(c) || c == '_'))
+    while (isalnum(c) || c == '_')
     {
         buff[i++] = c;
         c = getc(fp);
@@ -815,11 +815,6 @@ int scanToken(token_t *token, string_t *str)
             {
 
                 return ERR_INTERNAL;
-            }
-            else if (ret == ERR_LEX_ANALYSIS)
-            {
-
-                return ERR_LEX_ANALYSIS;
             }
 
             checkKeyword(token, str); // changes token->type
