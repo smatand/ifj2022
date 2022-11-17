@@ -36,7 +36,9 @@ void stringDestroy(string_t * s) {
     s->allocatedSize = 0;
 
     free(s->str);
+    s->str = NULL;
     free(s);
+    s = NULL;
 }
 
 void stringClear(string_t * s) {

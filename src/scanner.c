@@ -32,55 +32,67 @@ int checkKeyword(token_t *token, string_t *s)
 {
     if (!strcmp(s->str, "if"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_IF;
     }
     else if (!strcmp(s->str, "else"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_ELSE;
     }
     else if (!strcmp(s->str, "int"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_INT;
     }
     else if (!strcmp(s->str, "float"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FLOAT;
     }
     else if (!strcmp(s->str, "function"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FUNCTION;
     }
     else if (!strcmp(s->str, "null"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_NULL;
     }
     else if (!strcmp(s->str, "return"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_RETURN;
     }
     else if (!strcmp(s->str, "string"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_STRING;
     }
     else if (!strcmp(s->str, "void"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_VOID;
     }
     else if (!strcmp(s->str, "while"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_WHILE;
     }
     else if (!strcmp(s->str, "true"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_TRUE;
     }
     else if (!strcmp(s->str, "false"))
     {
+        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FALSE;
     }
     else
     {
-        return 0; // no keyword found, it is ID
+        return 0; // no keyword found, it is ID, need string
     }
 
     token->type = TOK_KEYWORD;
@@ -133,49 +145,22 @@ int checkForPrologue(FILE *fp)
 
 int fillStr(string_t *s, token_t *token, FILE *fp)
 {
-    char *buff = calloc(1, MAX_KEYWORD_CHARS);
-    if (buff == NULL)
-    {
-        return ERR_INTERNAL;
-    }
-
     int c = getc(fp);
-    int i = 0;
 
     while (isalnum(c) || c == '_')
     {
-        buff[i++] = c;
-        c = getc(fp);
-
-        if (i + 1 == MAX_KEYWORD_CHARS)
-        { // +1 for '\0'
-            buff = realloc(buff, i + MAX_KEYWORD_CHARS);
-
-            if (buff == NULL)
-            {
-                return ERR_INTERNAL;
-            }
+        if (charPushBack(s, c) == ERR_INTERNAL)
+        {
+            return ERR_INTERNAL;
         }
+        c = getc(fp);
     }
-
-    buff[i] = '\0';
-
-    if (stringResize(s, i + 1) != SUCCESS)
-    {
-        free(buff);
-        return ERR_INTERNAL;
-    }
-
-    memcpy(s->str, buff, i);
-    s->realLen = i;
-    s->str[i] = '\0';
 
     token->type = TOK_IDENTIFIER;
-    token->attribute.strVal = s->str;
+    token->attribute.strVal = s;
 
     // caller must take care of //()!
     ungetc(c, fp);
-    free(buff);
     return SUCCESS;
 }
 
@@ -305,10 +290,20 @@ int scanToken(token_t *token)
             }
             else if (c == '"')
             {
+                str = stringInit(&ret);
+                if (ret == ERR_INTERNAL)
+                {
+                    return ERR_INTERNAL;
+                }
                 fsmState = S_STRT_STR;
             }
             else if (c == '_' || isalpha(c))
             {
+                str = stringInit(&ret);
+                if (ret == ERR_INTERNAL)
+                {
+                    return ERR_INTERNAL;
+                }
                 fsmState = S_KEYW_OR_ID;
                 ungetc(c, fp);
             }
@@ -318,6 +313,11 @@ int scanToken(token_t *token)
             }
             else if (c == '$')
             {
+                str = stringInit(&ret);
+                if (ret == ERR_INTERNAL)
+                {
+                    return ERR_INTERNAL;
+                }
                 fsmState = S_STRT_VAR;
             }
             else if (c == '/')
@@ -330,7 +330,7 @@ int scanToken(token_t *token)
                 fsmState = S_INT_LIT;
 
                 str = stringInit(&ret);
-                if (ret == NULL)
+                if (ret == ERR_INTERNAL)
                 {
                     return ERR_INTERNAL;
                 }
@@ -565,14 +565,8 @@ int scanToken(token_t *token)
                         return ERR_INTERNAL;
                     }
                 }
-                if (copyString(token, str) != SUCCESS)
-                {
-                    return ERR_INTERNAL;
-                }
-                else
-                {
-                    return SUCCESS;
-                }
+                token->attribute.strVal = str; // assign the string to the token
+                return SUCCESS;
             }
             else if (c == '\\')
             {
@@ -580,10 +574,12 @@ int scanToken(token_t *token)
             }
             else if (c == '$')
             { // dollar sign is not allowed without a backslash before it
+                stringDestroy(str); // free the memory if encountered a lexical error
                 return ERR_LEX_ANALYSIS;
             }
             else if (c == EOF)
             {
+                stringDestroy(str); // free the memory if encountered a lexical error
                 return ERR_LEX_ANALYSIS;
             }
             else
@@ -655,6 +651,7 @@ int scanToken(token_t *token)
             }
             else if (c == EOF)
             {
+                stringDestroy(str); // free the memory if encountered a lexical error
                 return ERR_LEX_ANALYSIS;
             }
             if (strPushBack(str, escpStr, 2) != SUCCESS)
@@ -680,7 +677,6 @@ int scanToken(token_t *token)
                         {
                             return ERR_INTERNAL;
                         }
-
                         fsmState = S_STRT_STR;
                         break;
                     }
@@ -694,8 +690,9 @@ int scanToken(token_t *token)
                         break;
                     }
                 }
-                else if (c == EOF)
+                else if (temp == EOF)
                 { // error caused by EOF
+                    stringDestroy(str); // free the memory if encountered a lexical error
                     return ERR_LEX_ANALYSIS;
                 }
                 else
@@ -709,13 +706,14 @@ int scanToken(token_t *token)
                 }
             }
             else if (c == EOF)
-            {
+            { // error caused by EOF
+                stringDestroy(str); // free the memory if encountered a lexical error
                 return ERR_LEX_ANALYSIS;
             }
             else
-            {
+            { // incorrect hexa escp. seq. -> part of string
                 if (strPushBack(str, escpStr, 3) != SUCCESS)
-                { // pushing back "\x[invalid hexa char]"
+                {
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -752,18 +750,14 @@ int scanToken(token_t *token)
                     }
                 }
                 else if (temp == EOF)
-                {
-                    if (strPushBack(str, escpStr, 4) != SUCCESS)
-                    {
-                        return ERR_INTERNAL;
-                    }
-                    strcpy(token->attribute.strVal, str->str);
+                { // error caused by EOF
+                    stringDestroy(str); // free the memory if encountered a lexical error
                     return ERR_LEX_ANALYSIS;
                 }
                 else
-                {
+                { // incorrect octal escp. seq. -> part of string
                     if (strPushBack(str, escpStr, 4) != SUCCESS)
-                    { // pushing back "\[0-8][0-8][not octal char]"
+                    {
                         return ERR_INTERNAL;
                     }
                     fsmState = S_STRT_STR;
@@ -771,13 +765,14 @@ int scanToken(token_t *token)
                 }
             }
             else if (c == EOF)
-            {
+            { // error caused by EOF
+                stringDestroy(str); // free the memory if encountered a lexical error
                 return ERR_LEX_ANALYSIS;
             }
             else
-            {
+            { // incorrect octal escp. seq. -> part of string
                 if (strPushBack(str, escpStr, 3) != SUCCESS)
-                { // pushing back "\[0-8][not octal char]"
+                {
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_STR;
@@ -785,11 +780,8 @@ int scanToken(token_t *token)
             }
         case S_KEYW_OR_ID:
             ungetc(c, fp); // again to manipulate with c correctly
-            ret = fillStr(str, token, fp);
-
-            if (ret == ERR_INTERNAL)
+            if (fillStr(str, token, fp) == ERR_INTERNAL)
             {
-
                 return ERR_INTERNAL;
             }
 
@@ -803,35 +795,35 @@ int scanToken(token_t *token)
 
                 return SUCCESS;
             }
-            else
-            {
+            else if ((c > 113 && c < 118) || (c > 101 && c < 104) || (c > 109 && c < 112) || (c == 105) || (c == 108) || (c == 97))
+            { // hardcoded check for chars allowed in type (pls dont kill me for this if)
                 ungetc(c, fp);
+                str = stringInit(&ret);
+                if (ret == ERR_INTERNAL)
+                {
+                    return ERR_INTERNAL;
+                }
 
                 fsmState = S_TYPE_ID;
                 break;
             }
-            return ERR_LEX_ANALYSIS;
+            else
+            { // encountered not allowed char in TOK_TYPE_ID
+                return ERR_LEX_ANALYSIS; // string not allocated yet, so no need to free it
+            }
         case S_TYPE_ID:
             // need to check for 'string', 'int' or 'float'
             ungetc(c, fp);
 
-            ret = fillStr(str, token, fp);
-
-            if (ret == ERR_INTERNAL)
+            if(fillStr(str, token, fp) == ERR_INTERNAL)
             {
-
                 return ERR_INTERNAL;
-            }
-            else if (ret == ERR_LEX_ANALYSIS)
-            {
-
-                return ERR_LEX_ANALYSIS;
             }
 
             if (checkKeyword(token, str) == 0)
             {
-
                 // it doesn't match any keyword, throw err_lex
+                stringDestroy(str); // free the memory if encountered a lexical error
                 return ERR_LEX_ANALYSIS;
             }
             else if (token->attribute.kwVal == KW_STRING || token->attribute.kwVal == KW_INT || token->attribute.kwVal == KW_FLOAT)
@@ -842,9 +834,7 @@ int scanToken(token_t *token)
                 return SUCCESS; // token->type is set, attribute too
             }
             else
-            { // other keywords are not allowed as TYPE
-                token->type = TOK_EMPTY;
-
+            { // other keywords are not allowed as TYPE but checkKeyword freed string_t, since its a keyword
                 return ERR_LEX_ANALYSIS;
             }
             break;
@@ -853,15 +843,17 @@ int scanToken(token_t *token)
             {
                 ungetc(c, fp);
 
-                int ret = fillStr(str, token, fp);
-
-                return ret; // ERR_INTERNAL or SUCCESS
+                if (fillStr(str, token, fp) == ERR_INTERNAL)
+                {
+                    return ERR_INTERNAL;
+                }
+                return SUCCESS;
             }
             else
-            {
+            { // not allowed char in variable name
+                stringDestroy(str); // free the memory if encountered a lexical error
                 return ERR_LEX_ANALYSIS;
             }
-            break;
         case S_SLASH:
             if (c == '/')
             {

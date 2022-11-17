@@ -131,7 +131,7 @@ token_t * tokenInit();
 void freeToken(token_t * token);
 
 /**
- * @brief Checks for keyword (TOK_KEYWORD)
+ * @brief Checks for keyword (TOK_KEYWORD), destroys string_t if it finds a valid keyword
  * 
  * @return 0 in case of no keyword, otherwise 1 in case it is keyword
  */
