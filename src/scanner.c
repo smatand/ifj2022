@@ -196,17 +196,14 @@ int fillStr(string_t *s, token_t *token, FILE *fp)
     return SUCCESS;
 }
 
-int scanToken(token_t *token, string_t *str)
+int scanToken(token_t *token)
 {
     FILE *fp = stdin; // IFJ22 will be read only from stdin
 
     machineState_t fsmState = S_START;
+    string_t *str = NULL; // string for IDs keywords and string/numeral literals
 
     int ret = 0;
-    //    string_t * str = stringInit(&ret);
-    //    if (ret != SUCCESS) {
-    //        return ERR_INTERNAL;
-    //    }
 
     int c = 0;
 
@@ -319,7 +316,6 @@ int scanToken(token_t *token, string_t *str)
             }
             else if (c == '.')
             {
-                // ".92" or etc are taken as a syntax error
                 token->type = TOK_DOT;
 
                 return SUCCESS;
@@ -350,7 +346,11 @@ int scanToken(token_t *token, string_t *str)
             {
                 fsmState = S_INT_LIT;
 
-                stringClear(str); // clear the string from previous values
+                str = stringInit(&ret);
+                if (ret == NULL)
+                {
+                    return ERR_INTERNAL;
+                }
                 if (charPushBack(str, c) != SUCCESS)
                 {
                     return ERR_INTERNAL;
@@ -435,7 +435,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
             }
@@ -443,7 +442,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_DEC;
@@ -452,7 +450,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_EXP;
@@ -466,7 +463,7 @@ int scanToken(token_t *token, string_t *str)
 
                 ungetc(c, fp);
 
-                stringClear(str);
+                stringDestroy(str); // free the memory after the token is created
                 return SUCCESS;
             }
             break;
@@ -475,7 +472,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
                 fsmState = S_MID_EXP;
@@ -485,7 +481,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
                 fsmState = S_EXP_LIT;
@@ -493,6 +488,7 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
+                stringDestroy(str); // free the memory after encountering lexical error
                 return ERR_LEX_ANALYSIS; // S_ERROR, missing number or +-
             }
         case S_MID_EXP:
@@ -500,7 +496,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
 
@@ -508,6 +503,7 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
+                stringDestroy(str); // free the memory after encountering lexical error
                 return ERR_LEX_ANALYSIS; // S_ERROR, missing number
             }
             break;
@@ -516,7 +512,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
             }
@@ -527,7 +522,7 @@ int scanToken(token_t *token, string_t *str)
                 token->attribute.decVal = res;
 
                 ungetc(c, fp); // return the char to the stream and end scanning
-                stringClear(str);
+                stringDestroy(str); // free the memory after the token is created
                 return SUCCESS;
             }
             break;
@@ -536,7 +531,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
                 fsmState = S_DEC_LIT;
@@ -544,6 +538,7 @@ int scanToken(token_t *token, string_t *str)
             }
             else
             {
+                stringDestroy(str); // free the memory if encountered a lexical error
                 return ERR_LEX_ANALYSIS;
             }
         case S_DEC_LIT:
@@ -551,7 +546,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
                 break;
@@ -560,7 +554,6 @@ int scanToken(token_t *token, string_t *str)
             {
                 if (charPushBack(str, c) != SUCCESS)
                 {
-
                     return ERR_INTERNAL;
                 }
                 fsmState = S_STRT_EXP;
@@ -574,7 +567,7 @@ int scanToken(token_t *token, string_t *str)
 
                 ungetc(c, fp); // return the char to the stream and end scanning
 
-                stringClear(str);
+                stringDestroy(str); // free the memory after the token is created
                 return SUCCESS;
             }
         case S_STRT_STR:

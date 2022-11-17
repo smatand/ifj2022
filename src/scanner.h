@@ -78,7 +78,7 @@ typedef struct {
     union {
         int intVal;
         double decVal;
-        char * strVal;
+        string_t * strVal;
         keyword_t kwVal;
     } attribute;
 } token_t;
@@ -184,6 +184,6 @@ int fillStr(string_t * s, token_t * token, FILE * fp);
  * 
  * @return SUCCESS, otherwise ERR_CODE
  */ 
-int scanToken(token_t * token, string_t * str);
+int scanToken(token_t * token);
 
 #endif // SCANNER_H
