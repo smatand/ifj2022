@@ -105,23 +105,6 @@ double convertStringToDouble(string_t *s)
     return res;
 }
 
-int copyString(token_t *token, string_t *str)
-{
-    token->attribute.strVal = str->str;
-    return SUCCESS;
-    //token->attribute.strVal = calloc(0, str->realLen * sizeof(char));
-    //if (token->attribute.strVal != NULL)
-    //{
-    //    memcpy(token->attribute.strVal, str->str, str->realLen);
-    //    return SUCCESS;
-    //}
-    //else
-    //{
-    //    //(str);
-    //    return ERR_INTERNAL;
-    //}
-}
-
 int checkForPrologue(FILE *fp)
 {
     // just simply get first 3 chars and compare them with "php"

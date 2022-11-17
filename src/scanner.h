@@ -155,15 +155,6 @@ int convertStringToInt(char * s, int base);
 double convertStringToDouble(string_t * s);
 
 /**
- * @brief Copies previously allocated string value to token
- * @param token token to be operated with
- * @param s string to be copied
- * 
- * @return SUCCESS, otherwise ERR_INTERNAL
- */
-int copyString(token_t * token, string_t * str);
-
-/**
  * @brief Compares first 3 characters of source to "php"
  * @param fp pointer to input stream
  */
