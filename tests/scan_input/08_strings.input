@@ -11,5 +11,5 @@
 "\x \xT \x1 \x5P \xT2 \x05 \xA2"
 "\377 \37 \177"
 "\\\\\999\$"
-//incorrect
+//incorrect bcs $ is escape seq and it returns 2x err_lex_analysis due to loading '"' again without ending '"'
 "$"
