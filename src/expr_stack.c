@@ -6,13 +6,13 @@
 
 #include"./expr_stack.h"
 #include"./expr.h"
+#include"./error.h"
 #include<stdbool.h>
 #include<stdio.h>
 #include<stdlib.h>
 
 
 void eStackInit(eStack_t *stack){
-    //error
     stack->head = NULL;
     stack->currSize = 0;
 }
@@ -25,7 +25,9 @@ void eStackEmptyAll(eStack_t *stack){
 
 eItem_t *eItemInit(token_t *token, int itemType){
     eItem_t *item = malloc(sizeof(struct eItem));
-    //malloc error
+    if(item == NULL){
+        exit(ERR_INTERNAL);
+    }
     item->token = token;
     item->type = itemType;
     item->next = NULL;

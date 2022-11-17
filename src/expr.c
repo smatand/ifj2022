@@ -11,6 +11,7 @@
 #include"./expr.h"
 #include"./scanner.h"
 #include"./str.h"
+#include"./error.h"
 
 const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
 //  *    +    -    /    .    <    >    >=   <=   ===  !==  (    )    i    $ 
@@ -33,7 +34,7 @@ const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
 
 
 
-int main(){ //
+int main(){ 
 	token_t *returnToken = tokenInit();
 	token_t *token = tokenInit();
 	token_t *secondToken = tokenInit();
@@ -50,6 +51,7 @@ int main(){ //
 }
 
 int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
+	int returnCode = SUCCESS;
 	bool secondTokenDelay = false;
 	if(secondToken != NULL){
 		secondTokenDelay = true;
@@ -58,11 +60,11 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	bool continueParsing = true;	
 	bool scanAnotherToken = true;
 	//init stack
-	(void) returnToken;
 	eStack_t estack;
 	eStack_t *stack = &estack; 
 	eStackInit(stack);
 	eStackPushDollar(stack);
+
 	//
 	int stackTokenType;
 	int incomingTokenType;
@@ -74,18 +76,18 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 
 	while(continueParsing){
 		eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
-		// if(scanAnotherToken){
-			incomingTokenType = tokenTypeToeType(incomingToken);
-			closestTerm = findClosestTerm(stack); //closest term in stack
-			if(closestTerm->type == DOLLAR){ //if it is the end of stack
-				stackTokenType = P_DOLLAR;
-			}
-			else{
-				stackTokenType = tokenTypeToeType(closestTerm->token);
-			// }
+		incomingTokenType = tokenTypeToeType(incomingToken);
+		closestTerm = findClosestTerm(stack); //closest term in stack
+		
+		if(closestTerm->type == DOLLAR){ //if it is the end of stack
+			stackTokenType = P_DOLLAR;
+		}
+		else{
+			stackTokenType = tokenTypeToeType(closestTerm->token);
 		}
 		scanAnotherToken = true;
-		// printf("stack: %d, incoming: %d,\n",stackTokenType,tokenTypeToeType(incomingToken));
+
+
 		if(incomingTokenType == P_SEMICOLON){
 			operation = '!';
 		}
@@ -120,9 +122,11 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 							continueParsing = false;
 							// staci return )
 							//free stack a tak
+							returnToken = incomingToken;
 							return 0;
 							break;
 						}
+						//else error
 						printf("ERROR\n");
 						break;
 					default:
@@ -136,10 +140,10 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
         if(operation == '>'){
             scanAnotherToken = false;
         }
-        stackPrint(stack);
+        stackPrint(stack); //
 
 		if(scanAnotherToken){
-			if(secondTokenDelay == false){
+			if(secondTokenDelay == false){ 
 				incomingToken = tokenInit();
 				int ret = 0;
 
@@ -147,7 +151,10 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 				scanToken(incomingToken,string);
 				stringClear(string);
 			}
-			else{
+			//this happens only if expression is not assigned to anything
+			//this expression is processed if there are not errors, but its result
+			//is thrown away	
+			else{ 
 				incomingToken = secondToken;
 				secondTokenDelay = false;
 			}
@@ -200,7 +207,6 @@ void exprReduce(eStack_t *stack){
 			eStackPushNonTerm(stack);
 			break;
 		case RULE3:
-			// stackPrint(stack);
 			currItem = eStackPopItem(stack);	
 			free(currItem);
 			currItem = eStackPopItem(stack);	
@@ -208,7 +214,8 @@ void exprReduce(eStack_t *stack){
 			eStackPushNonTerm(stack);
 			break;
 		case RULE_ERROR:
-			printf("rule error");
+			exit(ERR_SYN_ANALYSIS);
+			// printf("rule error");
 			break;
 	}
 }
@@ -223,8 +230,6 @@ eRules_t exprFindRule(eStack_t *stack){
 	while(repeat){
 		switch(currState){
 			//starting state
-
-
 			
 			case E_STATE_START:
 				currItem = stack->head;
@@ -313,8 +318,7 @@ eRules_t exprFindRule(eStack_t *stack){
 				}
 				break;
 			default: //todo errors
-				printf("Reduce error\n!");
-				exit(1);
+				exit(ERR_SYN_ANALYSIS);
 
 
 		}
@@ -323,7 +327,6 @@ eRules_t exprFindRule(eStack_t *stack){
 }
 //todo co patri pod id  co moze byt vo vyraze?
 precTokenType_t tokenTypeToeType(token_t *token){
-	// printf("TOKENTYPE: %s\n",tokenTypeToStr(token));
 	tokenType_t type = token->type;
 	if(type == TOK_KEYWORD){ //if type of token is keyword, we check keywords
 		keyword_t keyword = token->attribute.kwVal;
@@ -333,7 +336,8 @@ precTokenType_t tokenTypeToeType(token_t *token){
 			case KW_NULL:
 				return P_ID;
 			default:
-				return P_ERROR;
+				exit(ERR_SYN_ANALYSIS);
+				// return P_ERROR;
 		}
 	}
 	switch(type){
@@ -371,7 +375,8 @@ precTokenType_t tokenTypeToeType(token_t *token){
 		case TOK_IDENTIFIER:
 			return P_ID;
 		default:
-			return P_ERROR;
+			exit(ERR_SYN_ANALYSIS);
+			// return P_ERROR;
 	}
 }
 
