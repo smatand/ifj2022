@@ -847,6 +847,11 @@ int scanToken(token_t *token)
                 {
                     return ERR_INTERNAL;
                 }
+                if (checkKeyword(token, str) == 1) 
+                { // found a keyword, which is not allowed as a variable name, error
+                    // checkKeyword freed string_t, since its a keyword, so no dealloc
+                    return ERR_LEX_ANALYSIS;
+                }
                 return SUCCESS;
             }
             else
