@@ -146,6 +146,10 @@ int checkForPrologue(FILE *fp)
     }
     loadedChars[3] = '\0';
 
+    if (c == EOF) {
+        ungetc(c, fp); // next scan of token shall be TOK_EOF
+    }
+
     return strcmp(loadedChars, prologue);
 }
 
@@ -176,13 +180,6 @@ int fillStr(string_t *s, token_t *token, FILE *fp)
         }
     }
 
-    // unexpected end, every php code should end with TOK_END_PROLOGUE
-    if (c == EOF)
-    {
-        free(buff);
-        return ERR_LEX_ANALYSIS;
-    }
-
     buff[i] = '\0';
 
     if (stringResize(s, i + 1) != SUCCESS)
@@ -199,7 +196,7 @@ int fillStr(string_t *s, token_t *token, FILE *fp)
     token->attribute.strVal = s->str;
 
     // caller must take care of //()!
-    ungetc(c, fp);
+    ungetc(c, fp); // next scan of token shall be TOK_EOF
     free(buff);
     return SUCCESS;
 }
@@ -457,7 +454,6 @@ int scanToken(token_t *token, string_t *str)
                 {
                     token->type = TOK_PROLOGUE; // TOK_PROLOGUE is the whole expression "<?php" TODO should it be taken as syntax error (2) ?
 
-                    ////(str);
                     return SUCCESS;
                 }
                 else
