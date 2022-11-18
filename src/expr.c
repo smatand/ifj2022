@@ -13,45 +13,39 @@
 #include"./str.h"
 #include"./error.h"
 
-const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
-//  *    +    -    /    .    <    >    >=   <=   ===  !==  (    )    i    $ 
-  {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // *
-  {'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // +
-  {'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // -
-  {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // /
-  {'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // .
-  {'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // <
-  {'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // >
-  {'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '>', '>'},  // >=
-  {'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // <=
-  {'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // ===
-  {'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // !==
-  {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '=', '<', '!'},  // (
-  {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '!', '>', '!', '>'},  // )
-  {'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '!', '>', '!', '>'},  // i
-  {'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
-};
-
 
 
 int main(){ 
 	token_t *returnToken = tokenInit();
 	token_t *token = tokenInit();
 	token_t *secondToken = tokenInit();
-	int ret = 0;
-	int ret2 = 0;
-	string_t *string = stringInit(&ret);
-	string_t *string2 = stringInit(&ret2);
-	// secondToken = NULL;
-	scanToken(token,string);
-	scanToken(secondToken,string2);
+	scanToken(token);
+	scanToken(secondToken);
 	exprParse(token,secondToken,returnToken);
-	stringClear(string);
 
 }
 
 int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
-	int returnCode = SUCCESS;
+	const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
+	//  *    +    -    /    .    <    >    >=   <=   ===  !==  (    )    i    $ 
+	{'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // *
+	{'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // +
+	{'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // -
+	{'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // /
+	{'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // .
+	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // <
+	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // >
+	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '>', '>'},  // >=
+	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // <=
+	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // ===
+	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // !==
+	{'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '=', '<', '!'},  // (
+	{'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '!', '>', '!', '>'},  // )
+	{'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '!', '>', '!', '>'},  // i
+	{'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
+	};
+
+	// int returnCode = SUCCESS;
 	bool secondTokenDelay = false;
 	if(secondToken != NULL){
 		secondTokenDelay = true;
@@ -69,6 +63,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	int stackTokenType;
 	int incomingTokenType;
 	char operation;
+	(void) returnToken;
 	returnToken = NULL;
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
@@ -78,7 +73,9 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 		eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
 		incomingTokenType = tokenTypeToeType(incomingToken);
 		closestTerm = findClosestTerm(stack); //closest term in stack
-		
+		if(incomingToken->type == TOK_EOF){
+			exit(ERR_SYN_ANALYSIS);
+		}
 		if(closestTerm->type == DOLLAR){ //if it is the end of stack
 			stackTokenType = P_DOLLAR;
 		}
@@ -126,11 +123,12 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 							return 0;
 							break;
 						}
-						//else error
-						printf("ERROR\n");
+						else{
+							exit(ERR_SYN_ANALYSIS);
+						}
 						break;
 					default:
-						printf("SWITCH error\n");
+						exit(ERR_SYN_ANALYSIS);
 				}
 		if(incomingTokenItem->type == DOLLAR || !continueParsing){
             freeItem(incomingTokenItem);
@@ -145,14 +143,10 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
 				incomingToken = tokenInit();
-				int ret = 0;
-
-				string_t *string = stringInit(&ret);
-				scanToken(incomingToken,string);
-				stringClear(string);
+				scanToken(incomingToken);
 			}
 			//this happens only if expression is not assigned to anything
-			//this expression is processed if there are not errors, but its result
+			//this expression is processed if there are no errors, but its result
 			//is thrown away	
 			else{ 
 				incomingToken = secondToken;
@@ -222,6 +216,7 @@ void exprReduce(eStack_t *stack){
 
 
 eRules_t exprFindRule(eStack_t *stack){
+	// stackPrint(stack);
 	int currState = E_STATE_START;
 	bool repeat = true;
 	int tokenType;
@@ -244,6 +239,9 @@ eRules_t exprFindRule(eStack_t *stack){
 					else if(tokenType == P_ID){
 						currState = RULE3_EXPECTED1;
 					}
+					else{
+						currState = RULESTATES_ERROR;
+					}
 				}
 				//if not then it is rule 1 = E->E+E,...
 				if(currItem->type == NONTERM){
@@ -263,6 +261,9 @@ eRules_t exprFindRule(eStack_t *stack){
 				if(tokenType != P_ID || tokenType != P_LEFT_PAREN || tokenType != P_RIGHT_PAREN){
 					currState = RULE1_EXPECTED2;
 				}
+				else{
+					currState = RULESTATES_ERROR;
+				}
 				break;
 			/* 
 			 * rule: E->E+E
@@ -272,6 +273,9 @@ eRules_t exprFindRule(eStack_t *stack){
 				currItem = currItem->next;
 				if(currItem->type == NONTERM){
 					currState = RULE1_EXPECTED3;
+				}
+				else{
+					currState = RULESTATES_ERROR;
 				}
 				break;
 			/* 
@@ -284,12 +288,19 @@ eRules_t exprFindRule(eStack_t *stack){
 					repeat = false;
 					return RULE1;
 				}
+				else{
+					currState = RULESTATES_ERROR;
+				}
 				break;
+
 			//rule E -> (E)
 			case RULE2_EXPECTED1:
 				currItem = currItem->next;
 				if(currItem->type == NONTERM){
 					currState = RULE2_EXPECTED2;
+				}
+				else{
+					currState = RULESTATES_ERROR;
 				}
 				break;
 			//rule E -> (E)
@@ -299,6 +310,9 @@ eRules_t exprFindRule(eStack_t *stack){
 				if(tokenType ==  P_LEFT_PAREN){
 					currState = RULE2_EXPECTED3;
 				}
+				else{
+					currState = RULESTATES_ERROR;
+				}
 				break;
 			case RULE2_EXPECTED3:
 				currItem = currItem->next;
@@ -307,7 +321,11 @@ eRules_t exprFindRule(eStack_t *stack){
 					repeat = false;
 					return RULE2;
 				}
+				else{
+					currState = RULESTATES_ERROR;
+				}
 				break;
+
 			//rule E -> i
 			case RULE3_EXPECTED1:
 				currItem = currItem->next;
@@ -316,8 +334,13 @@ eRules_t exprFindRule(eStack_t *stack){
 					repeat = false;
 					return RULE3;
 				}
+				else{
+					currState = RULESTATES_ERROR;
+				}
 				break;
-			default: //todo errors
+			case RULESTATES_ERROR:
+				exit(ERR_SYN_ANALYSIS);
+			default: 
 				exit(ERR_SYN_ANALYSIS);
 
 
