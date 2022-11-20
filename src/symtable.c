@@ -64,7 +64,7 @@ void htab_resize(htab_t *t, size_t newn)
 	htab_t *newT = htab_init(newn);
 	if (newT == NULL)
 	{
-		htab_free(newT);
+		//htab_free(newT); // TODO: memory leak
 		return;
 	}
 
@@ -74,7 +74,7 @@ void htab_resize(htab_t *t, size_t newn)
 		htab_item_t *temp = t->arr_ptr[i];
 		while (temp != NULL)
 		{
-			htab_add(newT, temp->pair.key, temp->pair.data.type);
+			htab_add(newT, temp->pair.key, temp->pair.data);
 			temp = temp->next;
 		}
 	}
@@ -110,7 +110,8 @@ htab_pair_t *htab_find(htab_t *t, htab_key_t key)
 	return NULL;
 }
 
-htab_pair_t *htab_add(htab_t *t, htab_key_t key, data_type type)
+// data must be malloc'd before calling this function
+htab_pair_t *htab_add(htab_t *t, htab_key_t key, token_data_t *data)
 {
 	uint32_t index = htab_hash_function(key) % t->arr_size;
 
@@ -132,8 +133,10 @@ htab_pair_t *htab_add(htab_t *t, htab_key_t key, data_type type)
 		}
 
 		strncpy(newKey, key, strlen(key) + 1);
+		newKey[strlen(key)] = '\0'; // add null terminator
+
 		t->arr_ptr[index]->pair.key = newKey;
-		t->arr_ptr[index]->pair.data.type = type;
+		t->arr_ptr[index]->pair.data = data;
 		t->arr_ptr[index]->next = NULL;
 		t->size++;
 
@@ -175,7 +178,7 @@ htab_pair_t *htab_add(htab_t *t, htab_key_t key, data_type type)
 
 	strncpy(newKey, key, strlen(key) + 1);
 	(*temp)->pair.key = newKey;
-	(*temp)->pair.data.type = type;
+	(*temp)->pair.data = data;
 	(*temp)->next = NULL;
 	t->size++;
 
@@ -202,6 +205,7 @@ bool htab_erase(htab_t *t, htab_key_t key)
 			// found
 			htab_item_t *newNext = (*temp)->next;
 			free((char *)(*temp)->pair.key);
+			free((*temp)->pair.data);
 			free(*temp);
 			t->size--;
 
@@ -245,6 +249,7 @@ void htab_clear(htab_t *t)
 			// save pointer to next, so we don't lose it after calling free
 			htab_item_t *newNext = (*temp)->next;
 			free((char *)(*temp)->pair.key);
+			free((*temp)->pair.data);
 			free(*temp);
 
 			*temp = newNext;

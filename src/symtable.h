@@ -15,25 +15,72 @@
 #define HTAB_AVG_LEN_MAX 128
 #define MINIMUM_SIZE 23
 
+/** @brief Types of token data */
+typedef enum
+{
+	DATA_UNDEFINED, DATA_INT, DATA_FLOAT, DATA_STRING, DATA_NULL
+} data_type_t;
+
+/** @brief Function structure */
+typedef struct
+{
+	data_type_t* param_list;
+	int param_count;
+	data_type_t return_type;
+	bool defined;
+} sym_func_t;
+
+typedef const char *htab_key_t;
+
+/** @brief Variable structure */
+typedef struct
+{
+	data_type_t type;
+} sym_var_t;
+
+typedef const char *htab_key_t;
+
+/** @brief Constant structure */
+typedef struct
+{
+	data_type_t type;
+	union
+	{
+		int value_int;
+		float value_float;
+		const char* value_string;
+		bool value_null; // TODO: how to represent null?
+	} value;
+} sym_const_t;
+
+typedef const char *htab_key_t;
+
 /** @brief Types of token */
 typedef enum
 {
-	TYPE_INT, TYPE_FLOAT, TYPE_STRING
-} data_type;
+	TOKTYPE_FUNCTION, TOKTYPE_VARIABLE, TOKTYPE_CONSTANT
+} token_type_t;
 
 typedef const char *htab_key_t;
 
 /** @brief Structure of token data */
 typedef struct token_data
 {
-	data_type type;
+	const char *ID;
+	token_type_t type;
+	union
+	{
+		sym_func_t function;
+		sym_var_t variable;
+		sym_const_t constant;
+	} data;
 } token_data_t;
 
 /** @brief Structure of a hash table item's content */
 typedef struct htab_pair
 {
 	htab_key_t key;
-	token_data_t data;
+	token_data_t *data;
 } htab_pair_t;
 
 /** @brief Structure of a hash table item */
@@ -102,12 +149,13 @@ htab_pair_t *htab_find(htab_t *t, htab_key_t key);
 /** 
  * @brief Add an item to the hash table
  * @param t pointer to a hash table
- * @param key key value of the new item
+ * @param key key of the new item
+ * @param data data of the new item
  * @param type data type of the new item
  * 
  * @return pointer to the new hash table item, or NULL if an item with the key already exists
  */
-htab_pair_t *htab_add(htab_t *t, htab_key_t key, data_type type);
+htab_pair_t *htab_add(htab_t *t, htab_key_t key, token_data_t *data);
 
 /** 
  * @brief Erase an item in the hash table
