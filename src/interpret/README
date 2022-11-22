@@ -1,0 +1,8 @@
+ic22int - referencni interpret ciloveho jazyka IFJcode22
+verze 2022-09-30, 64-bitova
+
+Prubezne doplnovane informace najdete na Moodle predmetu IFJ na strance "Interpret cíloveho kodu IFJcode22".
+
+CHANGES:
+  * 2022-09-30:
+    * zverejnena prvni verze interpretu (upravena kompatibilita s jazykem PHP hlavne u instrukci READ a WRITE, podpora 64-bitoveho int)

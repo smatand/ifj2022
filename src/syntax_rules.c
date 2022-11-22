@@ -75,7 +75,7 @@ int rFunctionDefinition(Parser_t *parser)
 {
 	// 7. <function_definition> ->  "function" ID "(" <params> ")" ":" <type> "{" <statements> "}"
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER); // TODO: TOK_IDENTIFIER can be a function or a variable, check it
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER); // TODO: TOK_IDENTIFIER can be a function or a variable, check if it's a function
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rParams);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
@@ -222,7 +222,7 @@ int rReturnStatement(Parser_t *parser)
 {
 	// 27. <return_statement>  ->  "return" <return_value> ";"
 
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RETURN);
+	CURRENT_TOKEN_KWORD_GETNEXT(KW_RETURN);
 	CALL_RULE(rReturnValue);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	return 0;
