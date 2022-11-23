@@ -19,6 +19,7 @@ int rProgram(Parser_t *parser)
 int rProlog(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_PROLOGUE);
+	// TODO generate code?
 	return SUCCESS;
 }
 
@@ -46,21 +47,20 @@ int rUnit(Parser_t *parser)
 	{
 		CALL_RULE(rStatements);
 	}
-	return 0;
+	return SUCCESS;
 }
 
 int rFunctionDefinition(Parser_t *parser)
 {
-	// 7. <function_definition> ->  "function" ID "(" <params> ")" ":" <type> "{" <statements> "}"
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER); // TODO: TOK_IDENTIFIER can be a function or a variable, check if it's a function
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER); // TODO: check for collision
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN); 
 	CALL_RULE(rParams);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
 	CALL_RULE(rType);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
-	// TODO: EOL? probably not...
+	// TODO: add to symtable
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 	return 0;
