@@ -74,46 +74,70 @@ int parseSource(Parser_t *parser);
 
 // Rule #1 = <program>  ->  <prolog> <units> <program_end>
 int rProgram(Parser_t *parser);
+
 // Rule #2 = <prolog>  ->  "<?php declare(strict_types=1);"
 int rProlog(Parser_t *parser);
+
 /* Rule #3 = <units>  ->  <unit> <units>
  * Rule #4 = <units>  ->  ε
 */
 int rUnits(Parser_t *parser);
-// Rules #5, #6
+
+/* Rule #5 = <unit>  ->  <function_definition>
+ * Rule #6 = <unit>  ->  <statements>
+*/
 int rUnit(Parser_t *parser);
-// Rule #7
+
+/* Rule #7 = <function_definition> ->  "function" ID "(" <params> ")" ":" <type> "{" <statements> "}"
+ * Rule #8 = <function_definition> ->  ε
+*/
 int rFunctionDefinition(Parser_t *parser);
+
 // Rule #9
 int rParams(Parser_t *parser);
+
 // Rule #11
 int rParam(Parser_t *parser);
+
 // Rule #12
 int rParam_n(Parser_t *parser);
+
 // Rules #14, #15, #16
 int rType(Parser_t *parser);
+
 // Rules #17, #18, #19, #20, #21
 int rStatements(Parser_t *parser);
+
 // Rule #23
 int rAssignmentStatement(Parser_t *parser);
+
 // Rule #24
 int rConditionalStatement(Parser_t *parser);
+
 // Rule #25
 int rWhileLoopStatement(Parser_t *parser);
+
 // Rule #26
 int rFunctionCallStatement(Parser_t *parser);
+
 // Rule #27
 int rReturnStatement(Parser_t *parser);
+
 // Rules #28, #29
 int rAssignment(Parser_t *parser);
+
 // Rule #30
 int rArguments(Parser_t *parser);
+
 // Rule #32
 int rArgument_n(Parser_t *parser);
+
 // Rule #34
 int rReturnValue(Parser_t *parser);
+
 // Rules #36, #37, #38, #39, #40
 int rTerm(Parser_t *parser);
+
 // Rule #41
 int rProgramEnd(Parser_t *parser);
 
