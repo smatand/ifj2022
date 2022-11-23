@@ -70,13 +70,15 @@ int checkTokenKeyword(token_t *token, keyword_t keyword);
  */
 int parseSource(Parser_t *parser);
 
-//###############################~~~RULES~~~#######
+//###############################~~~RULES~~~###############################
 
-// Rule #1
+// Rule #1 = <program>  ->  <prolog> <units> <program_end>
 int rProgram(Parser_t *parser);
-// Rule #2
+// Rule #2 = <prolog>  ->  "<?php declare(strict_types=1);"
 int rProlog(Parser_t *parser);
-// Rule #3
+/* Rule #3 = <units>  ->  <unit> <units>
+ * Rule #4 = <units>  ->  ε
+*/
 int rUnits(Parser_t *parser);
 // Rules #5, #6
 int rUnit(Parser_t *parser);
