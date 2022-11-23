@@ -5,6 +5,7 @@
  */
 
 #include "parser.h"
+#include "error.h"
 
 Parser_t *initParser()
 {
@@ -12,54 +13,52 @@ Parser_t *initParser()
 
 	if (parser == NULL)
 	{
-		fprintf(stderr, "PARSER ERROR (initParser): Parser struct allocation failure");
 		return NULL;
 	}
 
 	if ((parser->symTable = htab_init(INITIAL_BUCKET_COUNT)) == NULL)
 	{
-		fprintf(stderr, "PARSER ERROR (initParser): Parser symtable allocation failure");
 		free(parser);
-		parser = NULL;
+		return NULL;
 	}
 
-	if ((parser->currentToken = tokenInit()) == NULL) // scan and store first token
+	if ((parser->currentToken = tokenInit()) == NULL) // allocate memory for the first token
 	{
-		fprintf(stderr, "PARSER ERROR (initParser): Parser current token initialization failure");
+		htab_clear(parser->symTable);
 		free(parser);
-		parser = NULL;
+		return NULL;
 	}
 
-	if ((parser->nextToken = tokenInit() == NULL)) // scan and store first token
+	if ((parser->nextToken = tokenInit() == NULL)) // allocate memory for the second token
 	{
-		fprintf(stderr, "PARSER ERROR (initParser): Parser next token initialization failure");
-		free(parser);
-		parser = NULL;
+		htab_clear(parser->symTable);
 		freeToken(parser->currentToken);
+		free(parser);
+		return NULL;
 	}
 
-	if (scanToken(parser->currentToken) != SUCCESS) // scan and store first token
+	if (scanToken(parser->currentToken) != SUCCESS) // scan first token
 	{
-		fprintf(stderr, "PARSER ERROR (initParser): Parser current token scan failure");
-		free(parser);
-		parser = NULL;
+		htab_clear(parser->symTable);
 		freeToken(parser->currentToken);
 		freeToken(parser->nextToken);
+		free(parser);
+		return NULL;
 	}
 
-	if (scanToken(parser->nextToken) != SUCCESS) // scan and store second token
+	if (scanToken(parser->nextToken) != SUCCESS) // scan second token
 	{
-		fprintf(stderr, "PARSER ERROR (initParser): Parser next token scan failure");
-		free(parser);
-		parser = NULL;
+		htab_clear(parser->symTable);
 		freeToken(parser->currentToken);
 		freeToken(parser->nextToken);
+		free(parser);
+		return NULL;
 	}
 
 	return parser;
 }
 
-int destroyParser(Parser_t *parser)
+void destroyParser(Parser_t *parser)
 {
 	freeToken(parser->currentToken);
 	freeToken(parser->nextToken);
@@ -71,22 +70,22 @@ int destroyParser(Parser_t *parser)
 
 int parseSource(Parser_t *parser)
 {
-	int error;
-	error = rProgram(parser);
+	int ret = SUCCESS;
+	ret = rProgram(parser);
 
-	return 0;
+	return ret;
 }
 
 int getNextToken(Parser_t *parser)
 {
+	int ret = SUCCESS;
 	parser->currentToken = parser->nextToken;
-	if (scanToken(parser->currentToken) != SUCCESS)
+	if ((ret = scanToken(parser->nextToken)) != SUCCESS)
 	{
-		fprintf(stderr, "PARSER ERROR (getNextToken): Scan next token failure");
-		return ERR_INTERNAL;
+		fprintf(stderr, "SCANNER ERROR (getNextToken): Exit with error code %d", ret);
 	}
 
-	return SUCCESS;
+	return ret;
 }
 
 int checkTokenType(token_t* token, tokenType_t type)

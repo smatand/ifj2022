@@ -32,16 +32,15 @@ Parser_t *initParser();
 
 /**
  * @brief Free all memory allocated by the parser
- * @param
- *
- * @return Error code
+ * @param parser struct to be freed
  */
-int destroyParser(Parser_t *parser);
+void destroyParser(Parser_t *parser);
 
 /**
  * @brief Get the next token from the scanner
+ * @param parser struct for storing the token
  *
- * @return Error code
+ * @return SUCCESS, or ERR_INTERNAL 
  */
 int getNextToken(Parser_t *parser);
 
@@ -65,7 +64,7 @@ int checkTokenKeyword(token_t *token, keyword_t keyword);
 
 /**
  * @brief Parse the source code
- * @param
+ * @param parser struct to work with
  *
  * @return Error code
  */
