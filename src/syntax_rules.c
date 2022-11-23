@@ -6,56 +6,34 @@
 
 #include "parser.h"
 #include "parser_macros.h"
+#include "error.h"
 
 int rProgram(Parser_t *parser)
 {
 	CALL_RULE(rProlog);
 	CALL_RULE(rUnits);
 	CALL_RULE(rProgramEnd);
-	return 0;
+	return SUCCESS;
 }
 
 int rProlog(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_PROLOGUE)
-	{
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_PROLOGUE);
-	}
-	return 0;
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_PROLOGUE);
+	return SUCCESS;
 }
 
 int rUnits(Parser_t *parser)
 {
-	// THIS SUCKS BUT PROBABLY WORKS! I DONT KNOW HOW ELSE TO DO IT, EPSILON CHAINING :(
-	if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_FUNCTION)
-	{
-		CALL_RULE(rUnit);
-		CALL_RULE(rUnits); // only enter recursion if <unit>
+	if(parser->currentToken->type == TOK_EOF || parser->currentToken->type == TOK_END_PROLOGUE)
+	{ // got to the end, return SUCCESS
+		;
 	}
-	else if (parser->currentToken->type == TOK_IDENTIFIER)
-	{
+	else
+	{ // there are more units, continue
 		CALL_RULE(rUnit);
 		CALL_RULE(rUnits);
 	}
-	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_IF)
-	{
-		CALL_RULE(rUnit);
-		CALL_RULE(rUnits);
-	}
-	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_WHILE)
-	{
-		CALL_RULE(rUnit);
-		CALL_RULE(rUnits);
-	}
-	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_RETURN)
-	{
-		CALL_RULE(rUnit);
-		CALL_RULE(rUnits);
-	}
-	else // epsilon
-	{
-		return 0;
-	}
+	return SUCCESS;
 }
 
 int rUnit(Parser_t *parser)
