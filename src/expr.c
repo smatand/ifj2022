@@ -43,8 +43,8 @@ int main(){
 	string_t *string = stringInit(&ret);
 	string_t *string2 = stringInit(&ret2);
 	// secondToken = NULL;
-	scanToken(token,string);
-	scanToken(secondToken,string2);
+	scanToken(token);
+	scanToken(secondToken);
 	exprParse(token,secondToken,returnToken);
 	stringClear(string);
 
@@ -148,7 +148,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 				int ret = 0;
 
 				string_t *string = stringInit(&ret);
-				scanToken(incomingToken,string);
+				scanToken(incomingToken);
 				stringClear(string);
 			}
 			//this happens only if expression is not assigned to anything
