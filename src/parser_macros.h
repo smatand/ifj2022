@@ -1,9 +1,9 @@
 #define CALL_RULE(ruleFunction)           \
 	do                                    \
 	{                                     \
-		int error = ruleFunction(parser); \
-		if (error != 0)                   \
-			return error;                 \
+		int ret = ruleFunction(parser);   \
+		if (ret != SUCCESS)               \
+			return ret;                	  \
 	} while (0)
 
 #define CURRENT_TOKEN_TYPE(tokenType)                                \
