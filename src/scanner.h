@@ -134,10 +134,20 @@ void freeToken(token_t * token);
 
 /**
  * @brief Checks for keyword (TOK_KEYWORD), destroys string_t if it finds a valid keyword
- * 
+ * @param token token to operate with
+ * @param s string to compare with
+ *
  * @return 0 in case of no keyword, otherwise 1 in case it is keyword
  */
 int checkKeyword(token_t * token, string_t * s);
+
+/**
+ * @brief Checks for operator in token
+ * @param token token to operate with
+ * 
+ * @return 0 if operator is found, otherwise 1
+ */
+int checkForOperator(token_t * token);
 
 /**
  * @brief Converts string to integer

@@ -99,6 +99,16 @@ int checkKeyword(token_t *token, string_t *s)
     return 1; // caller must take care of //()!
 }
 
+int checkForOperator(token_t * token)
+{
+    if(token->type == TOK_DOT || token->type == TOK_MINUS || token->type == TOK_PLUS ||
+        token->type == TOK_SLASH || token->type == TOK_STAR )
+    {
+        return 0;
+    }
+    return 1;
+}
+
 int convertStringToInt(char *s, int base)
 {
     char *endPtr;
