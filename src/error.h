@@ -14,6 +14,7 @@
 
 #define ERR_INTERNAL          99 // e.g. memory allocation failed
 
-// the error warnings should be printed to stderr
+// alloc/realloc error ----> free all memory, and return ERR_INTERNAL
+// other errors -----------> return error code
 
 #endif // ERROR_H

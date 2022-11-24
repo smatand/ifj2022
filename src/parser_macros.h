@@ -1,11 +1,23 @@
+/**
+ * @brief Calls function and returns error code if it fails
+ * @param ruleFunction Function to call
+ * 
+ * @return caught error code, otherwise nothing
+*/
 #define CALL_RULE(ruleFunction)           \
 	do                                    \
 	{                                     \
-		int error = ruleFunction(parser); \
-		if (error != 0)                   \
-			return error;                 \
+		int ret = ruleFunction(parser);   \
+		if (ret != SUCCESS)               \
+			return ret;                	  \
 	} while (0)
 
+/**
+ * @brief Checks type of current token
+ * @param tokenType Type of token to check against
+ * 
+ * @return 0 if matching, otherwise non-zero value
+*/
 #define CURRENT_TOKEN_TYPE(tokenType)                                \
 	do                                                               \
 	{                                                                \
@@ -14,6 +26,12 @@
 			return check;                                            \
 	} while (0)
 
+/**
+ * @brief Checks type of current token and gets the next
+ * @param tokenType Type of token to check against
+ * 
+ * @return caught error code, otherwise nothing
+*/
 #define CURRENT_TOKEN_TYPE_GETNEXT(tokenType)                        \
 	do                                                               \
 	{                                                                \

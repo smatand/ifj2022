@@ -19,6 +19,14 @@ int main(){
 	token_t *returnToken = tokenInit();
 	token_t *token = tokenInit();
 	token_t *secondToken = tokenInit();
+<<<<<<< HEAD
+=======
+	int ret = 0;
+	int ret2 = 0;
+	string_t *string = stringInit(&ret);
+	string_t *string2 = stringInit(&ret2);
+	// secondToken = NULL;
+>>>>>>> 231deda4909ae38c1604d80580b62d1c2ad9c045
 	scanToken(token);
 	scanToken(secondToken);
 	exprParse(token,secondToken,returnToken);
