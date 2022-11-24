@@ -73,9 +73,9 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 		eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
 		incomingTokenType = tokenTypeToeType(incomingToken);
 		closestTerm = findClosestTerm(stack); //closest term in stack
-		if(incomingToken->type == TOK_EOF){
-			exit(ERR_SYN_ANALYSIS);
-		}
+		// if(incomingToken->type == TOK_EOF){
+		// 	exit(ERR_SYN_ANALYSIS);
+		// }
 		if(closestTerm->type == DOLLAR){ //if it is the end of stack
 			stackTokenType = P_DOLLAR;
 		}
