@@ -148,7 +148,106 @@ void gen_strval() {
 void gen_strlen(/*string*/) {
 }
 
-void gen_substring(/*string, int, int*/) {
+void gen_substring() {
+    printf(
+        "label substring\n"
+        "pushframe\n"
+
+        "defvar LF@_string\n"
+        "defvar LF@_index_from\n"
+        "defvar LF@_index_to\n"
+        "defvar LF@_retval\n"
+
+        "move LF@_retval string@\n"
+
+        "defvar LF@_tmp\n"
+        "defvar LF@_strlen\n"
+
+        "pops LF@_index_to # $j\n"
+        "pops LF@_index_from # $i\n"
+        "pops LF@_string # $s\n"
+
+        "# errors\n"
+        "lt LF@_tmp LF@_index_from int@0 # $i < 0\n"
+        "jumpifeq substring_return_null LF@_tmp bool@true\n"
+        "lt LF@_tmp LF@_index_to int@0 # $j < 0\n"
+        "jumpifeq substring_return_null LF@_tmp bool@true\n"
+        "gt LF@_tmp LF@_index_from LF@_index_to # $i > $j\n"
+        "jumpifeq substring_return_null LF@_tmp bool@true\n"
+
+        "strlen LF@_strlen LF@_string\n"
+        "gt LF@_tmp LF@_index_from LF@_strlen # $i > strlen($s)\n"
+        "jumpifeq substring_return_null LF@_tmp bool@true\n"
+        "jumpifeq substring_return_null LF@_index_from LF@_strlen\n"
+        "gt LF@_tmp LF@_index_to LF@_strlen # $j > strlen($s)\n"
+        "jumpifeq substring_return_null LF@_tmp bool@true\n"
+        "jumpifeq substring_return_null LF@_index_to LF@_index_from\n"
+
+
+        "# getchar <var> <symb1> <symb2>\n"
+        "label substring_while\n"
+        "getchar LF@_tmp LF@_string LF@_index_from\n"
+
+        "concat LF@_retval LF@_retval LF@_tmp\n"
+
+        "add LF@_index_from LF@_index_from int@1 # $i++\n"
+        "jumpifneq substring_while LF@_index_from LF@_index_to\n"
+
+
+        "jump substring_end\n"
+
+        "label substring_return_null\n"
+        "move LF@_retval nil@nil\n"
+
+        "label substring_end\n"
+        "pushs LF@_retval\n"
+        "popframe\n"
+        "return\n"
+    );
+}
+
+void gen_ord() {
+    printf(
+        "label ord\n"
+        "pushframe\n"
+
+        "defvar LF@_string\n"
+        "defvar LF@_retval\n"
+        "pops LF@_string\n"
+
+        "jumpifeq ord_empty_string LF@_string string@\n"
+
+        "stri2int LF@_retval LF@_string int@0\n"
+        "jump ord_end\n"
+
+
+        "label ord_empty_string\n"
+        "move LF@_retval int@0\n"
+
+        "label ord_end\n"
+        "pushs LF@_retval\n"
+        "popframe\n"
+        "return\n"
+        );
+}
+
+void gen_chr() {
+    printf(
+        "label chr\n"
+        "pushframe\n"
+
+        "defvar LF@_int\n"
+        "defvar LF@_retval\n"
+        "pops LF@_int\n"
+
+        "int2char LF@_retval LF@_int\n"
+        "jump chr_end\n"
+
+        "label chr_end\n"
+        "pushs LF@_retval\n"
+        "popframe\n"
+        "return\n"
+        );
 }
 
 void gen_builtin_functions() {
@@ -158,11 +257,10 @@ void gen_builtin_functions() {
     gen_write();
     gen_floatval();
     gen_intval();
-
     gen_strval();
-
-    gen_strlen();
     gen_substring();
+    gen_ord();
+    gen_chr();
 }
 /***************************************************************/
 /**************** END OF STANDARD LIBRARY (PHP) ****************/

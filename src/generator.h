@@ -24,8 +24,14 @@ void gen_intval();
 /** @brief function strval(term) : ?string */
 void gen_strval();
 
-void gen_strlen(/*string*/);
+/** @brief function substring(string $s, int $i, int $j) : ?string */
 void gen_substring(/*string, int, int*/);
+
+/** @brief function ord(string $c) : int */
+void gen_ord();
+
+/** @brief function chr(int $i) : string */
+void gen_chr();
 
 /** @brief Prints the standard library (IFJ2022) to the output file */
 void gen_builtin_functions();
