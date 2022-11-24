@@ -26,10 +26,6 @@ int main(){
 }
 
 int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
-	if(firstToken == NULL){
-		fprintf(stderr,"expr,ERROR: internal Error \n");
-		exit(ERR_INTERNAL);
-	}
 	// <: shift with indent
 	// >: reduce
 	// =: swhift without indent
@@ -53,6 +49,10 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	{'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
 	};
 
+	if(firstToken == NULL){
+		fprintf(stderr,"expr,ERROR: internal Error \n");
+		exit(ERR_INTERNAL);
+	}
 	bool secondTokenDelay = false;
 	if(secondToken != NULL){
 		secondTokenDelay = true; //expression isn't assigned to anything
@@ -75,7 +75,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	returnToken = NULL;
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
-	stackPrint(stack);
+	// stackPrint(stack);
 
 	while(continueParsing){
 		
@@ -105,6 +105,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 						exprShift(stack,incomingTokenItem);
 						break;
 					case '>': //reduce
+						scanAnotherToken = false;
 						exprReduce(stack);
 						break;
 					case '=': //shift without pushing indent
@@ -122,7 +123,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 							//we need to end expression with $E in stack
 							while(stack->head->next->type != DOLLAR){ 
 								exprReduce(stack);
-								stackPrint(stack);
+								// stackPrint(stack);
 							}
 							continueParsing = false;
 							returnToken = incomingToken;
@@ -142,11 +143,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
             freeItem(incomingTokenItem);
             break;
         }
-		//reduction => we loop thru while again with the same token
-        if(operation == '>'){
-            scanAnotherToken = false;
-        }
-        stackPrint(stack); 
+        // stackPrint(stack); 
 
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
@@ -160,12 +157,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 				incomingToken = secondToken;
 				secondTokenDelay = false;
 			}
-			// if(firstToken != NULL){
-			// 	freeToken(firstToken);
-			// }
-			// if(secondToken != NULL){
-			// 	freeToken(secondToken);
-			// }
+
 		}
 	}
 	eStackEmptyAll(stack);
