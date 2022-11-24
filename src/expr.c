@@ -26,8 +26,12 @@ int main(){
 }
 
 int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
+	// <: shift with indent
+	// >: reduce
+	// =: swhift without indent
+	// !: error
 	const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
-	//  *    +    -    /    .    <    >    >=   <=   ===  !==  (    )    i    $ 
+	//*    +    -    /    .    <    >    >=   <=   ===  !==  (    )    i    $ 
 	{'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // *
 	{'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // +
 	{'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // -
@@ -45,7 +49,6 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	{'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
 	};
 
-	// int returnCode = SUCCESS;
 	bool secondTokenDelay = false;
 	if(secondToken != NULL){
 		secondTokenDelay = true;
@@ -59,7 +62,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	eStackInit(stack);
 	eStackPushDollar(stack);
 
-	//
+	//initialize
 	int stackTokenType;
 	int incomingTokenType;
 	char operation;
@@ -73,9 +76,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 		eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
 		incomingTokenType = tokenTypeToeType(incomingToken);
 		closestTerm = findClosestTerm(stack); //closest term in stack
-		// if(incomingToken->type == TOK_EOF){
-		// 	exit(ERR_SYN_ANALYSIS);
-		// }
+
 		if(closestTerm->type == DOLLAR){ //if it is the end of stack
 			stackTokenType = P_DOLLAR;
 		}
@@ -97,7 +98,6 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 						exprShift(stack,incomingTokenItem);
 						break;
 					case '>': //reduce
-						// (closestTerm->type == DOLLAR) ? printf("Najblizsi term: DOLLAR") : printf("Najblizsi term: %s\n",tokenTypeToStr(closestTerm->token));
 						exprReduce(stack);
 						break;
 					case '=': //shift without pushing indent
@@ -109,6 +109,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 						 * because this could be case where we encounter right closing 
 						 * bracket of its statement (like if(expressin) ),
 						 * therefore we send this to top bottom for further analysis
+						 * or if it is end of line, finished by semicolon ';'.
 						 */
 						if(incomingTokenType == P_RIGHT_PAREN || incomingTokenType == P_SEMICOLON){
 							//we need to end expression with $E
@@ -117,8 +118,6 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 								stackPrint(stack);
 							}
 							continueParsing = false;
-							// staci return )
-							//free stack a tak
 							returnToken = incomingToken;
 							return 0;
 							break;
@@ -224,18 +223,20 @@ eRules_t exprFindRule(eStack_t *stack){
 
 	while(repeat){
 		switch(currState){
+
 			//starting state
-			
 			case E_STATE_START:
 				currItem = stack->head;
 				//if term is at the top of stack, 
 				//then it can only be rule E->i or E->(E)
 				if(currItem->type == TERM){	 //todo: handle if null
 					tokenType = tokenTypeToeType(currItem->token);
+					//found (, expecting rule E->(E)
 					if(tokenType ==  P_RIGHT_PAREN){
 						currState = RULE2_EXPECTED1;
 						break;
 					}
+					//found term, expecting rule E->i
 					else if(tokenType == P_ID){
 						currState = RULE3_EXPECTED1;
 					}
@@ -243,10 +244,13 @@ eRules_t exprFindRule(eStack_t *stack){
 						currState = RULESTATES_ERROR;
 					}
 				}
-				//if not then it is rule 1 = E->E+E,...
+				//if not, then it is one of these rules: E->E+E, E->E*E,...
 				if(currItem->type == NONTERM){
 					//E -> E operand E, for instance: E -> E*E
 					currState = RULE1_EXPECTED1;
+				}
+				else{
+					currState = RULESTATES_ERROR;
 				}
 				break;
 				//we fount nonterm -> E on top of stack
@@ -294,6 +298,7 @@ eRules_t exprFindRule(eStack_t *stack){
 				break;
 
 			//rule E -> (E)
+			//expecting: E
 			case RULE2_EXPECTED1:
 				currItem = currItem->next;
 				if(currItem->type == NONTERM){
@@ -304,6 +309,7 @@ eRules_t exprFindRule(eStack_t *stack){
 				}
 				break;
 			//rule E -> (E)
+			//expecting: )
 			case RULE2_EXPECTED2:
 				currItem = currItem->next;
 				tokenType = tokenTypeToeType(currItem->token);
@@ -314,6 +320,8 @@ eRules_t exprFindRule(eStack_t *stack){
 					currState = RULESTATES_ERROR;
 				}
 				break;
+			//rule E->(E)
+			//expecting: indent
 			case RULE2_EXPECTED3:
 				currItem = currItem->next;
 				//next item needs to be indent
@@ -327,6 +335,7 @@ eRules_t exprFindRule(eStack_t *stack){
 				break;
 
 			//rule E -> i
+			//expecting: indent
 			case RULE3_EXPECTED1:
 				currItem = currItem->next;
 				//next item needs to be indent
@@ -348,6 +357,7 @@ eRules_t exprFindRule(eStack_t *stack){
 	}
 	return RULE_ERROR;
 }
+
 //todo co patri pod id  co moze byt vo vyraze?
 precTokenType_t tokenTypeToeType(token_t *token){
 	tokenType_t type = token->type;
@@ -399,11 +409,10 @@ precTokenType_t tokenTypeToeType(token_t *token){
 			return P_ID;
 		default:
 			exit(ERR_SYN_ANALYSIS);
-			// return P_ERROR;
 	}
 }
 
-
+//function used for debugging, function prints type of term
 char *tokenTypeToStr(token_t *token){
 	tokenType_t type = token->type;
 	if(type == TOK_KEYWORD){
