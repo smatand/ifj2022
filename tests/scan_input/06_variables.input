@@ -1,3 +1,3 @@
 $return=81e9
-$test=19
-$test = int // this should be an error in syntax
+$test_=19
+$_test = int // this should be an error in syntax

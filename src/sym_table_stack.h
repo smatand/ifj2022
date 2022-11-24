@@ -12,10 +12,10 @@
 
 #define STACK_MAX_SIZE 100
 
-typedef struct
+typedef struct sym_stack_element
 {
 	htab_t *table;
-	sym_stack_element_t *next;
+	struct sym_stack_element *next;
 } sym_stack_element_t;
 
 typedef struct

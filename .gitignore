@@ -1,6 +1,7 @@
-src/.vscode
 .vscode
+src/.vscode
 src/*.o
+src/ifj22
 scan_test
 tests/scan_results/diff/*
 tests/scan_results/output/*
