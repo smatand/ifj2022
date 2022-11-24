@@ -13,6 +13,21 @@
 	} while (0)
 
 /**
+ * @brief Calls function and gets next token if it succeeds
+ * @param ruleFunction Function to call
+ * 
+ * @return caught error code, otherwise nothing
+*/
+#define CALL_RULE_GETNEXT(ruleFunction)           \
+	do                                    \
+	{                                     \
+		int ret = ruleFunction(parser);   \
+		if (ret != SUCCESS)               \
+			return ret;                	  \
+		getNextToken(parser);             \
+	} while (0)
+
+/**
  * @brief Checks type of current token
  * @param tokenType Type of token to check against
  * 
