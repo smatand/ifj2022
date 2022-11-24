@@ -93,14 +93,21 @@ int rUnit(Parser_t *parser);
 */
 int rFunctionDefinition(Parser_t *parser);
 
-// Rule #9
+/* Rule #9 = <params>  ->  <param> <params_n> 
+ * Rule #10 = <params> ->  ε
+*/
 int rParams(Parser_t *parser);
 
-// Rule #11
+// Rule #11 = <param>  ->  <type> $ID
 int rParam(Parser_t *parser);
 
-// Rule #12
+// Rule #12 = <param_n>  ->  "," <type> $ID
 int rParam_n(Parser_t *parser);
+
+/* Rule #13 = <params_n>  ->  <param_n> <params_n>
+ * Rule #14 = <params_n>  ->  ε
+*/
+int rParams_n(Parser_t *parser);
 
 // Rules #14, #15, #16
 int rType(Parser_t *parser);
