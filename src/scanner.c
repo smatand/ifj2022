@@ -151,6 +151,16 @@ int fillStr(string_t *s, token_t *token, FILE *fp)
 {
     int c = getc(fp);
 
+    int varFlag = 0;
+    if (c == '$') {
+        varFlag = 1;
+        if (charPushBack(s, c) == ERR_INTERNAL) {
+            return ERR_INTERNAL;
+        }
+        c = getc(fp);
+    }
+
+
     while (isalnum(c) || c == '_')
     {
         if (charPushBack(s, c) == ERR_INTERNAL)
@@ -160,7 +170,15 @@ int fillStr(string_t *s, token_t *token, FILE *fp)
         c = getc(fp);
     }
 
-    token->type = TOK_IDENTIFIER;
+    if (varFlag == 1) 
+    {
+        token->type = TOK_VARIABLE;
+    }
+    else
+    {
+        token->type = TOK_FUNCTION;
+    }
+
     token->attribute.strVal = s;
 
     // caller must take care of //()!
@@ -322,6 +340,8 @@ int scanToken(token_t *token)
                 {
                     return ERR_INTERNAL;
                 }
+
+                ungetc(c, fp); // todo: let '$' be part of the string
                 fsmState = S_STRT_VAR;
             }
             else if (c == '/')

@@ -87,8 +87,13 @@ int main() {
                 printf("TOK_LESS_EQUAL\n");
                 break;
 
-            case TOK_IDENTIFIER: // caller has to free IDs
-                printf("TOK_IDENTIFIER: %s\n", token->attribute.strVal->str);
+            case TOK_FUNCTION: // caller has to free IDs
+                printf("TOK_FUNCTION: %s\n", token->attribute.strVal->str);
+                free(token->attribute.strVal->str);
+                free(token->attribute.strVal);
+                break;
+            case TOK_VARIABLE:
+                printf("TOK_VARIABLE: %s\n", token->attribute.strVal->str);
                 free(token->attribute.strVal->str);
                 free(token->attribute.strVal);
                 break;

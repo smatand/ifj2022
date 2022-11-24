@@ -38,8 +38,10 @@ typedef enum {
     TOK_LESS_EQUAL,
 
     // identifiers
-    TOK_IDENTIFIER,     // $foo
+    TOK_FUNCTION,     // function
     TOK_TYPE_ID,        // ?int, ?float, ?string, stored in token->attribute.kwVal
+    TOK_VARIABLE,       // variable
+
 
 
     // literals
