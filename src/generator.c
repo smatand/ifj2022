@@ -1,10 +1,10 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 
 #include "generator.h"
 #include "dll.h"
 #include "error.h"
+#include "str.h"
 
 /********************************************************/
 /**************** STANDARD LIBRARY (PHP) ****************/
@@ -281,4 +281,41 @@ void genInit() {
     gen_builtin_functions();
 
     printf("label $main\n");
+}
+
+char * convertStringToIFJ(char * str) {
+    if (str == NULL) {
+        return NULL;
+    }
+
+    char * ptr = str;
+    int retVal;
+    string_t * retStr = stringInit(&retVal);
+    if (retVal == ERR_INTERNAL) {
+        exit(ERR_INTERNAL);
+    }
+
+    if (*ptr == '\0') {
+        return "";
+    }
+
+    while (*ptr != '\0') {
+        if (*ptr == '\\') {
+            charPushBack(retStr, '\\');
+        } else if (*ptr == 35) { // #
+            strPushBack(retStr, "\\035", 3);
+        }
+        else if (*ptr <= 32) {
+            charPushBack(retStr, '\\');
+            charPushBack(retStr, '0');
+            charPushBack(retStr, (*ptr / 10) + 48);
+            charPushBack(retStr, (*ptr % 10) + 48);
+        } else {
+            charPushBack(retStr, *ptr);
+        }
+        ptr++;
+    }    
+
+    charPushBack(retStr, '\0');
+    return retStr->str;
 }

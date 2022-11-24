@@ -41,4 +41,11 @@ void gen_builtin_functions();
 /** @brief Initialization of code generator*/
 void genInit();
 
+/** @brief Convert from C string to IFJcode22 string
+ * 
+ * @param str C string
+ * @return IFJcode22 string
+ */
+char * convertStringToIFJ(char * str);
+
 #endif // GENERATOR_H
