@@ -27,6 +27,7 @@ int main(){
 
 int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	if(firstToken == NULL){
+		fprintf(stderr,"expr,ERROR: internal Error \n");
 		exit(ERR_INTERNAL);
 	}
 	// <: shift with indent
@@ -54,12 +55,13 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 
 	bool secondTokenDelay = false;
 	if(secondToken != NULL){
-		secondTokenDelay = true;
+		secondTokenDelay = true; //expression isn't assigned to anything
 	}
 
 	bool continueParsing = true;	
 	bool scanAnotherToken = true;
-	//init stack
+
+	/* Init stack */
 	eStack_t estack;
 	eStack_t *stack = &estack; 
 	eStackInit(stack);
@@ -73,7 +75,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	returnToken = NULL;
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
-	// stackPrint(stack);
+	stackPrint(stack);
 
 	while(continueParsing){
 		
@@ -81,7 +83,8 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 		incomingTokenType = tokenTypeToeType(incomingToken);
 		closestTerm = findClosestTerm(stack); //closest term in stack
 
-		if(closestTerm->type == DOLLAR){ //if it is the end of stack
+		//if closest term is end of the stack
+		if(closestTerm->type == DOLLAR){ 
 			stackTokenType = P_DOLLAR;
 		}
 		else{
@@ -94,6 +97,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 			operation = '!';
 		}
 		else{
+			//find operation in precedence table
         	operation = precedenceTable[stackTokenType][incomingTokenType];
 		}
 		switch(operation){
@@ -115,10 +119,10 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 						 * or if it is end of line, finished by semicolon ';'.
 						 */
 						if(incomingTokenType == P_RIGHT_PAREN || incomingTokenType == P_SEMICOLON){
-							//we need to end expression with $E
+							//we need to end expression with $E in stack
 							while(stack->head->next->type != DOLLAR){ 
 								exprReduce(stack);
-								// stackPrint(stack);
+								stackPrint(stack);
 							}
 							continueParsing = false;
 							returnToken = incomingToken;
@@ -138,11 +142,11 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
             freeItem(incomingTokenItem);
             break;
         }
-		//reduction = we loop thru while again with same token
+		//reduction => we loop thru while again with the same token
         if(operation == '>'){
             scanAnotherToken = false;
         }
-        // stackPrint(stack); 
+        stackPrint(stack); 
 
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
@@ -152,10 +156,16 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 			//this happens only if expression is not assigned to anything
 			//this expression is processed if there are no errors, but its result
 			//is thrown away	
-			else{ 
+			else{
 				incomingToken = secondToken;
 				secondTokenDelay = false;
 			}
+			// if(firstToken != NULL){
+			// 	freeToken(firstToken);
+			// }
+			// if(secondToken != NULL){
+			// 	freeToken(secondToken);
+			// }
 		}
 	}
 	eStackEmptyAll(stack);
@@ -185,30 +195,41 @@ void exprReduce(eStack_t *stack){
 		case RULE1: //E->E+E, E->E<E, ...
 		//4 times repeating, is just for now, waiting for code generation
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			eStackPushNonTerm(stack);
 			break;
 		case RULE2: //E->(E)
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			eStackPushNonTerm(stack);
 			break;
 		case RULE3: //E->i
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
+
 			currItem = eStackPopItem(stack);	
+			freeToken(currItem->token);
 			free(currItem);
 			eStackPushNonTerm(stack);
 			break;
