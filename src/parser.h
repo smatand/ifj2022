@@ -88,64 +88,96 @@ int rUnits(Parser_t *parser);
 */
 int rUnit(Parser_t *parser);
 
-/* Rule #7 = <function_definition> ->  "function" ID "(" <params> ")" ":" <type> "{" <statements> "}"
- * Rule #8 = <function_definition> ->  ε
-*/
+// Rule #7 = <function_definition> ->  "function" ID "(" <params> ")" ":" <type> "{" <statements> "}"
 int rFunctionDefinition(Parser_t *parser);
 
-/* Rule #9 = <params>  ->  <param> <params_n> 
- * Rule #10 = <params> ->  ε
+/* Rule #8 = <params>  ->  <param> <params_n> 
+ * Rule #9 = <params>  ->  ε
 */
 int rParams(Parser_t *parser);
 
-// Rule #11 = <param>  ->  <type> $ID
+// Rule #10 = <param>  ->  <type> $ID
 int rParam(Parser_t *parser);
 
-// Rule #12 = <param_n>  ->  "," <type> $ID
+// Rule #11 = <param_n>  ->  "," <param>
 int rParam_n(Parser_t *parser);
 
-/* Rule #13 = <params_n>  ->  <param_n> <params_n>
- * Rule #14 = <params_n>  ->  ε
+/* Rule #12 = <params_n>  ->  <param_n> <params_n>
+ * Rule #13 = <params_n>  ->  ε
 */
 int rParams_n(Parser_t *parser);
 
-// Rules #14, #15, #16
+/* Rule #14 = <type>  ->  INT
+ * Rule #15 = <type>  ->  STRING
+ * Rule #16 = <type>  ->  FLOAT
+*/
 int rType(Parser_t *parser);
 
-// Rules #17, #18, #19, #20, #21
+/* Rule #17 = <statements>  ->  <variable_statement> <statements>
+ * Rule #18 = <statements>  ->  <conditional_statement> <statements>
+ * Rule #19 = <statements>  ->  <while_loop_statement> <statements>
+ * Rule #20 = <statements>  ->  <function_call_statement> <statements>
+ * Rule #21 = <statements>  ->  <return_statement> <statements>
+ * Rule #22 = <statements>  ->  <expression> <statements>
+ * Rule #23 = <statements>  ->  ε
+*/
 int rStatements(Parser_t *parser);
 
-// Rule #23
+/* Rule #24 = <variable_statement>  -> <assignment_statement>
+ * Rule #25 = <variable_statement>  -> <expression> ";"
+ * Rule #26 = <variable_statement>  -> $ID ";"
+*/
+int rVariableStatement(Parser_t *parser);
+
+// Rule #27 = <assignment_statement>  ->  $ID "=" <assignment>
 int rAssignmentStatement(Parser_t *parser);
 
-// Rule #24
+// Rule #28 = <conditional_statement>  ->  "if" "(" <expression> ")" "{" <statements> "}" "else" "{" <statements> "}"
 int rConditionalStatement(Parser_t *parser);
 
-// Rule #25
+// Rule #29 = <while_loop_statement>  ->  "while" "(" <expression> ")" "{" <statements> "}"
 int rWhileLoopStatement(Parser_t *parser);
 
-// Rule #26
+// Rule #30 = <function_call_statement>  ->  ID "(" <arguments> ")" ";"
 int rFunctionCallStatement(Parser_t *parser);
 
-// Rule #27
+// Rule #31 = <return_statement>  ->  "return" <return_value> ";"
 int rReturnStatement(Parser_t *parser);
 
-// Rules #28, #29
+/* Rule #32 = <assignment>  ->  <expression> ";"
+ * Rule #33 = <assignment>  ->  <function_call_statement>
+*/
 int rAssignment(Parser_t *parser);
 
-// Rule #30
+/* Rule #34 = <arguments>  ->  <term> <arguments_n>
+ * Rule #35 = <arguments>  ->  ε
+*/ 
 int rArguments(Parser_t *parser);
 
-// Rule #32
+// Rule #36 = <argument_n>  ->  "," <term>
 int rArgument_n(Parser_t *parser);
 
-// Rule #34
+/* Rule #37 = <arguments_n>  ->  <argument_n> <arguments_n>
+ * Rule #38 = <arguments_n>  ->  ε
+*/
+int rArguments_n(Parser_t *parser);
+
+/* Rule #39 = <return_value>  ->  <expression>
+ * Rule #40 = <return_value>  ->  ε
+*/
 int rReturnValue(Parser_t *parser);
 
-// Rules #36, #37, #38, #39, #40
+/* Rule #41 = <term>  ->  $ID
+ * Rule #42 = <term>  ->  TOK_INT_LIT
+ * Rule #43 = <term>  ->  TOK_STRING_LIT
+ * Rule #44 = <term>  ->  TOK_DEC_LIT
+ * Rule #45 = <term>  ->  KW_NULL
+*/
 int rTerm(Parser_t *parser);
 
-// Rule #41
+/* Rule #46 = <program_end>  ->  "?>" EOF
+ * Rule #47 = <program_end>  ->  EOF
+*/
 int rProgramEnd(Parser_t *parser);
 
 //#################################################

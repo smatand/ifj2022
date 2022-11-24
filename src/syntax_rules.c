@@ -111,7 +111,8 @@ int rParam_n(Parser_t *parser)
 
 int rType(Parser_t *parser)
 {
-	// in this position it must be either type_id (?int) or keyword (int) 
+	// the token in this position must either be type_id (checked by the scanner)
+	// or a keyword (which we have to check ourselves) 
 	if (parser->currentToken->type == TOK_TYPE_ID || (parser->currentToken->type == TOK_KEYWORD &&
 	(parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
 	 parser->currentToken->attribute.kwVal == KW_STRING)))
@@ -128,9 +129,20 @@ int rType(Parser_t *parser)
 
 int rStatements(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_FUNCTION || parser->currentToken->type == TOK_VARIABLE)
+	if (parser->currentToken->type == TOK_FUNCTION)
 	{
-		// TODO: CHECK IF ITS A FUNCTION OR A VARIABLE
+		CALL_RULE(rFunctionCallStatement); // TODO check if defined
+		CALL_RULE(rStatements);
+	}
+	else if (parser->currentToken->type == TOK_VARIABLE)
+	{
+		CALL_RULE(rVariableStatement); // TODO check if defined
+		CALL_RULE(rStatements);
+	}
+	else if (parser->currentToken->type == TOK_INT_LIT || parser->currentToken->type == TOK_DEC_LIT ||
+			parser->currentToken->type == TOK_STRING_LIT)
+	{
+		; // EXPRESSION!
 		CALL_RULE(rStatements);
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_IF)
@@ -148,21 +160,44 @@ int rStatements(Parser_t *parser)
 		CALL_RULE(rReturnStatement);
 		CALL_RULE(rStatements);
 	}
-	else // epsilon
+	else
 	{
-		return 0;
+		;
 	}
+	return SUCCESS;
+}
+
+int rVariableStatement(Parser_t *parser)
+{
+	if (checkTokenType(parser->nextToken, TOK_ASSIGN))
+	{
+		CALL_RULE(rAssignmentStatement);
+	}
+	else if (checkForOperator(parser->nextToken) == 0)
+	{
+		; // EXPRESSION!
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
+	}
+	else if (checkTokenType(parser->nextToken, TOK_SEMICOLON))
+	{ // "$foo;" is a valid statement, though it does nothing
+		getNextToken(parser); // skipping two tokens
+		getNextToken(parser);
+	}
+	else 
+	{
+		return ERR_SYN_ANALYSIS;
+	}
+	return SUCCESS;
 }
 
 int rAssignmentStatement(Parser_t *parser)
 {
-	// 23. <assignment_statement>  ->  "$" ID "=" <assignment> ";"
+	// 23. <assignment_statement>  ->  "$" ID "=" <assignment> 
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_ASSIGN);
 	CALL_RULE(rAssignment);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
-	return 0;
+	return SUCCESS;
 }
 
 int rConditionalStatement(Parser_t *parser)
@@ -170,9 +205,9 @@ int rConditionalStatement(Parser_t *parser)
 	// 24. <conditional_statement>  ->  "if" "(" <expression> ")" "{" <statements> "}" "else" "{" <statements> "}"
 
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_IF);
-	CURRENT_TOKEN_TYPE(TOK_LEFT_PAREN); // leave the parenthesis for the expression parser
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN); 
 	// EXPRESSION!
-	// TODO: right parenthesis may be left idk... CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
@@ -180,7 +215,7 @@ int rConditionalStatement(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
-	return 0;
+	return SUCCESS;
 }
 
 int rWhileLoopStatement(Parser_t *parser)
@@ -188,13 +223,13 @@ int rWhileLoopStatement(Parser_t *parser)
 	// 25. <while_loop_statement>  ->  "while" "(" <expression> ")" "{" <statements> "}"
 
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
-	CURRENT_TOKEN_TYPE(TOK_LEFT_PAREN); // leave the parenthesis for the expression parser
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	// EXPRESSION!
-	// TODO: right parenthesis may be left idk... CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
-	return 0;
+	return SUCCESS;
 }
 
 int rFunctionCallStatement(Parser_t *parser)
@@ -223,48 +258,69 @@ int rAssignment(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_FUNCTION && parser->nextToken->type == TOK_LEFT_PAREN)
 	{
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_FUNCTION);
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
-		CALL_RULE(rArguments);
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
+		CALL_RULE(rFunctionCallStatement); // TODO check if defined
 	}
 	else
 	{
-		// EXPRESSION!
+		;// EXPRESSION!
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
-	return 0;
+	return SUCCESS;
 }
 
 int rArguments(Parser_t *parser)
 {
-	rTerm(parser);
-	return 0;
+	if(parser->currentToken->type == TOK_RIGHT_PAREN)
+	{ 
+		; // epsilon
+	}
+	else
+	{
+		CALL_RULE(rTerm);
+		CALL_RULE(rArguments_n);
+	}
+	return SUCCESS;
 }
 
 int rArgument_n(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_COMMA)
 	{
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
 		CALL_RULE(rTerm);
-		CALL_RULE(rArgument_n);
 	}
-	else // epsilon
+	else
 	{
-		return 0;
+		return ERR_SYN_ANALYSIS;
 	}
+	return SUCCESS;
+}
+
+int rArguments_n(Parser_t *parser)
+{
+	if (parser->currentToken->type == TOK_RIGHT_PAREN)
+	{
+		; // epsilon
+	}
+	else 
+	{
+		CALL_RULE(rArgument_n);
+		CALL_RULE(rArguments_n);
+	}
+	return SUCCESS;
 }
 
 int rReturnValue(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_SEMICOLON)
 	{
-		return 0;
+		; // missing return value -> check if void function?
 	}
 	else
 	{
-		// EXPRESSION!
+		;// EXPRESSION!
 	}
-	return 0; // ?
+	return SUCCESS;
 }
 
 int rTerm(Parser_t *parser)
@@ -291,9 +347,9 @@ int rTerm(Parser_t *parser)
 	}
 	else
 	{
-		return 1;
+		return ERR_SYN_ANALYSIS;
 	}
-	return 0;
+	return SUCCESS;
 }
 
 int rProgramEnd(Parser_t *parser)
@@ -303,5 +359,5 @@ int rProgramEnd(Parser_t *parser)
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_END_PROLOGUE);
 	}
 	CURRENT_TOKEN_TYPE(TOK_EOF);
-	return 0;
+	return SUCCESS;
 }
