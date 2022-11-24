@@ -26,6 +26,9 @@ int main(){
 }
 
 int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
+	if(firstToken == NULL){
+		exit(ERR_INTERNAL);
+	}
 	// <: shift with indent
 	// >: reduce
 	// =: swhift without indent
@@ -70,9 +73,10 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	returnToken = NULL;
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
-	stackPrint(stack);
+	// stackPrint(stack);
 
 	while(continueParsing){
+		
 		eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
 		incomingTokenType = tokenTypeToeType(incomingToken);
 		closestTerm = findClosestTerm(stack); //closest term in stack
@@ -92,7 +96,6 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 		else{
         	operation = precedenceTable[stackTokenType][incomingTokenType];
 		}
-		
 		switch(operation){
 					case '<': //shift with indent
 						exprShift(stack,incomingTokenItem);
@@ -115,7 +118,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 							//we need to end expression with $E
 							while(stack->head->next->type != DOLLAR){ 
 								exprReduce(stack);
-								stackPrint(stack);
+								// stackPrint(stack);
 							}
 							continueParsing = false;
 							returnToken = incomingToken;
@@ -123,10 +126,12 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 							break;
 						}
 						else{
+							fprintf(stderr,"ERROR: wrong type of token in expression2");
 							exit(ERR_SYN_ANALYSIS);
 						}
 						break;
 					default:
+						fprintf(stderr,"ERROR: wrong type of token in expression3");
 						exit(ERR_SYN_ANALYSIS);
 				}
 		if(incomingTokenItem->type == DOLLAR || !continueParsing){
@@ -137,7 +142,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
         if(operation == '>'){
             scanAnotherToken = false;
         }
-        stackPrint(stack); //
+        // stackPrint(stack); 
 
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
@@ -177,7 +182,8 @@ void exprReduce(eStack_t *stack){
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;
 	switch(ruleType){
-		case RULE1://4 times repeating, is just for now, waiting for code generation
+		case RULE1: //E->E+E, E->E<E, ...
+		//4 times repeating, is just for now, waiting for code generation
 			currItem = eStackPopItem(stack);	
 			free(currItem);
 			currItem = eStackPopItem(stack);	
@@ -188,7 +194,7 @@ void exprReduce(eStack_t *stack){
 			free(currItem);
 			eStackPushNonTerm(stack);
 			break;
-		case RULE2:
+		case RULE2: //E->(E)
 			currItem = eStackPopItem(stack);	
 			free(currItem);
 			currItem = eStackPopItem(stack);	
@@ -199,7 +205,7 @@ void exprReduce(eStack_t *stack){
 			free(currItem);
 			eStackPushNonTerm(stack);
 			break;
-		case RULE3:
+		case RULE3: //E->i
 			currItem = eStackPopItem(stack);	
 			free(currItem);
 			currItem = eStackPopItem(stack);	
@@ -207,15 +213,14 @@ void exprReduce(eStack_t *stack){
 			eStackPushNonTerm(stack);
 			break;
 		case RULE_ERROR:
+			fprintf(stderr,"ERROR: wrong type of token in expression4");
 			exit(ERR_SYN_ANALYSIS);
-			// printf("rule error");
 			break;
 	}
 }
 
 
 eRules_t exprFindRule(eStack_t *stack){
-	// stackPrint(stack);
 	int currState = E_STATE_START;
 	bool repeat = true;
 	int tokenType;
@@ -239,6 +244,7 @@ eRules_t exprFindRule(eStack_t *stack){
 					//found term, expecting rule E->i
 					else if(tokenType == P_ID){
 						currState = RULE3_EXPECTED1;
+						break;
 					}
 					else{
 						currState = RULESTATES_ERROR;
@@ -348,8 +354,11 @@ eRules_t exprFindRule(eStack_t *stack){
 				}
 				break;
 			case RULESTATES_ERROR:
+				fprintf(stderr,"ERROR: wrong type of token in expression5");
 				exit(ERR_SYN_ANALYSIS);
+				break;
 			default: 
+				fprintf(stderr,"ERROR: wrong type of token in expression6");
 				exit(ERR_SYN_ANALYSIS);
 
 
@@ -369,8 +378,8 @@ precTokenType_t tokenTypeToeType(token_t *token){
 			case KW_NULL:
 				return P_ID;
 			default:
+				fprintf(stderr,"ERROR: wrong type of token in expression7");
 				exit(ERR_SYN_ANALYSIS);
-				// return P_ERROR;
 		}
 	}
 	switch(type){
@@ -405,9 +414,10 @@ precTokenType_t tokenTypeToeType(token_t *token){
 		case TOK_STRING_LIT:            
     	case TOK_INT_LIT:             
     	case TOK_DEC_LIT:      
-		case TOK_IDENTIFIER:
+		case TOK_VARIABLE:
 			return P_ID;
 		default:
+			fprintf(stderr,"ERROR: wrong type of token in expression 8");
 			exit(ERR_SYN_ANALYSIS);
 	}
 }
@@ -458,7 +468,7 @@ char *tokenTypeToStr(token_t *token){
 		case TOK_STRING_LIT:            
     	case TOK_INT_LIT:             
     	case TOK_DEC_LIT: 
-		case TOK_IDENTIFIER:               
+		case TOK_VARIABLE:               
 			return "i";
 		default:
 			return "<tokenTypeToStr error>";
