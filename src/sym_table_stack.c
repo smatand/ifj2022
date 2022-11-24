@@ -10,7 +10,7 @@ void push_table(sym_stack_t *stack, htab_t *table)
 	sym_stack_element_t *new = malloc(sizeof(sym_stack_element_t));
 	if (new == NULL)
 	{
-		fprintf(stderr, "[ERROR] Sym table stack, failure to allocate element in push function")
+		fprintf(stderr, "[ERROR] Sym table stack, failure to allocate element in push function");
 		exit(ERR_INTERNAL);
 	}
 

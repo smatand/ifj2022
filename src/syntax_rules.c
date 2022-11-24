@@ -53,7 +53,7 @@ int rUnit(Parser_t *parser)
 int rFunctionDefinition(Parser_t *parser)
 {
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER); // TODO: check for collision
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_FUNCTION); // TODO: check for collision
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN); 
 	CALL_RULE(rParams);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
@@ -92,7 +92,7 @@ int rParam_n(Parser_t *parser)
 	{
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
 		CALL_RULE(rType);
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER);
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE);
 		CALL_RULE(rParam_n);
 	}
 	else // epsilon
@@ -115,7 +115,7 @@ int rType(Parser_t *parser)
 
 int rStatements(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_IDENTIFIER)
+	if (parser->currentToken->type == TOK_FUNCTION || parser->currentToken->type == TOK_VARIABLE)
 	{
 		// TODO: CHECK IF ITS A FUNCTION OR A VARIABLE
 		CALL_RULE(rStatements);
@@ -145,7 +145,7 @@ int rAssignmentStatement(Parser_t *parser)
 {
 	// 23. <assignment_statement>  ->  "$" ID "=" <assignment> ";"
 
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_ASSIGN);
 	CALL_RULE(rAssignment);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
@@ -188,7 +188,7 @@ int rFunctionCallStatement(Parser_t *parser)
 {
 	// 26. <function_call_statement>  ->  ID "(" <arguments> ")" ";"
 
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_FUNCTION);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rArguments);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
@@ -208,9 +208,9 @@ int rReturnStatement(Parser_t *parser)
 
 int rAssignment(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_IDENTIFIER && parser->nextToken->type == TOK_LEFT_PAREN)
+	if (parser->currentToken->type == TOK_FUNCTION && parser->nextToken->type == TOK_LEFT_PAREN)
 	{
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_IDENTIFIER);
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_FUNCTION);
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 		CALL_RULE(rArguments);
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
@@ -256,7 +256,7 @@ int rReturnValue(Parser_t *parser)
 
 int rTerm(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_IDENTIFIER)
+	if (parser->currentToken->type == TOK_VARIABLE)
 	{
 		// TODO: SEMANTIC EFFECT?
 	}
