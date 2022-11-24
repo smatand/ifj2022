@@ -68,48 +68,61 @@ int rFunctionDefinition(Parser_t *parser)
 
 int rParams(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_TYPE_ID)
-	{
-		CALL_RULE(rParam);
-		CALL_RULE(rParam_n);
-		return 0;
+	if (parser->currentToken->type == TOK_RIGHT_PAREN)
+	{ // there are no parameters, return
+		;
 	}
-	else // epsilon
+	else 
 	{
-		return 0;
+		CALL_RULE(rParam); // one parameter
+		CALL_RULE(rParams_n); // 1+ parameters
 	}
+	return SUCCESS;
 }
 
 int rParam(Parser_t *parser)
 {
-	CALL_RULE(rType);
-	return 0;
+	CALL_RULE_GETNEXT(rType);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE); // TODO: add variable to symtable and generate code (?)
+	return SUCCESS;
+}
+
+int rParams_n(Parser_t *parser)
+{
+	if (parser->currentToken->type == TOK_RIGHT_PAREN)
+	{ // there are no more parameters, return
+		; // maybe export parameters at this point all ot once, or one by one on the places where i commented
+	}
+	else 
+	{
+		CALL_RULE(rParam_n); // checking next parameter 
+		CALL_RULE(rParams_n);
+	}
+	return SUCCESS;
 }
 
 int rParam_n(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_COMMA)
-	{
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
-		CALL_RULE(rType);
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE);
-		CALL_RULE(rParam_n);
-	}
-	else // epsilon
-	{
-		return 0;
-	}
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
+	CALL_RULE_GETNEXT(rType);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE);
+	return SUCCESS;
 }
 
 int rType(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_TYPE_ID)
+	// in this position it must be either type_id (?int) or keyword (int) 
+	if (parser->currentToken->type == TOK_TYPE_ID || (parser->currentToken->type == TOK_KEYWORD &&
+	(parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
+	 parser->currentToken->attribute.kwVal == KW_STRING)))
 	{
+		// TODO: fill data into hash table?
 		// TODO: SEMANTIC EFFECT
+		return SUCCESS;
 	}
 	else
-	{
-		return 1;
+	{ // incorrect token, syn err
+		return ERR_SYN_ANALYSIS;
 	}
 }
 
