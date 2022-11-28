@@ -20,7 +20,4 @@ if ($a < 0) {
     }
     write("Vysledek je: ", $vysl, "\n");
 }
-// so if the input is 10, the output is 3628800
-// if the input isn't a number, the output is "Chyba pri nacitani celeho cisla!"
-// if the input is a negative number, the output is "Faktorial nelze spocitat"
 ?>
