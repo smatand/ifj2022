@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "token.h"
 
 #define HTAB_MINIMUM_SIZE 23
 #define HTAB_AVG_LEN_MIN 32
@@ -21,11 +22,17 @@ typedef enum
 	DATA_UNDEFINED, DATA_INT, DATA_FLOAT, DATA_STRING, DATA_NULL
 } data_type_t;
 
+typedef struct
+{
+	data_type_t *vector;
+	size_t length; // maximum amount of elements (space allocated)
+	size_t size; // current amount of real elements
+} param_list_t;
+
 /** @brief Function structure */
 typedef struct
 {
-	data_type_t* param_list;
-	int param_count;
+	param_list_t* param_list;
 	data_type_t return_type;
 	bool defined;
 } sym_func_t;
