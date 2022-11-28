@@ -21,6 +21,8 @@ void eStackEmptyAll(eStack_t *stack){
     while(stack->head != NULL) {
         eStackDeleteFirst(stack);
     }
+    stack->head = NULL;
+    stack->currSize = 0;
 }
 
 eItem_t *eItemInit(token_t *token, int itemType){
@@ -90,7 +92,7 @@ void eStackDeleteFirst(eStack_t *stack){
     if(itemToDelete->token != NULL){
         freeToken(itemToDelete->token);
     }
-    free(itemToDelete);
+     free(itemToDelete);
 }
 
 void eStackShift(eStack_t *stack, eItem_t *item){

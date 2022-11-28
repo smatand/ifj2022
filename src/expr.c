@@ -16,20 +16,22 @@
 
 
 int main(){ 
-	// token_t *returnToken = NULL;
 	token_t *token = tokenInit();
-	// token_t *secondToken = tokenInit();
 	scanToken(token);
+	// token_t *secondToken = tokenInit();
 	// scanToken(secondToken);
 	int returnVal = exprParse(token,NULL);
-	if(returnVal == TOK_RIGHT_PAREN) puts("return: )");
-	if(returnVal == TOK_SEMICOLON) puts("return: ;");
+	// int returnVal = exprParse(token,secondToken);
+	(void)returnVal;
 
 
 	// freeToken(returnToken);
 
 }
-
+//2*2;
+//defvar int@2
+//
+//
 int exprParse(token_t *firstToken,token_t *secondToken){
 	// <: shift with indent
 	// >: reduce
@@ -53,7 +55,6 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 	{'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '!', '>', '!', '>'},  // i
 	{'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'},  // $
 	};
-
 	if(firstToken == NULL){
 		fprintf(stderr,"expr,ERROR: internal Error \n");
 		exit(ERR_INTERNAL);
@@ -80,11 +81,15 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 	// returnToken = NULL;
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
+	eItem_t *incomingTokenItem;
 	stackPrint(stack);
 
 	while(continueParsing){
 		
-		eItem_t *incomingTokenItem = eItemInit(incomingToken,TERM);
+
+		if(scanAnotherToken){
+			incomingTokenItem = eItemInit(incomingToken,TERM);
+		}
 		incomingTokenType = tokenTypeToeType(incomingToken);
 		closestTerm = findClosestTerm(stack); //closest term in stack
 
@@ -131,7 +136,7 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 								stackPrint(stack);
 							}
 							continueParsing = false;
-							free(incomingTokenItem);
+							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
 							int retval;
 							(incomingTokenType == P_RIGHT_PAREN) ? (retval =  TOK_RIGHT_PAREN): (retval =  TOK_SEMICOLON);
@@ -147,6 +152,8 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 						fprintf(stderr,"ERROR: wrong type of token in expression3");
 						exit(ERR_SYN_ANALYSIS);
 				}
+
+		//prob inspect this if and remove it
 		if(incomingTokenItem->type == DOLLAR || !continueParsing){
             freeItem(incomingTokenItem);
             break;
