@@ -176,10 +176,12 @@ int checkForPrologue(FILE * fp);
  * @brief Fills string with characters
  * @param s struct to operate with
  * @param token struct to operate with for declaring type, attributes
+ * @param fp file to read characters from
+ * @param varFlag flag to change type of token to variable (1) or function (0) ID, any other number doesn't change the type
  * 
  * @return SUCCESS, otherwise ERR_CODE
  */
-int fillStr(string_t * s, token_t * token, FILE * fp);
+int fillStr(string_t * s, token_t * token, FILE * fp, int varFlag);
 
 /**
  * @brief Scans token

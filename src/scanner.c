@@ -157,19 +157,9 @@ int checkForPrologue(FILE *fp)
     return strcmp(loadedChars, prologue);
 }
 
-int fillStr(string_t *s, token_t *token, FILE *fp)
+int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
 {
     int c = getc(fp);
-
-    int varFlag = 0;
-    if (c == '$') {
-        varFlag = 1;
-        if (charPushBack(s, c) == ERR_INTERNAL) {
-            return ERR_INTERNAL;
-        }
-        c = getc(fp);
-    }
-
 
     while (isalnum(c) || c == '_')
     {
@@ -184,14 +174,17 @@ int fillStr(string_t *s, token_t *token, FILE *fp)
     {
         token->type = TOK_VARIABLE;
     }
-    else
+    else if (varFlag == 0)
     {
         token->type = TOK_FUNCTION;
+    }
+    else
+    {
+        ; // just fill the string, dont set the type
     }
 
     token->attribute.strVal = s;
 
-    // caller must take care of //()!
     ungetc(c, fp);
     return SUCCESS;
 }
@@ -351,7 +344,6 @@ int scanToken(token_t *token)
                     return ERR_INTERNAL;
                 }
 
-                ungetc(c, fp); // todo: let '$' be part of the string
                 fsmState = S_STRT_VAR;
             }
             else if (c == '/')
@@ -814,7 +806,7 @@ int scanToken(token_t *token)
             }
         case S_KEYW_OR_ID:
             ungetc(c, fp); // again to manipulate with c correctly
-            if (fillStr(str, token, fp) == ERR_INTERNAL)
+            if (fillStr(str, token, fp, 0) == ERR_INTERNAL)
             {
                 return ERR_INTERNAL;
             }
@@ -849,7 +841,7 @@ int scanToken(token_t *token)
             // need to check for 'string', 'int' or 'float'
             ungetc(c, fp);
 
-            if(fillStr(str, token, fp) == ERR_INTERNAL)
+            if(fillStr(str, token, fp, 2) == ERR_INTERNAL)
             {
                 return ERR_INTERNAL;
             }
@@ -862,7 +854,6 @@ int scanToken(token_t *token)
             }
             else if (token->attribute.kwVal == KW_STRING || token->attribute.kwVal == KW_INT || token->attribute.kwVal == KW_FLOAT)
             {
-
                 token->type = TOK_TYPE_ID;
 
                 return SUCCESS; // token->type is set, attribute too
@@ -875,9 +866,10 @@ int scanToken(token_t *token)
         case S_STRT_VAR:
             if (isalpha(c) || '_')
             {
+                charPushBack(str, '$'); // if the scanner gets here, the current token is definetly a var
                 ungetc(c, fp);
 
-                if (fillStr(str, token, fp) == ERR_INTERNAL)
+                if (fillStr(str, token, fp, 1) == ERR_INTERNAL)
                 {
                     return ERR_INTERNAL;
                 }
