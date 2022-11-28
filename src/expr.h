@@ -54,11 +54,11 @@ typedef enum{
 }precTokenType_t;
 
 
-/**
- * @brief precedence table, used to decide which operation should occur
- * precedenceTable[token in the stack][incoming token]
- */
-const char precedenceTable[TABLE_SIZE][TABLE_SIZE];
+// /**
+//  * @brief precedence table, used to decide which operation should occur
+//  * precedenceTable[token in the stack][incoming token]
+//  */
+// const char precedenceTable[TABLE_SIZE][TABLE_SIZE];
 
 /**
  * @brief converting token type from scanner to own precedence token type,(for the table)
@@ -107,5 +107,5 @@ eItem_t *findClosestTerm(eStack_t *stack);
  * @param firstToken pointer to first token of expression
  * @return token_t* returning token which ended expression
  */
-int exprParse(token_t *firstToken,token_t *secondToken,token_t *returnToken);
+int exprParse(token_t *firstToken,token_t *secondToken);
 #endif /* EXPR_H */ 

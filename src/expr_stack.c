@@ -67,7 +67,8 @@ void eStackPushNonTerm(eStack_t *stack){
 
 eItem_t *eStackPopItem(eStack_t *stack){
     if(stack->head == NULL){
-        fprintf(stderr,"popping from empty stack\n");
+        fprintf(stderr,"popping from an empty stack\n");
+        exit(ERR_INTERNAL);
         return NULL;
     }
     eItem_t *item = stack->head;
@@ -79,16 +80,15 @@ eItem_t *eStackPopItem(eStack_t *stack){
 void freeItem(eItem_t *item){
     if(item == NULL) return;
     if(item->token != NULL){
-        free(item->token);
+        freeToken(item->token);
     }
     free(item);
 }
 
 void eStackDeleteFirst(eStack_t *stack){
     eItem_t *itemToDelete = eStackPopItem(stack);
-    //free tokens ?
     if(itemToDelete->token != NULL){
-        free(itemToDelete->token);
+        freeToken(itemToDelete->token);
     }
     free(itemToDelete);
 }

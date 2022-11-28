@@ -16,19 +16,24 @@
 
 
 int main(){ 
-	token_t *returnToken = tokenInit();
+	// token_t *returnToken = NULL;
 	token_t *token = tokenInit();
-	token_t *secondToken = tokenInit();
+	// token_t *secondToken = tokenInit();
 	scanToken(token);
-	scanToken(secondToken);
-	exprParse(token,secondToken,returnToken);
+	// scanToken(secondToken);
+	int returnVal = exprParse(token,NULL);
+	if(returnVal == TOK_RIGHT_PAREN) puts("return: )");
+	if(returnVal == TOK_SEMICOLON) puts("return: ;");
+
+
+	// freeToken(returnToken);
 
 }
 
-int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
+int exprParse(token_t *firstToken,token_t *secondToken){
 	// <: shift with indent
 	// >: reduce
-	// =: swhift without indent
+	// =: shift without indent
 	// !: error
 	const char precedenceTable[TABLE_SIZE][TABLE_SIZE] = {
 	//*    +    -    /    .    <    >    >=   <=   ===  !==  (    )    i    $ 
@@ -71,11 +76,11 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 	int stackTokenType;
 	int incomingTokenType;
 	char operation;
-	(void) returnToken;
-	returnToken = NULL;
+	// (void) returnToken;
+	// returnToken = NULL;
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
-	// stackPrint(stack);
+	stackPrint(stack);
 
 	while(continueParsing){
 		
@@ -123,14 +128,17 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
 							//we need to end expression with $E in stack
 							while(stack->head->next->type != DOLLAR){ 
 								exprReduce(stack);
-								// stackPrint(stack);
+								stackPrint(stack);
 							}
 							continueParsing = false;
-							returnToken = incomingToken;
-							return 0;
-							break;
+							free(incomingTokenItem);
+							eStackEmptyAll(stack);
+							int retval;
+							(incomingTokenType == P_RIGHT_PAREN) ? (retval =  TOK_RIGHT_PAREN): (retval =  TOK_SEMICOLON);
+							return retval; 
 						}
 						else{
+							eStackEmptyAll(stack);
 							fprintf(stderr,"ERROR: wrong type of token in expression2");
 							exit(ERR_SYN_ANALYSIS);
 						}
@@ -143,7 +151,7 @@ int exprParse(token_t *firstToken,token_t *secondToken, token_t *returnToken){
             freeItem(incomingTokenItem);
             break;
         }
-        // stackPrint(stack); 
+        stackPrint(stack); 
 
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
@@ -185,44 +193,43 @@ void exprReduce(eStack_t *stack){
 	eItem_t *currItem = stack->head;
 	switch(ruleType){
 		case RULE1: //E->E+E, E->E<E, ...
-		//4 times repeating, is just for now, waiting for code generation
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
+			//indent
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
 			eStackPushNonTerm(stack);
 			break;
 		case RULE2: //E->(E)
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
 			eStackPushNonTerm(stack);
 			break;
 		case RULE3: //E->i
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
 
 			currItem = eStackPopItem(stack);	
-			freeToken(currItem->token);
-			free(currItem);
+			freeItem(currItem);
+
 			eStackPushNonTerm(stack);
 			break;
 		case RULE_ERROR:
