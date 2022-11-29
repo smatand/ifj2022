@@ -34,4 +34,10 @@ void DLLDispose(DLList_t * list);
  */
 int DLLInsertLast(DLList_t * list, char * dataToInsert, int size);
 
+/**
+ * @brief Print the list
+ * @param list to print
+ */
+void DLLPrintAll(DLList_t * list);
+
 #endif // DLL_H

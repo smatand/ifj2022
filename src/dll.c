@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "dll.h"
 #include "error.h"
@@ -10,30 +11,30 @@ void DLLInit(DLList_t * list) {
 }
 
 void DLLDispose(DLList_t * list) {
-    DLLElement_t * tmp = list->firstElem;
+    DLLElement_t * i = list->firstElem;
 
-    while (list->firstElem != NULL) {
+    while (i != NULL) {
         list->firstElem = list->firstElem->nextElem;
-        free(tmp->data);
-        tmp->data = NULL;
-        free(tmp);
-        tmp = NULL;
-        tmp = list->firstElem;
+        free(i->data);
+        i->data = NULL;
+        free(i);
+        i = NULL;
+        i = list->firstElem;
     }
 
     list->lastElem = NULL;
 }
 
 int DLLInsertLast(DLList_t * list, char * dataToInsert, int size) {
-    DLLElement_t * elem = malloc(sizeof(struct DLLElement)); // todo: possible leak? IAL
+    DLLElement_t * elem = malloc(sizeof(DLLElement_t)); // todo: possible leak? IAL
     if (elem == NULL) {
-        return ERR_INTERNAL; // exit(ERR_INTERNAL)
+        return ERR_INTERNAL;
     }
 
     elem->data = malloc(size);
     if (elem->data == NULL) {
         free(elem);
-        return ERR_INTERNAL; // exit(ERR_INTERNAL)
+        return ERR_INTERNAL;
     }
 
     memcpy(elem->data, dataToInsert, size);
@@ -50,4 +51,14 @@ int DLLInsertLast(DLList_t * list, char * dataToInsert, int size) {
     list->lastElem = elem; // update last element
 
     return 0; // SUCCESS
+}
+
+void DLLPrintAll(DLList_t * list) {
+    DLLElement_t * i = list->firstElem;
+
+    while (i != NULL) {
+        printf("%s\n", i->data);
+
+        i = i->nextElem;
+    }
 }
