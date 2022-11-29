@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "generator.h"
+#include "scanner.h"
 #include "dll.h"
 #include "error.h"
 #include "str.h"
@@ -52,7 +54,15 @@ void gen_readf() {
             );
 }
 
-void gen_write() {
+int gen_write(token_t * token, DLList_t * list) {
+    switch(token->type) {
+        case TOK_STRING_LIT:
+            char * ptr = convertStringToIFJ(token->attribute.strVal->str); // dynamically allocated str
+            CONCAT_STRINGS_DLL("write string@", ptr);
+            free(ptr); 
+
+            break;
+    }
 
 }
 
@@ -254,7 +264,6 @@ void gen_builtin_functions() {
     gen_reads();
     gen_readi();
     gen_readf();
-    gen_write();
     gen_floatval();
     gen_intval();
     gen_strval();
@@ -289,8 +298,10 @@ char * convertStringToIFJ(char * str) {
     }
 
     char * ptr = str;
-    int retVal;
-    string_t * retStr = stringInit(&retVal);
+    int retVal = 0;
+
+    // just to use the library of str.h
+    string_t * tmp = stringInit(&retVal);
     if (retVal == ERR_INTERNAL) {
         exit(ERR_INTERNAL);
     }
@@ -301,21 +312,31 @@ char * convertStringToIFJ(char * str) {
 
     while (*ptr != '\0') {
         if (*ptr == '\\') {
-            charPushBack(retStr, '\\');
+            charPushBack(tmp, '\\');
         } else if (*ptr == 35) { // #
-            strPushBack(retStr, "\\035", 3);
+            strPushBack(tmp, "\\035", 3);
         }
         else if (*ptr <= 32) {
-            charPushBack(retStr, '\\');
-            charPushBack(retStr, '0');
-            charPushBack(retStr, (*ptr / 10) + 48);
-            charPushBack(retStr, (*ptr % 10) + 48);
+            charPushBack(tmp, '\\');
+            charPushBack(tmp, '0');
+            charPushBack(tmp, (*ptr / 10) + 48);
+            charPushBack(tmp, (*ptr % 10) + 48);
         } else {
-            charPushBack(retStr, *ptr);
+            charPushBack(tmp, *ptr);
         }
         ptr++;
     }    
 
-    charPushBack(retStr, '\0');
-    return retStr->str;
+    charPushBack(tmp, '\0');
+    
+    // reuse the defined variable to return the demanded string
+    ptr = malloc(tmp->realLen);
+    if (ptr == NULL) {
+        exit(ERR_INTERNAL); //todo exit()
+    }
+
+    memcpy(ptr, tmp->str, tmp->realLen);
+    stringDestroy(tmp);
+    
+    return ptr;
 }
