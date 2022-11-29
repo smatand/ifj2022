@@ -75,7 +75,7 @@ void eStackPushItem(eStack_t *stack,eItem_t *item);
  * 
  * @param stack pointer to stack
  */
-void eStackPushIndent(eStack_t *stack);
+int eStackPushIndent(eStack_t *stack);
 
 /**
  * @brief pushes DOLLAR type to the top of stack

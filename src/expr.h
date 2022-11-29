@@ -73,7 +73,7 @@ precTokenType_t tokenTypeToeType(token_t *token);
  * 
  * @param stack pointer to stack
  */
-void exprReduce(eStack_t *stack);
+int exprReduce(eStack_t *stack);
 
 //used for debugging
 char *tokenTypeToStr(token_t *token);
@@ -100,5 +100,5 @@ eItem_t *findClosestTerm(eStack_t *stack);
  * @param firstToken pointer to first token of expression
  * @return token_t* returning token which ended expression
  */
-int exprParse(token_t *firstToken,token_t *secondToken);
+int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken);
 #endif /* EXPR_H */ 

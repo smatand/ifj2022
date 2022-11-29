@@ -28,7 +28,7 @@ void eStackEmptyAll(eStack_t *stack){
 eItem_t *eItemInit(token_t *token, int itemType){
     eItem_t *item = malloc(sizeof(struct eItem));
     if(item == NULL){
-        exit(ERR_INTERNAL);
+        return item;
     }
     item->token = token;
     item->type = itemType;
@@ -42,15 +42,21 @@ void eStackPushItem(eStack_t *stack,eItem_t *item){
     stack->currSize++;
 }
 
-void eStackPushIndent(eStack_t *stack){
+int eStackPushIndent(eStack_t *stack){
+    int ret = SUCCESS;
     eItem_t *indentItem = eItemInit(NULL,INDENT);
+    if(indentItem == NULL){
+        ret = ERR_INTERNAL;
+        return ret;
+    }
     if(stack->head->type != NONTERM){
         eStackPushItem(stack,indentItem);
-        return;
+        return SUCCESS;
     }
     eItem_t *poppeNonTerm = eStackPopItem(stack);
     eStackPushItem(stack,indentItem);
     eStackPushItem(stack,poppeNonTerm);
+    return SUCCESS;
 }
 
 void eStackPushDollar(eStack_t *stack){

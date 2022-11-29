@@ -18,13 +18,23 @@
 int main(){ 
 	token_t *token = tokenInit();
 	scanToken(token);
-	int returnVal = exprParse(token,NULL);
+	int returnToken;
+	int returnVal = exprParse(token,NULL,&returnToken);
+	puts(" ");
+	if(returnVal == SUCCESS)puts("SUCESS");
+	// else {
+	// 	freeToken(token);
+	// 	puts("ERROR");
+	// }
+	(void)returnToken;
 	(void)returnVal;
 
 
 }
 
-int exprParse(token_t *firstToken,token_t *secondToken){
+int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
+	int returnVal = SUCCESS;
+	// bool generateCode = true;
 	// <: shift with indent
 	// >: reduce
 	// =: shift without indent
@@ -49,7 +59,7 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 	};
 	if(firstToken == NULL){
 		fprintf(stderr,"expr,ERROR: internal Error \n");
-		exit(ERR_INTERNAL);
+		return ERR_SYN_ANALYSIS;
 	}
 	bool secondTokenDelay = false;
 	if(secondToken != NULL){
@@ -80,8 +90,18 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 
 		if(scanAnotherToken){
 			incomingTokenItem = eItemInit(incomingToken,TERM);
+			if(incomingTokenItem == NULL){
+				freeItem(incomingTokenItem);
+				eStackEmptyAll(stack);
+				return ERR_INTERNAL;
+			}
 		}
 		incomingTokenType = tokenTypeToeType(incomingToken);
+		if(incomingTokenType == P_ERROR){
+			freeItem(incomingTokenItem);
+			eStackEmptyAll(stack);
+			return ERR_INTERNAL;
+		}
 		closestTerm = findClosestTerm(stack); //closest term in stack
 
 		//if closest term is end of the stack
@@ -90,6 +110,11 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 		}
 		else{
 			stackTokenType = tokenTypeToeType(closestTerm->token);
+			if(stackTokenType == P_ERROR){
+				freeItem(incomingTokenItem);
+				eStackEmptyAll(stack);
+				return ERR_INTERNAL;
+			}
 		}
 		scanAnotherToken = true;
 
@@ -103,46 +128,71 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 		}
 		switch(operation){
 					case '<': //shift with indent
-						eStackPushIndent(stack);
+						returnVal=eStackPushIndent(stack);
+						if(returnVal != SUCCESS){
+							freeItem(incomingTokenItem);
+							eStackEmptyAll(stack);
+							return returnVal;
+						}
 						eStackPushItem(stack,incomingTokenItem);
+						if(returnVal != SUCCESS){
+							freeItem(incomingTokenItem);
+							eStackEmptyAll(stack);
+							return returnVal;
+						}
 						break;
 					case '>': //reduce
 						scanAnotherToken = false;
-						exprReduce(stack);
+						returnVal=exprReduce(stack);
+						if(returnVal != SUCCESS){
+							freeItem(incomingTokenItem);
+							eStackEmptyAll(stack);
+							return returnVal;
+						}
 						break;
 					case '=': //shift without pushing indent
 						eStackPushItem(stack,incomingTokenItem); 
 						break;
-					case '!': //we found error
+					case '!': //error or end of expression
 						/**
-						 * error still can be correct, if it is right parenthesis ')'
+						 * this case still can be correct, if it is right parenthesis ')'
 						 * because this could be case where we encounter right closing 
-						 * bracket of its statement (like if(expressin) ),
-						 * therefore we send this to top bottom for further analysis
+						 * bracket of its statement [example: if(expression')' ],
+						 * therefore we send this ending token to top bottom for further analysis
 						 * or if it is end of line, finished by semicolon ';'.
 						 */
 						if(incomingTokenType == P_RIGHT_PAREN || incomingTokenType == P_SEMICOLON){
 							//we need to end expression with $E in stack
 							while(stack->head->next->type != DOLLAR){ 
-								exprReduce(stack);
+								returnVal=exprReduce(stack);
+								if(returnVal != SUCCESS){
+									freeItem(incomingTokenItem);
+									eStackEmptyAll(stack);
+									return returnVal;
+								}
 								stackPrint(stack);
 							}
 							continueParsing = false;
+							//free last token, ; OR ) and empty whole stack
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
-							int retval;
-							(incomingTokenType == P_RIGHT_PAREN) ? (retval =  TOK_RIGHT_PAREN): (retval =  TOK_SEMICOLON);
-							return retval; 
+							(incomingTokenType == P_RIGHT_PAREN) ? (*returnToken =  TOK_RIGHT_PAREN): (*returnToken =  TOK_SEMICOLON);
+							return returnVal; 
 						}
+
 						else{
+							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
 							fprintf(stderr,"ERROR: wrong type of token in expression2");
-							exit(ERR_SYN_ANALYSIS);
+							return ERR_SYN_ANALYSIS;
 						}
 						break;
+
 					default:
+						freeItem(incomingTokenItem);
+						eStackEmptyAll(stack);
 						fprintf(stderr,"ERROR: wrong type of token in expression3");
-						exit(ERR_SYN_ANALYSIS);
+						return ERR_SYN_ANALYSIS;
 				}
 
 		if(scanAnotherToken){
@@ -161,7 +211,7 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 		}
 	}
 	eStackEmptyAll(stack);
-	return 0;
+	return SUCCESS;
 
 }
 
@@ -174,7 +224,7 @@ eItem_t *findClosestTerm(eStack_t *stack){
     return currItem;
 }
 
-void exprReduce(eStack_t *stack){
+int exprReduce(eStack_t *stack){
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;
 	switch(ruleType){
@@ -193,6 +243,7 @@ void exprReduce(eStack_t *stack){
 			freeItem(currItem);
 
 			eStackPushNonTerm(stack);
+			return SUCCESS;
 			break;
 		case RULE2: //E->(E)
 			currItem = eStackPopItem(stack);	
@@ -208,6 +259,7 @@ void exprReduce(eStack_t *stack){
 			freeItem(currItem);
 
 			eStackPushNonTerm(stack);
+			return SUCCESS;
 			break;
 		case RULE3: //E->i
 			currItem = eStackPopItem(stack);	
@@ -217,12 +269,13 @@ void exprReduce(eStack_t *stack){
 			freeItem(currItem);
 
 			eStackPushNonTerm(stack);
+			return SUCCESS;
 			break;
 		case RULE_ERROR:
-			fprintf(stderr,"ERROR: wrong type of token in expression4");
-			exit(ERR_SYN_ANALYSIS);
+			return ERR_SYN_ANALYSIS;
 			break;
 	}
+	return ERR_SYN_ANALYSIS;
 }
 
 
@@ -242,6 +295,10 @@ eRules_t exprFindRule(eStack_t *stack){
 				//then it can only be rule E->i or E->(E)
 				if(currItem->type == TERM){	 //todo: handle if null
 					tokenType = tokenTypeToeType(currItem->token);
+					if(tokenType == P_ERROR){
+						currState = RULESTATES_ERROR;
+						break;
+					}
 					//found (, expecting rule E->(E)
 					if(tokenType ==  P_RIGHT_PAREN){
 						currState = RULE2_EXPECTED1;
@@ -274,6 +331,10 @@ eRules_t exprFindRule(eStack_t *stack){
 			case RULE1_EXPECTED1:
 				currItem = currItem->next;
 				tokenType = tokenTypeToeType(currItem->token);
+				if(tokenType == P_ERROR){
+					currState = RULESTATES_ERROR;
+					break;
+				}
 				if(tokenType != P_ID || tokenType != P_LEFT_PAREN || tokenType != P_RIGHT_PAREN){
 					currState = RULE1_EXPECTED2;
 				}
@@ -325,6 +386,10 @@ eRules_t exprFindRule(eStack_t *stack){
 			case RULE2_EXPECTED2:
 				currItem = currItem->next;
 				tokenType = tokenTypeToeType(currItem->token);
+				if(tokenType == P_ERROR){
+					currState = RULESTATES_ERROR;
+					break;
+				}
 				if(tokenType ==  P_LEFT_PAREN){
 					currState = RULE2_EXPECTED3;
 				}
@@ -361,11 +426,11 @@ eRules_t exprFindRule(eStack_t *stack){
 				break;
 			case RULESTATES_ERROR:
 				fprintf(stderr,"ERROR: wrong type of token in expression5");
-				exit(ERR_SYN_ANALYSIS);
+				return RULE_ERROR;
 				break;
 			default: 
 				fprintf(stderr,"ERROR: wrong type of token in expression6");
-				exit(ERR_SYN_ANALYSIS);
+				return RULE_ERROR;
 
 
 		}
@@ -373,7 +438,6 @@ eRules_t exprFindRule(eStack_t *stack){
 	return RULE_ERROR;
 }
 
-//todo co patri pod id  co moze byt vo vyraze?
 precTokenType_t tokenTypeToeType(token_t *token){
 	tokenType_t type = token->type;
 	if(type == TOK_KEYWORD){ //if type of token is keyword, we check keywords
@@ -385,7 +449,7 @@ precTokenType_t tokenTypeToeType(token_t *token){
 				return P_ID;
 			default:
 				fprintf(stderr,"ERROR: wrong type of token in expression7");
-				exit(ERR_SYN_ANALYSIS);
+				return P_ERROR;
 		}
 	}
 	switch(type){
@@ -424,7 +488,7 @@ precTokenType_t tokenTypeToeType(token_t *token){
 			return P_ID;
 		default:
 			fprintf(stderr,"ERROR: wrong type of token in expression 8");
-			exit(ERR_SYN_ANALYSIS);
+			return P_ERROR;
 	}
 }
 
