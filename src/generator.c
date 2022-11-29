@@ -152,7 +152,25 @@ void gen_intval() {
 }
 
 void gen_strval() {
-    // rozsirenie strnum not needed todo
+    printf(
+        "label strval\n"
+        "pushframe\n"
+
+        "defvar LF@_retval\n"
+        "defvar LF@_condition\n"
+
+        "pops LF@_retval\n"
+
+        "eq LF@_condition LF@_retval nil@nil\n"
+        "jumpifeq strval_end LF@_condition bool@false\n" // it's not a nil value
+
+        "move LF@_retval string@\n"
+
+        "label strval_end\n"
+        "pushs LF@_retval\n"
+        "popframe\n"
+        "return\n"
+    )
 }
 
 void gen_strlen(/*string*/) {
