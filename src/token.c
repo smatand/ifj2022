@@ -1,5 +1,33 @@
 #include "token.h"
 
+char *createTokenKey(string_t* ID, token_type_t type)
+{
+	// token key takes the form x#id, where x can be f (function), v (variable), c (constant)
+
+	char* newID = malloc(sizeof(char) * (ID->realLen + TOKEN_KEY_SPECIFIER_SIZE + 1)); // copy the name of the function, and leave some space
+	strncpy(&newID[TOKEN_KEY_SPECIFIER_SIZE], ID->str, ID->realLen + 1); // +1 to include the null terminator
+
+	switch (type)
+	{
+		case TOKTYPE_FUNCTION:
+			newID[0] = 'f';
+			break;
+		case TOKTYPE_VARIABLE:
+			newID[0] = 'v';
+			break;
+		case TOKTYPE_CONSTANT:
+			newID[0] = 'c';
+			break;
+		default:
+			fprintf(stderr, "[ERROR] Error in createTokenKey switch.\n");
+			exit(ERR_INTERNAL);
+	}
+
+	newID[1] = '#';
+
+	return newID;
+}
+
 param_list_t *createParamList()
 {
 	param_list_t *param_list = malloc(sizeof(param_list_t));
@@ -9,7 +37,7 @@ param_list_t *createParamList()
 		exit(ERR_INTERNAL);
 	}
 
-	param_list->vector = malloc(sizeof(data_type_t) * BASEPARAMLISTSIZE);
+	param_list->vector = malloc(sizeof(parameter_t) * BASE_PARAM_LIST_SIZE);
 	if (param_list->vector == NULL)
 	{
 		fprintf(stderr, "[ERROR] Parameter list vector allocation error.\n");
@@ -17,10 +45,10 @@ param_list_t *createParamList()
 	}
 	
 	param_list->length = 0;
-	param_list->size = BASEPARAMLISTSIZE;
+	param_list->size = BASE_PARAM_LIST_SIZE;
 }
 
-void addToParamList(param_list_t *param_list, data_type_t data_type)
+void addToParamList(param_list_t *param_list, data_type_t data_type, string_t* name)
 {
 	if (param_list->length >= param_list->size)
 	{
@@ -33,12 +61,21 @@ void addToParamList(param_list_t *param_list, data_type_t data_type)
 		param_list->length *= 2;
 	}
 
-	param_list->vector[param_list->size] = data_type;
+	char* newID = malloc(sizeof(char) * (name->realLen + 1)); // copy the name of the function, and leave some space
+	strncpy(newID, name->str, name->realLen + 1); // +1 to include the null terminator
+
+	param_list->vector[param_list->size].type = data_type;
+	param_list->vector[param_list->size].name = newID;
 	param_list->size++;
 }
 
 void destroyParamList(param_list_t *param_list)
 {
+	for (int i = 0; i < param_list->size; i++)
+	{
+		free(param_list->vector[i].name);
+	}
+
 	free(param_list->vector);
 	free(param_list);
 }

@@ -22,9 +22,16 @@ typedef enum
 	DATA_UNDEFINED, DATA_INT, DATA_FLOAT, DATA_STRING, DATA_NULL
 } data_type_t;
 
+/** @brief Types of token data */
 typedef struct
 {
-	data_type_t *vector;
+	data_type_t type;
+	char* name;
+} parameter_t;
+
+typedef struct
+{
+	parameter_t *vector;
 	size_t length; // maximum amount of elements (space allocated)
 	size_t size; // current amount of real elements
 } param_list_t;

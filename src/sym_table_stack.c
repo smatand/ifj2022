@@ -43,3 +43,8 @@ bool is_empty(sym_stack_t *stack)
 {
 	return (stack->top == NULL);
 }
+
+void destroy_stack(sym_stack_t *stack)
+{
+	// TODO?
+}

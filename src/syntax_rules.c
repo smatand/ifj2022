@@ -54,14 +54,22 @@ int rUnit(Parser_t *parser)
 int rFunctionDefinition(Parser_t *parser)
 {
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_FUNCTION); // TODO: check for collision
+	CURRENT_TOKEN_TYPE(TOK_FUNCTION); // TODO: check for collision
+
+	char *ID = createTokenKey(parser->currentToken->attribute.strVal, TOKTYPE_FUNCTION);
+
+	param_list_t *paramList = createParamList(); // malloc is called here
+	token_data_t *data = createTokenDataFunction(ID, paramList, DATA_UNDEFINED, true);
+
+	parser->latestFuncDeclared = htab_add(parser->globalSymTable, ID, data);
+
+	getNextToken(parser);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN); 
 	CALL_RULE(rParams);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
 	CALL_RULE(rType);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
-	// TODO: add to symtable
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 	return 0;
@@ -83,8 +91,34 @@ int rParams(Parser_t *parser)
 
 int rParam(Parser_t *parser)
 {
-	CALL_RULE_GETNEXT(rType);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE); // TODO: add variable to symtable and generate code (?)
+	CALL_RULE(rType);
+
+	// current token is still the type token
+	param_list_t *params = htab_find(parser->globalSymTable, parser->latestFuncDeclared)->data->data.function.param_list;
+	data_type_t type;
+
+	switch(parser->currentToken->attribute.kwVal)
+	{
+		case KW_INT:
+			type = DATA_INT;
+			break;
+		case KW_FLOAT:
+			type = DATA_FLOAT;
+			break;
+		case KW_STRING:
+			type = DATA_STRING;
+			break;
+		default:
+			fprintf(stderr, "[ERROR] Error in rParam switch.\n");
+			exit(ERR_INTERNAL);
+	}
+
+	getNextToken(parser);
+	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
+
+	addToParamList(params, type, parser->currentToken->attribute.strVal->str); // malloc is called here, for the name string
+
+	getNextToken(parser); // TODO: add variable to symtable and generate code (?)
 	return SUCCESS;
 }
 
@@ -105,8 +139,35 @@ int rParams_n(Parser_t *parser)
 int rParam_n(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
-	CALL_RULE_GETNEXT(rType);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE);
+	
+	CALL_RULE(rType);
+
+	// current token is still the type token
+	param_list_t *params = htab_find(parser->globalSymTable, parser->latestFuncDeclared)->data->data.function.param_list;
+	data_type_t type;
+
+	switch(parser->currentToken->attribute.kwVal)
+	{
+		case KW_INT:
+			type = DATA_INT;
+			break;
+		case KW_FLOAT:
+			type = DATA_FLOAT;
+			break;
+		case KW_STRING:
+			type = DATA_STRING;
+			break;
+		default:
+			fprintf(stderr, "[ERROR] Error in rParam switch.\n");
+			exit(ERR_INTERNAL);
+	}
+
+	getNextToken(parser);
+	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
+
+	addToParamList(params, type, parser->currentToken->attribute.strVal->str); // malloc is called here, for the name string
+
+	getNextToken(parser); // TODO: add variable to symtable and generate code (?)
 	return SUCCESS;
 }
 

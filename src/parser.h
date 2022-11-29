@@ -11,6 +11,7 @@
 #include "scanner.h"
 #include "error.h"
 #include "symtable.h"
+#include "sym_table_stack.h"
 
 #define INITIAL_BUCKET_COUNT 113
 
@@ -18,9 +19,12 @@
 typedef struct Parser
 {
 	// TODO: bools, etc.
-	htab_t *symTable;
+	htab_t *globalSymTable;
+	sym_stack_t *localSymStack;
 	token_t *currentToken;
 	token_t *nextToken;
+
+	htab_pair_t* latestFuncDeclared;
 } Parser_t;
 
 /**
@@ -61,6 +65,8 @@ int checkTokenType(token_t *token, tokenType_t type);
  * @return 0 if keywords match, otherwise 1
  */
 int checkTokenKeyword(token_t *token, keyword_t keyword);
+
+void setLatestFuncID(Parser_t *parser, htab_item_t *ID);
 
 /**
  * @brief Parse the source code

@@ -16,7 +16,7 @@ Parser_t *initParser()
 		return NULL;
 	}
 
-	if ((parser->symTable = htab_init(INITIAL_BUCKET_COUNT)) == NULL)
+	if ((parser->globalSymTable = htab_init(INITIAL_BUCKET_COUNT)) == NULL)
 	{
 		free(parser);
 		return NULL;
@@ -24,14 +24,14 @@ Parser_t *initParser()
 
 	if ((parser->currentToken = tokenInit()) == NULL) // allocate memory for the first token
 	{
-		htab_clear(parser->symTable);
+		htab_clear(parser->globalSymTable);
 		free(parser);
 		return NULL;
 	}
 
 	if ((parser->nextToken = tokenInit() == NULL)) // allocate memory for the second token
 	{
-		htab_clear(parser->symTable);
+		htab_clear(parser->globalSymTable);
 		freeToken(parser->currentToken);
 		free(parser);
 		return NULL;
@@ -39,7 +39,7 @@ Parser_t *initParser()
 
 	if (scanToken(parser->currentToken) != SUCCESS) // scan first token
 	{
-		htab_clear(parser->symTable);
+		htab_clear(parser->globalSymTable);
 		freeToken(parser->currentToken);
 		freeToken(parser->nextToken);
 		free(parser);
@@ -48,12 +48,17 @@ Parser_t *initParser()
 
 	if (scanToken(parser->nextToken) != SUCCESS) // scan second token
 	{
-		htab_clear(parser->symTable);
+		htab_clear(parser->globalSymTable);
 		freeToken(parser->currentToken);
 		freeToken(parser->nextToken);
 		free(parser);
 		return NULL;
 	}
+
+	init_stack(parser->localSymStack);
+	push_empty(parser->localSymStack);
+
+	parser->latestFuncDeclared = NULL;
 
 	return parser;
 }
@@ -62,7 +67,8 @@ void destroyParser(Parser_t *parser)
 {
 	freeToken(parser->currentToken);
 	freeToken(parser->nextToken);
-	htab_free(parser->symTable);
+	htab_free(parser->globalSymTable);
+	destroy_stack(parser->localSymStack);
 
 	free(parser);
 	parser = NULL;
@@ -107,4 +113,9 @@ int checkTokenKeyword(token_t* token, keyword_t keyword)
 		}
 	}
 	return 1;
+}
+
+void setLatestFuncID(Parser_t *parser, htab_item_t *ID)
+{
+	parser->latestFuncDeclared = ID;
 }
