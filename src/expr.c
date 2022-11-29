@@ -18,20 +18,12 @@
 int main(){ 
 	token_t *token = tokenInit();
 	scanToken(token);
-	// token_t *secondToken = tokenInit();
-	// scanToken(secondToken);
 	int returnVal = exprParse(token,NULL);
-	// int returnVal = exprParse(token,secondToken);
 	(void)returnVal;
 
 
-	// freeToken(returnToken);
-
 }
-//2*2;
-//defvar int@2
-//
-//
+
 int exprParse(token_t *firstToken,token_t *secondToken){
 	// <: shift with indent
 	// >: reduce
@@ -85,7 +77,6 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 	stackPrint(stack);
 
 	while(continueParsing){
-		
 
 		if(scanAnotherToken){
 			incomingTokenItem = eItemInit(incomingToken,TERM);
@@ -112,7 +103,9 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 		}
 		switch(operation){
 					case '<': //shift with indent
-						exprShift(stack,incomingTokenItem);
+						eStackPushIndent(stack);
+						// exprShift(stack,incomingTokenItem);
+						eStackPushItem(stack,incomingTokenItem);
 						break;
 					case '>': //reduce
 						scanAnotherToken = false;
@@ -152,13 +145,6 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 						fprintf(stderr,"ERROR: wrong type of token in expression3");
 						exit(ERR_SYN_ANALYSIS);
 				}
-
-		//prob inspect this if and remove it
-		if(incomingTokenItem->type == DOLLAR || !continueParsing){
-            freeItem(incomingTokenItem);
-            break;
-        }
-        stackPrint(stack); 
 
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
