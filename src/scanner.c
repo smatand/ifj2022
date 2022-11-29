@@ -25,6 +25,10 @@ token_t *tokenInit()
 
 void freeToken(token_t *token)
 {
+    if(token->type == TOK_FUNCTION || token->type == TOK_VARIABLE || token->type == TOK_STRING_LIT)
+    {
+        stringDestroy(token->attribute.strVal); // if there is a string allocated in token, free it
+    }
     free(token);
 }
 

@@ -72,4 +72,18 @@ void genInit();
  */
 char * convertStringToIFJ(char * str);
 
+/** @brief Convert from C int to IFJcode22 string
+ * 
+ * @param str C int
+ * @return IFJcode22 string
+*/
+char * convertIntToIFJ(int x);
+
+/** @brief Convert from C float to IFJcode22 string
+ * 
+ * @param str C float
+ * @return IFJcode22 string
+*/
+char * convertFloatToIFJ(float x);
+
 #endif // GENERATOR_H

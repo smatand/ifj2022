@@ -62,6 +62,19 @@ int gen_write(token_t * token, DLList_t * list) {
             free(ptr); 
 
             break;
+        case TOK_INT_LIT:
+            char * ptr2 = convertIntToIFJ(token->attribute.intVal);
+            CONCAT_STRINGS_DLL("write int@", ptr2);
+            free(ptr2);
+            break;
+        case TOK_DEC_LIT:
+            char * ptr3 = convertFloatToIFJ(token->attribute.decVal);
+            CONCAT_STRINGS_DLL("write float@", ptr3);
+            free(ptr3);
+            break;
+        default:
+            return ERR_SEM_PARAMS; // todo not sure if this is correct
+
     }
 
 }
@@ -152,7 +165,25 @@ void gen_intval() {
 }
 
 void gen_strval() {
-    // rozsirenie strnum not needed todo
+    printf(
+        "label strval\n"
+        "pushframe\n"
+
+        "defvar LF@_retval\n"
+        "defvar LF@_condition\n"
+
+        "pops LF@_retval\n"
+
+        "eq LF@_condition LF@_retval nil@nil\n"
+        "jumpifeq strval_end LF@_condition bool@false\n" // it's not a nil value
+
+        "move LF@_retval string@\n"
+
+        "label strval_end\n"
+        "pushs LF@_retval\n"
+        "popframe\n"
+        "return\n"
+    );
 }
 
 void gen_strlen(/*string*/) {
@@ -332,11 +363,33 @@ char * convertStringToIFJ(char * str) {
     // reuse the defined variable to return the demanded string
     ptr = malloc(tmp->realLen);
     if (ptr == NULL) {
-        exit(ERR_INTERNAL); //todo exit()
+        exit(ERR_INTERNAL); //todo
     }
 
     memcpy(ptr, tmp->str, tmp->realLen);
     stringDestroy(tmp);
     
+    return ptr;
+}
+
+char * convertIntToIFJ(int x) {
+    char * ptr = malloc(12);
+    if (ptr == NULL) {
+        exit(ERR_INTERNAL);
+    }
+
+    snprintf(ptr, 12, "%d", x);
+
+    return ptr;
+}
+
+char * convertFloatToIFJ(float x) {
+    char * ptr = malloc(32);
+    if (ptr == NULL) {
+        exit(ERR_INTERNAL);
+    }
+
+    snprintf(ptr, 32, "%a", x); // printing in hexadecimal format as required
+
     return ptr;
 }

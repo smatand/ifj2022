@@ -124,59 +124,56 @@ int rType(Parser_t *parser);
 int rStatements(Parser_t *parser);
 
 /* Rule #24 = <variable_statement>  -> <assignment_statement>
- * Rule #25 = <variable_statement>  -> <expression> ";"
+ * Rule #25 = <variable_statement>  -> <expression>
  * Rule #26 = <variable_statement>  -> $ID ";"
 */
 int rVariableStatement(Parser_t *parser);
 
-// Rule #27 = <assignment_statement>  ->  $ID "=" <assignment>
+/* Rule #27 = <assignment_statement>  ->  $ID "=" <expression>
+ * Rule #28 = <assignment_statement>  ->  $ID "=" <function_call_statement>
+*/
 int rAssignmentStatement(Parser_t *parser);
 
-// Rule #28 = <conditional_statement>  ->  "if" "(" <expression> ")" "{" <statements> "}" "else" "{" <statements> "}"
+// Rule #29 = <conditional_statement>  ->  "if" "(" <expression> ")" "{" <statements> "}" "else" "{" <statements> "}"
 int rConditionalStatement(Parser_t *parser);
 
-// Rule #29 = <while_loop_statement>  ->  "while" "(" <expression> ")" "{" <statements> "}"
+// Rule #30 = <while_loop_statement>  ->  "while" "(" <expression> ")" "{" <statements> "}"
 int rWhileLoopStatement(Parser_t *parser);
 
-// Rule #30 = <function_call_statement>  ->  ID "(" <arguments> ")" ";"
+// Rule #31 = <function_call_statement>  ->  ID "(" <arguments> ")" ";"
 int rFunctionCallStatement(Parser_t *parser);
 
-// Rule #31 = <return_statement>  ->  "return" <return_value> ";"
+// Rule #32 = <return_statement>  ->  "return" <return_value>
 int rReturnStatement(Parser_t *parser);
 
-/* Rule #32 = <assignment>  ->  <expression> ";"
- * Rule #33 = <assignment>  ->  <function_call_statement>
-*/
-int rAssignment(Parser_t *parser);
-
-/* Rule #34 = <arguments>  ->  <term> <arguments_n>
- * Rule #35 = <arguments>  ->  ε
+/* Rule #33 = <arguments>  ->  <term> <arguments_n>
+ * Rule #34 = <arguments>  ->  ε
 */ 
 int rArguments(Parser_t *parser);
 
-// Rule #36 = <argument_n>  ->  "," <term>
+// Rule #35 = <argument_n>  ->  "," <term>
 int rArgument_n(Parser_t *parser);
 
-/* Rule #37 = <arguments_n>  ->  <argument_n> <arguments_n>
- * Rule #38 = <arguments_n>  ->  ε
+/* Rule #36 = <arguments_n>  ->  <argument_n> <arguments_n>
+ * Rule #37 = <arguments_n>  ->  ε
 */
 int rArguments_n(Parser_t *parser);
 
-/* Rule #39 = <return_value>  ->  <expression>
- * Rule #40 = <return_value>  ->  ε
+/* Rule #38 = <return_value>  ->  <expression>
+ * Rule #39 = <return_value>  ->  ";"
 */
 int rReturnValue(Parser_t *parser);
 
-/* Rule #41 = <term>  ->  $ID
- * Rule #42 = <term>  ->  TOK_INT_LIT
- * Rule #43 = <term>  ->  TOK_STRING_LIT
- * Rule #44 = <term>  ->  TOK_DEC_LIT
- * Rule #45 = <term>  ->  KW_NULL
+/* Rule #40 = <term>  ->  $ID
+ * Rule #41 = <term>  ->  TOK_INT_LIT
+ * Rule #42 = <term>  ->  TOK_STRING_LIT
+ * Rule #43 = <term>  ->  TOK_DEC_LIT
+ * Rule #44 = <term>  ->  KW_NULL
 */
 int rTerm(Parser_t *parser);
 
-/* Rule #46 = <program_end>  ->  "?>" EOF
- * Rule #47 = <program_end>  ->  EOF
+/* Rule #45 = <program_end>  ->  "?>" EOF
+ * Rule #46 = <program_end>  ->  EOF
 */
 int rProgramEnd(Parser_t *parser);
 
