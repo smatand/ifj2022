@@ -18,11 +18,12 @@ typedef enum eType{
 	DOLLAR, //end of stack
 }eType_t;
 
-/** @brief single item if stack*/
+/** @brief single item in stack*/
 typedef struct eItem{
 	eType_t type;
 	token_t *token;
-	struct eItem *next;	
+	struct eItem *next;
+	size_t id;	
 }eItem_t;
 
 /** @brief main stack structure*/
