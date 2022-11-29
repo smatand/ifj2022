@@ -33,6 +33,7 @@ eItem_t *eItemInit(token_t *token, int itemType){
     item->token = token;
     item->type = itemType;
     item->next = NULL;
+    item->id = 0;
     return item;
 }
 
@@ -56,7 +57,7 @@ int eStackPushIndent(eStack_t *stack){
     eItem_t *poppeNonTerm = eStackPopItem(stack);
     eStackPushItem(stack,indentItem);
     eStackPushItem(stack,poppeNonTerm);
-    return SUCCESS;
+    return SUCCESS; 
 }
 
 void eStackPushDollar(eStack_t *stack){
@@ -118,7 +119,8 @@ void eStackPrintItem(eItem_t *item){
             printf("%s",tokenTypeToStr(item->token));
             break;
         case NONTERM: 
-            printf("E"); break;    
+            // printf("E"); break;    
+            printf("E(%ld)",item->id); break;    
         case INDENT: 
             printf("<"); break;
         case DOLLAR:

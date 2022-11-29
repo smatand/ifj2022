@@ -13,7 +13,8 @@
 #include"./str.h"
 #include"./error.h"
 
-
+//temporary global variable.
+size_t nonTermCnt;
 
 int main(){ 
 	token_t *token = tokenInit();
@@ -34,6 +35,7 @@ int main(){
 
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	int returnVal = SUCCESS;
+	nonTermCnt = 0;
 	// bool generateCode = true;
 	// <: shift with indent
 	// >: reduce
@@ -195,6 +197,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 						return ERR_SYN_ANALYSIS;
 				}
 
+		stackPrint(stack);
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
 				incomingToken = tokenInit();
@@ -229,12 +232,13 @@ int exprReduce(eStack_t *stack){
 	eItem_t *currItem = stack->head;
 	switch(ruleType){
 		case RULE1: //E->E+E, E->E<E, ...
+			//E
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-
+			//oparand
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-
+			//E
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
@@ -243,32 +247,40 @@ int exprReduce(eStack_t *stack){
 			freeItem(currItem);
 
 			eStackPushNonTerm(stack);
+			nonTermCnt++;
+			stack->head->id = nonTermCnt;
 			return SUCCESS;
 			break;
 		case RULE2: //E->(E)
+			//)
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-
+			//E
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-
+			//()
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-
+			//indent
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
 			eStackPushNonTerm(stack);
+			stack->head->id = nonTermCnt;
+			// nonTermCnt++;
 			return SUCCESS;
 			break;
 		case RULE3: //E->i
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
+			//indent
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
 			eStackPushNonTerm(stack);
+			nonTermCnt++;
+			stack->head->id = nonTermCnt;
 			return SUCCESS;
 			break;
 		case RULE_ERROR:
