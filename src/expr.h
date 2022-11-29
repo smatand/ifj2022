@@ -79,13 +79,6 @@ void exprReduce(eStack_t *stack);
 char *tokenTypeToStr(token_t *token);
 
 /**
- * @brief pushes INDENT and then pushed item
- * 
- * @param stack pointer to stack
- * @param item pointer to item
- */
-void exprShift(eStack_t *stack, eItem_t *item);
-/**
  * @brief finds one of relevant rules
  * 
  * @param stack pointer to stack    

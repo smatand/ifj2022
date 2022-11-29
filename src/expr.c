@@ -104,7 +104,6 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 		switch(operation){
 					case '<': //shift with indent
 						eStackPushIndent(stack);
-						// exprShift(stack,incomingTokenItem);
 						eStackPushItem(stack,incomingTokenItem);
 						break;
 					case '>': //reduce
@@ -164,12 +163,6 @@ int exprParse(token_t *firstToken,token_t *secondToken){
 	eStackEmptyAll(stack);
 	return 0;
 
-}
-
-void exprShift(eStack_t *stack, eItem_t *item){
-    eStackPushIndent(stack);
-    eItem_t *newItem = eItemInit(item->token,TERM);
-    eStackPushItem(stack,newItem);
 }
 
 
