@@ -29,40 +29,61 @@ pushs LF@_param
 popframe
 return
 
+#checktype(var1,var2,operand)
+#returns 1.var1,2.var2
+label checktype
+createframe
+pushframe
+defvar LF@$var1
+defvar LF@$var2
+defvar LF@$operand
+defvar LF@type$var1
+defvar LF@type$var2
+pops LF@$operand
+pops LF@$var2
+pops LF@$var1
+type LF@type$var1 LF@$var1
+type LF@type$var2 LF@$var2
+jumpifneq checkAdd LF@$operand string@add
+label checkAdd
+jumpifeq checkEnd LF@type$var1 LF@type$var2
+label checkEnd
+pushs LF@$var2
+pushs LF@$var1
+popframe
+return
+
+
 label $add
 createframe
 pushframe
 defvar LF@$addRet
 defvar LF@$add1
-defvar LF@$add1Type
 defvar LF@$add2
-defvar LF@$add2Type
 pops LF@$add1
 pops LF@$add2
-type LF@$add1Type LF@$add1
-type LF@$add2Type LF@$add2
-jumpifeq $addDo LF@$add1Type LF@$add2Type
-jumpifeq $addFirstInt LF@$add1Type string@int
-label $addFirstInt
-jumpifeq $addFloatVal1 LF@$add2Type string@float
-label $addFloatVal1
 pushs LF@$add1
-call floatval
+pushs LF@$add2
+pushs string@add
+call checktype
 pops LF@$add1
-jump $addDo
-label $addDo
+pops LF@$add2
 ADD LF@$addRet LF@$add1 LF@$add2
 pushs LF@$addRet
 popframe
 return
 
 label $skipOperations
+
+####################
+#### Expression ####
+####################
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@1
+move LF@tmp1 int@2
 defvar LF@tmp2
-move LF@tmp2 float@0x1.999999999999ap-3
+move LF@tmp2 int@3
 defvar LF@tmp3
 pushs LF@tmp2
 pushs LF@tmp1
