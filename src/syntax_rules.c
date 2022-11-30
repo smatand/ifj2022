@@ -75,7 +75,7 @@ int rFunctionDefinition(Parser_t *parser)
 		push_empty(parser->localSymStack); // push new sym_table
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
-	CALL_RULE(rParams);
+	CALL_RULE(rParams); // params are added to the new symtable as variables here
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
 
@@ -121,7 +121,7 @@ int rParam(Parser_t *parser)
 		htab_add(top(parser->localSymStack), ID, data);
 	}
 
-	getNextToken(parser); // TODO: add variable to symtable and generate code (?)
+	getNextToken(parser);
 	return SUCCESS;
 }
 
@@ -265,7 +265,7 @@ int rVariableStatement(Parser_t *parser)
 
 int rAssignmentStatement(Parser_t *parser)
 {
-	CURRENT_TOKEN_TYPE(TOK_VARIABLE); // TODO check if defined, codegen
+	CURRENT_TOKEN_TYPE(TOK_VARIABLE); // TODO: codegen
 
 	if (parser->firstPass == false && (top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable hasn't been declared yet
 	{
