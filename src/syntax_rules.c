@@ -26,7 +26,7 @@ int rProlog(Parser_t *parser)
 
 int rUnits(Parser_t *parser)
 {
-	if(parser->currentToken->type == TOK_EOF || parser->currentToken->type == TOK_END_PROLOGUE)
+	if (parser->currentToken->type == TOK_EOF || parser->currentToken->type == TOK_END_PROLOGUE)
 	{ // got to the end, return SUCCESS
 		;
 	}
@@ -64,7 +64,7 @@ int rFunctionDefinition(Parser_t *parser)
 	parser->latestFuncDeclared = htab_add(parser->globalSymTable, ID, data);
 
 	getNextToken(parser);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN); 
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rParams);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
@@ -81,9 +81,9 @@ int rParams(Parser_t *parser)
 	{ // there are no parameters, return
 		;
 	}
-	else 
+	else
 	{
-		CALL_RULE(rParam); // one parameter
+		CALL_RULE(rParam);	  // one parameter
 		CALL_RULE(rParams_n); // 1+ parameters
 	}
 	return SUCCESS;
@@ -97,20 +97,20 @@ int rParam(Parser_t *parser)
 	param_list_t *params = htab_find(parser->globalSymTable, parser->latestFuncDeclared)->data->data.function.param_list;
 	data_type_t type;
 
-	switch(parser->currentToken->attribute.kwVal)
+	switch (parser->currentToken->attribute.kwVal)
 	{
-		case KW_INT:
-			type = DATA_INT;
-			break;
-		case KW_FLOAT:
-			type = DATA_FLOAT;
-			break;
-		case KW_STRING:
-			type = DATA_STRING;
-			break;
-		default:
-			fprintf(stderr, "[ERROR] Error in rParam switch.\n");
-			exit(ERR_INTERNAL);
+	case KW_INT:
+		type = DATA_INT;
+		break;
+	case KW_FLOAT:
+		type = DATA_FLOAT;
+		break;
+	case KW_STRING:
+		type = DATA_STRING;
+		break;
+	default:
+		fprintf(stderr, "[ERROR] Error in rParam switch.\n");
+		exit(ERR_INTERNAL);
 	}
 
 	getNextToken(parser);
@@ -125,12 +125,12 @@ int rParam(Parser_t *parser)
 int rParams_n(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_RIGHT_PAREN)
-	{ // there are no more parameters, return
+	{	  // there are no more parameters, return
 		; // maybe export parameters at this point all ot once, or one by one on the places where i commented
 	}
-	else 
+	else
 	{
-		CALL_RULE(rParam_n); // checking next parameter 
+		CALL_RULE(rParam_n); // checking next parameter
 		CALL_RULE(rParams_n);
 	}
 	return SUCCESS;
@@ -139,27 +139,27 @@ int rParams_n(Parser_t *parser)
 int rParam_n(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
-	
+
 	CALL_RULE(rType);
 
 	// current token is still the type token
 	param_list_t *params = htab_find(parser->globalSymTable, parser->latestFuncDeclared)->data->data.function.param_list;
 	data_type_t type;
 
-	switch(parser->currentToken->attribute.kwVal)
+	switch (parser->currentToken->attribute.kwVal)
 	{
-		case KW_INT:
-			type = DATA_INT;
-			break;
-		case KW_FLOAT:
-			type = DATA_FLOAT;
-			break;
-		case KW_STRING:
-			type = DATA_STRING;
-			break;
-		default:
-			fprintf(stderr, "[ERROR] Error in rParam switch.\n");
-			exit(ERR_INTERNAL);
+	case KW_INT:
+		type = DATA_INT;
+		break;
+	case KW_FLOAT:
+		type = DATA_FLOAT;
+		break;
+	case KW_STRING:
+		type = DATA_STRING;
+		break;
+	default:
+		fprintf(stderr, "[ERROR] Error in rParam switch.\n");
+		exit(ERR_INTERNAL);
 	}
 
 	getNextToken(parser);
@@ -174,10 +174,10 @@ int rParam_n(Parser_t *parser)
 int rType(Parser_t *parser)
 {
 	// the token in this position must either be type_id (checked by the scanner)
-	// or a keyword (which we have to check ourselves) 
+	// or a keyword (which we have to check ourselves)
 	if (parser->currentToken->type == TOK_TYPE_ID || (parser->currentToken->type == TOK_KEYWORD &&
-	(parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
-	 parser->currentToken->attribute.kwVal == KW_STRING)))
+													  (parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
+													   parser->currentToken->attribute.kwVal == KW_STRING)))
 	{
 		// TODO: fill data into hash table?
 		// TODO: SEMANTIC EFFECT
@@ -202,17 +202,17 @@ int rStatements(Parser_t *parser)
 		CALL_RULE(rStatements);
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT || parser->currentToken->type == TOK_DEC_LIT ||
-			parser->currentToken->type == TOK_STRING_LIT)
+			 parser->currentToken->type == TOK_STRING_LIT)
 	{
 		int *ret;
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
-		if(retVal != SUCCESS)
+		if (retVal != SUCCESS)
 		{
 			destroyParser(parser);
 			return retVal;
 		}
 		parser->nextToken->type = ret;
-		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
+		getNextToken(parser);					   // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); // expressions in statements end with a semicolon
 		CALL_RULE(rStatements);
 	}
@@ -248,7 +248,7 @@ int rVariableStatement(Parser_t *parser)
 	{
 		int *ret;
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
-		if(retVal != SUCCESS)
+		if (retVal != SUCCESS)
 		{
 			destroyParser(parser);
 			return retVal;
@@ -258,11 +258,11 @@ int rVariableStatement(Parser_t *parser)
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	else if (checkTokenType(parser->nextToken, TOK_SEMICOLON))
-	{ // "$foo;" is a valid statement, though it does nothing
+	{						  // "$foo;" is a valid statement, though it does nothing
 		getNextToken(parser); // skipping two tokens
 		getNextToken(parser);
 	}
-	else 
+	else
 	{
 		return ERR_SYN_ANALYSIS;
 	}
@@ -271,9 +271,22 @@ int rVariableStatement(Parser_t *parser)
 
 int rAssignmentStatement(Parser_t *parser)
 {
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_VARIABLE); // TODO check if defined, codegen
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_ASSIGN);
+	CURRENT_TOKEN_TYPE(TOK_VARIABLE); // TODO check if defined, codegen
+
+	if (htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable hasn't been declared yet
+	{
+		char *ID = createTokenKey(parser->currentToken->attribute.strVal, TOKTYPE_FUNCTION); // malloc is called here
+		token_data_t *data = createTokenDataVariable(ID, DATA_UNDEFINED); // TODO: assign data type based on value
+
+		htab_add(top(parser->localSymStack), ID, data);
+	}
 	
+	// TODO: set or change the value and type(?) of the declared variable (code generation)
+
+	getNextToken(parser);
+
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_ASSIGN);
+
 	if (checkTokenType(parser->currentToken, TOK_FUNCTION))
 	{
 		CALL_RULE(rFunctionCallStatement);
@@ -282,7 +295,7 @@ int rAssignmentStatement(Parser_t *parser)
 	{
 		int *ret;
 		int retVal = exprParse(parser->currentToken, NULL, ret);
-		if(retVal != SUCCESS)
+		if (retVal != SUCCESS)
 		{
 			destroyParser(parser);
 			return retVal;
@@ -300,7 +313,7 @@ int rConditionalStatement(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	int *ret;
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
-	if(retVal != SUCCESS)
+	if (retVal != SUCCESS)
 	{
 		destroyParser(parser);
 		return retVal;
@@ -324,7 +337,7 @@ int rWhileLoopStatement(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	int *ret;
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
-	if(retVal != SUCCESS)
+	if (retVal != SUCCESS)
 	{
 		destroyParser(parser);
 		return retVal;
@@ -357,8 +370,8 @@ int rReturnStatement(Parser_t *parser)
 
 int rArguments(Parser_t *parser)
 {
-	if(parser->currentToken->type == TOK_RIGHT_PAREN)
-	{ 
+	if (parser->currentToken->type == TOK_RIGHT_PAREN)
+	{
 		; // epsilon
 	}
 	else
@@ -389,7 +402,7 @@ int rArguments_n(Parser_t *parser)
 	{
 		; // epsilon
 	}
-	else 
+	else
 	{
 		CALL_RULE(rArgument_n);
 		CALL_RULE(rArguments_n);
@@ -408,7 +421,7 @@ int rReturnValue(Parser_t *parser)
 	{
 		int *ret;
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
-		if(retVal != SUCCESS)
+		if (retVal != SUCCESS)
 		{
 			destroyParser(parser);
 			return retVal;
