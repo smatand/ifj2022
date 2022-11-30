@@ -18,7 +18,15 @@ int main()
         exit(ERR_INTERNAL);
     }
 
-    // calling syntax analysis
+    // calling syntax analysis, first pass
+    if((ret = parseSource(parser)) != SUCCESS)
+    {
+        fprintf(stderr, "PARSER ERROR (main): Exit with error code %d", ret);
+    }
+
+    parser->firstPass = false;
+
+    // calling syntax analysis, second pass
     if((ret = parseSource(parser)) != SUCCESS)
     {
         fprintf(stderr, "PARSER ERROR (main): Exit with error code %d", ret);

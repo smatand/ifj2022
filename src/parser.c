@@ -59,6 +59,11 @@ Parser_t *initParser()
 	push_empty(parser->localSymStack);
 
 	parser->latestFuncDeclared = NULL;
+	parser->latestFuncCalled = NULL;
+	parser->latestVar = NULL;
+
+	parser->firstPass = true;
+	parser->currentArgument = 0;
 
 	return parser;
 }
