@@ -22,35 +22,35 @@ typedef enum
 	DATA_UNDEFINED, DATA_INT, DATA_FLOAT, DATA_STRING, DATA_NULL
 } data_type_t;
 
-/** @brief Types of token data */
-typedef struct
-{
-	data_type_t type;
-	char* name;
-} parameter_t;
+// /** @brief Types of token data */
+// typedef struct
+// {
+// 	data_type_t type;
+// 	char* name;
+// } parameter_t; // TODO: unnecessary
 
-typedef struct
-{
-	parameter_t *vector;
-	size_t length; // maximum amount of elements (space allocated)
-	size_t size; // current amount of real elements
-} param_list_t;
+// typedef struct
+// {
+// 	parameter_t *vector;
+// 	size_t length; // maximum amount of elements (space allocated)
+// 	size_t size; // current amount of real elements
+// } param_list_t;
 
-/** @brief Function structure */
-typedef struct
-{
-	param_list_t* param_list;
-	data_type_t return_type;
-	bool defined;
-	bool paramsFilled;
-} sym_func_t;
+// /** @brief Function structure */
+// typedef struct
+// {
+// 	// param_list_t* param_list;
+// 	data_type_t return_type;
+// 	// bool defined;
+// 	// bool paramsFilled;
+// } sym_func_t;
 
 typedef const char *htab_key_t;
 
 /** @brief Variable structure */
 typedef struct
 {
-	data_type_t type;
+	// data_type_t type; // TODO: unnecessary
 } sym_var_t;
 
 typedef const char *htab_key_t;
@@ -73,7 +73,7 @@ typedef const char *htab_key_t;
 /** @brief Types of token */
 typedef enum
 {
-	TOKTYPE_FUNCTION, TOKTYPE_VARIABLE, TOKTYPE_CONSTANT
+	TOKTYPE_FUNCTION, TOKTYPE_VARIABLE
 } token_type_t;
 
 typedef const char *htab_key_t;
@@ -83,11 +83,6 @@ typedef struct token_data
 {
 	const char *ID;
 	token_type_t type;
-	union
-	{
-		sym_func_t function;
-		sym_var_t variable;
-	} data;
 } token_data_t;
 
 /** @brief Structure of a hash table item's content */

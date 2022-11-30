@@ -63,28 +63,24 @@ int rFunctionDefinition(Parser_t *parser)
 			fprintf(stderr, "[ERROR] Semantic error, function redefinition.\n");
 			exit(ERR_SEM);
 		}
-		char *ID = createTokenKey(parser->currentToken->attribute.strVal, TOKTYPE_FUNCTION);
-
-		param_list_t *paramList = createParamList(); // malloc is called here
-		token_data_t *data = createTokenDataFunction(ID, paramList, DATA_UNDEFINED, true);
+		char *ID = createTokenKey(parser->currentToken->attribute.strVal);
+		token_data_t *data = createTokenDataFunction(ID);
 
 		parser->latestFuncDeclared = htab_add(parser->globalSymTable, ID, data);
 	}
 
 	getNextToken(parser);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
-	CALL_RULE(rParams); // function parameters are added to the sym_table here
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
-
-	if (parser->firstPass == true)
-		parser->latestFuncDeclared->data->data.function.paramsFilled = true;
-
-	CALL_RULE(rType);
-	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 
 	if (parser->firstPass == false)
 		push_empty(parser->localSymStack); // push new sym_table
+
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
+	CALL_RULE(rParams);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
+
+	CALL_RULE(rType);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 
 	CALL_RULE(rStatements);
 
@@ -113,37 +109,17 @@ int rParam(Parser_t *parser)
 {
 	CALL_RULE(rType);
 
-	if (parser->firstPass == true) // add param to param_list of the declared function
-	{
-		// current token is still the type token
-		param_list_t *params = htab_find(parser->globalSymTable, parser->latestFuncDeclared)->data->data.function.param_list;
-		data_type_t type;
-
-		switch (parser->currentToken->attribute.kwVal)
-		{
-		case KW_INT:
-			type = DATA_INT;
-			break;
-		case KW_FLOAT:
-			type = DATA_FLOAT;
-			break;
-		case KW_STRING:
-			type = DATA_STRING;
-			break;
-		default:
-			fprintf(stderr, "[ERROR] Error in rParam switch.\n");
-			exit(ERR_INTERNAL);
-		}
-		// TODO: what about null? also this switch should really be a function
-
-		getNextToken(parser);
-		CURRENT_TOKEN_TYPE(TOK_VARIABLE);
-
-		addToParamList(params, type, parser->currentToken->attribute.strVal->str); // malloc is called here, for the name string
-	}
-
 	getNextToken(parser);
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
+
+	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
+	if (parser->firstPass == false)
+	{
+		char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
+		token_data_t *data = createTokenDataVariable(ID);
+
+		htab_add(top(parser->localSymStack), ID, data);
+	}
 
 	getNextToken(parser); // TODO: add variable to symtable and generate code (?)
 	return SUCCESS;
@@ -169,39 +145,19 @@ int rParam_n(Parser_t *parser)
 
 	CALL_RULE(rType);
 
-	if (parser->firstPass == true) // add param to param_list of the declared function
-	{
-		// current token is still the type token
-		param_list_t *params = parser->latestFuncDeclared->data->data.function.param_list;
-		data_type_t type;
-
-		switch (parser->currentToken->attribute.kwVal)
-		{
-		case KW_INT:
-			type = DATA_INT;
-			break;
-		case KW_FLOAT:
-			type = DATA_FLOAT;
-			break;
-		case KW_STRING:
-			type = DATA_STRING;
-			break;
-		default:
-			fprintf(stderr, "[ERROR] Error in rParam switch.\n");
-			exit(ERR_INTERNAL);
-		}
-		// TODO: what about null? also this switch should really be a function
-
-		getNextToken(parser);
-		CURRENT_TOKEN_TYPE(TOK_VARIABLE);
-
-		addToParamList(params, type, parser->currentToken->attribute.strVal->str); // malloc is called here, for the name string
-	}
-
 	getNextToken(parser);
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
-	getNextToken(parser); // TODO: add variable to symtable and generate code (?)
+	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
+	if (parser->firstPass == false)
+	{
+		char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
+		token_data_t *data = createTokenDataVariable(ID);
+
+		htab_add(top(parser->localSymStack), ID, data);
+	}
+
+	getNextToken(parser);
 	return SUCCESS;
 }
 
@@ -213,30 +169,6 @@ int rType(Parser_t *parser)
 													  (parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
 													   parser->currentToken->attribute.kwVal == KW_STRING)))
 	{
-		if (parser->firstPass == true && parser->latestFuncDeclared->data->data.function.paramsFilled == true)
-		{
-			// if the function being declared already has all its parameters, then this rule is called for the return type, so we add it to the sym_table function data
-			data_type_t type;
-
-			switch (parser->currentToken->attribute.kwVal)
-			{
-			case KW_INT:
-				type = DATA_INT;
-				break;
-			case KW_FLOAT:
-				type = DATA_FLOAT;
-				break;
-			case KW_STRING:
-				type = DATA_STRING;
-				break;
-			default:
-				fprintf(stderr, "[ERROR] Error in rType switch.\n");
-				exit(ERR_INTERNAL);
-			}
-			// TODO: what about null? also this switch should really be a function
-
-			parser->latestFuncDeclared->data->data.function.return_type = type;
-		}
 		return SUCCESS;
 	}
 	else
@@ -337,8 +269,8 @@ int rAssignmentStatement(Parser_t *parser)
 
 	if (parser->firstPass == false && (top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable hasn't been declared yet
 	{
-		char *ID = createTokenKey(parser->currentToken->attribute.strVal, TOKTYPE_FUNCTION); // malloc is called here
-		token_data_t *data = createTokenDataVariable(ID, DATA_UNDEFINED);					 // TODO: assign data type based on value
+		char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
+		token_data_t *data = createTokenDataVariable(ID);
 
 		htab_add(top(parser->localSymStack), ID, data);
 	}
@@ -424,31 +356,12 @@ int rFunctionCallStatement(Parser_t *parser)
 			fprintf(stderr, "[ERROR] Semantic error, calling undefined function.\n");
 			exit(ERR_SEM);
 		}
-		else
-		{
-			parser->currentArgument = 0; // ready to start checking arguments
-			// pointer to the currently called function is in parser->latestFuncCalled
-		}
 	}
 
 	getNextToken(parser);
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
-	CALL_RULE(rArguments); // arguments are checked here, one by one
-
-	if (parser->firstPass == false)
-	{
-		if (parser->currentArgument != parser->latestFuncCalled->data->data.function.param_list->size) // argument count check
-		{
-			fprintf(stderr, "[ERROR] Semantic error, too few arguments in function call.\n");
-			exit(ERR_SEM_PARAMS);
-		}
-		else
-		{
-			parser->currentArgument = 0; // reset argument counter
-			// TODO: parser->latestFuncCalled = NULL; ?, probably unnecessary
-		}
-	}
+	CALL_RULE(rArguments);
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
@@ -509,7 +422,7 @@ int rReturnValue(Parser_t *parser)
 	int retVal = SUCCESS;
 	if (parser->currentToken->type == TOK_SEMICOLON)
 	{
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); // missing return value -> check if void function?
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); // TODO: missing return value -> check if void function?
 	}
 	else
 	{
@@ -529,12 +442,6 @@ int rReturnValue(Parser_t *parser)
 
 int rTerm(Parser_t *parser)
 {
-	if (parser->firstPass == false && (parser->currentArgument >= parser->latestFuncCalled->data->data.function.param_list->size))
-	{
-		fprintf(stderr, "[ERROR] Semantic error, too many arguments in function call.\n");
-		exit(ERR_SEM_PARAMS);
-	}
-
 	if (parser->currentToken->type == TOK_VARIABLE)
 	{
 		if (parser->firstPass == false)
@@ -544,97 +451,23 @@ int rTerm(Parser_t *parser)
 				fprintf(stderr, "[ERROR] Semantic error, passing undeclared variable as argument.\n");
 				exit(ERR_SEM_UNDEFINED_VAR);
 			}
-
-			// check if the variable type matches the parameter type
-			data_type_t type;
-
-			switch (parser->currentToken->attribute.kwVal)
-			{
-			case KW_INT:
-				type = DATA_INT;
-				break;
-			case KW_FLOAT:
-				type = DATA_FLOAT;
-				break;
-			case KW_STRING:
-				type = DATA_STRING;
-				break;
-			default:
-				fprintf(stderr, "[ERROR] Error in rTerm switch.\n");
-				exit(ERR_INTERNAL);
-			}
-			// TODO: what about null? also this switch should really be a function
-
-			if (parser->latestFuncCalled->data->data.function.param_list->vector[parser->currentArgument].type != type)
-			{
-				fprintf(stderr, "[ERROR] Semantic error, argument and parameter types don't match.\n");
-				exit(ERR_SEM_PARAMS);
-			}
-			else
-			{
-				parser->currentArgument++;
-			}
 		}
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT)
 	{
-		if (parser->firstPass == false)
-		{
-			if (parser->latestFuncCalled->data->data.function.param_list->vector[parser->currentArgument].type != DATA_INT)
-			{
-				fprintf(stderr, "[ERROR] Semantic error, argument and parameter types don't match.\n");
-				exit(ERR_SEM_PARAMS);
-			}
-			else
-			{
-				parser->currentArgument++;
-			}
-		}
+		// TODO: check for type matching in code gen
 	}
 	else if (parser->currentToken->type == TOK_STRING_LIT)
 	{
-		if (parser->firstPass == false)
-		{
-			if (parser->latestFuncCalled->data->data.function.param_list->vector[parser->currentArgument].type != DATA_STRING)
-			{
-				fprintf(stderr, "[ERROR] Semantic error, argument and parameter types don't match.\n");
-				exit(ERR_SEM_PARAMS);
-			}
-			else
-			{
-				parser->currentArgument++;
-			}
-		}
+		// TODO: check for type matching in code gen
 	}
 	else if (parser->currentToken->type == TOK_DEC_LIT)
 	{
-		if (parser->firstPass == false)
-		{
-			if (parser->latestFuncCalled->data->data.function.param_list->vector[parser->currentArgument].type != DATA_FLOAT)
-			{
-				fprintf(stderr, "[ERROR] Semantic error, argument and parameter types don't match.\n");
-				exit(ERR_SEM_PARAMS);
-			}
-			else
-			{
-				parser->currentArgument++;
-			}
-		}
+		// TODO: check for type matching in code gen
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_NULL)
 	{
-		if (parser->firstPass == false)
-		{
-			if ((parser->firstPass == false) && (parser->latestFuncCalled->data->data.function.param_list->vector[parser->currentArgument].type != DATA_NULL))
-			{
-				fprintf(stderr, "[ERROR] Semantic error, argument and parameter types don't match.\n");
-				exit(ERR_SEM_PARAMS);
-			}
-			else
-			{
-				parser->currentArgument++;
-			}
-		}
+		// TODO: check for type matching in code gen
 	}
 	else
 	{
