@@ -1,0 +1,15 @@
+.IFJcode22
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@2
+defvar LF@tmp2
+move LF@tmp2 int@3
+defvar LF@tmp3
+ADD LF@tmp3 LF@tmp2 LF@tmp1
+defvar LF@tmp4
+move LF@tmp4 int@5
+defvar LF@tmp5
+ADD LF@tmp5 LF@tmp4 LF@tmp3
+write LF@tmp5
+popframe

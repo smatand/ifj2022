@@ -21,12 +21,6 @@ int main(){
 	scanToken(token);
 	int returnToken;
 	int returnVal = exprParse(token,NULL,&returnToken);
-	puts(" ");
-	if(returnVal == SUCCESS)puts("SUCESS");
-	// else {
-	// 	freeToken(token);
-	// 	puts("ERROR");
-	// }
 	(void)returnToken;
 	(void)returnVal;
 
@@ -34,6 +28,10 @@ int main(){
 }
 
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
+	printf(".IFJcode22\n");
+	printf("createframe\n");
+	printf("pushframe\n");
+
 	int returnVal = SUCCESS;
 	nonTermCnt = 0;
 	// bool generateCode = true;
@@ -86,7 +84,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
 	eItem_t *incomingTokenItem;
-	stackPrint(stack);
+	// stackPrint(stack);
 
 	while(continueParsing){
 
@@ -172,13 +170,15 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 									eStackEmptyAll(stack);
 									return returnVal;
 								}
-								stackPrint(stack);
+								// stackPrint(stack);
 							}
 							continueParsing = false;
 							//free last token, ; OR ) and empty whole stack
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
 							(incomingTokenType == P_RIGHT_PAREN) ? (*returnToken =  TOK_RIGHT_PAREN): (*returnToken =  TOK_SEMICOLON);
+							printf("write LF@tmp%ld\n",nonTermCnt);
+							printf("popframe\n");
 							return returnVal; 
 						}
 
@@ -197,7 +197,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 						return ERR_SYN_ANALYSIS;
 				}
 
-		stackPrint(stack);
+		// stackPrint(stack);
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
 				incomingToken = tokenInit();
@@ -213,6 +213,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 
 		}
 	}
+	printf("popframe\n");
 	eStackEmptyAll(stack);
 	return SUCCESS;
 
@@ -232,22 +233,24 @@ int exprReduce(eStack_t *stack){
 	eItem_t *currItem = stack->head;
 	switch(ruleType){
 		case RULE1: //E->E+E, E->E<E, ...
+			nonTermCnt++;
 			//E
 			currItem = eStackPopItem(stack);	
-			freeItem(currItem);
 			//oparand
-			currItem = eStackPopItem(stack);	
-			freeItem(currItem);
+			eItem_t *currItemOperand = eStackPopItem(stack);	
 			//E
-			currItem = eStackPopItem(stack);	
-			freeItem(currItem);
+			eItem_t *currItem3 = eStackPopItem(stack);	
+			printf("defvar LF@tmp%ld\n",nonTermCnt);
+			printf("ADD LF@tmp%ld LF@tmp%ld LF@tmp%ld\n",nonTermCnt,currItem->id,currItem3->id);
 
+			freeItem(currItem);
+			freeItem(currItemOperand);
+			freeItem(currItem3);
 			//indent
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
 			eStackPushNonTerm(stack);
-			nonTermCnt++;
 			stack->head->id = nonTermCnt;
 			return SUCCESS;
 			break;
@@ -271,6 +274,12 @@ int exprReduce(eStack_t *stack){
 			return SUCCESS;
 			break;
 		case RULE3: //E->i
+			nonTermCnt++;
+			//2,$var,"test",2.1, true,false,null,
+			if(currItem->token->type == TOK_INT_LIT){
+				printf("defvar LF@tmp%ld\n",nonTermCnt);
+				printf("move LF@tmp%ld int@%d\n",nonTermCnt, currItem->token->attribute.intVal);
+			}
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
@@ -279,7 +288,6 @@ int exprReduce(eStack_t *stack){
 			freeItem(currItem);
 
 			eStackPushNonTerm(stack);
-			nonTermCnt++;
 			stack->head->id = nonTermCnt;
 			return SUCCESS;
 			break;
