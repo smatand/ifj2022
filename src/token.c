@@ -74,6 +74,7 @@ token_data_t *createTokenDataFunction(char *ID, param_list_t *param_list, data_t
 	data->data.function.param_list = param_list;
 	data->data.function.defined = defined;
 	data->data.function.return_type = return_type;
+	data->data.function.paramsFilled = false;
 }
 
 token_data_t *createTokenDataVariable(char *ID, data_type_t type)

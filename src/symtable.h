@@ -42,6 +42,7 @@ typedef struct
 	param_list_t* param_list;
 	data_type_t return_type;
 	bool defined;
+	bool paramsFilled;
 } sym_func_t;
 
 typedef const char *htab_key_t;
