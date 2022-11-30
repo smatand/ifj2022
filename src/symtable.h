@@ -54,18 +54,18 @@ typedef struct
 
 typedef const char *htab_key_t;
 
-/** @brief Constant structure */
-typedef struct
-{
-	data_type_t type;
-	union
-	{
-		int value_int;
-		float value_float;
-		const char* value_string;
-		bool value_null; // TODO: how to represent null?
-	} value;
-} sym_const_t;
+// /** @brief Constant structure */
+// typedef struct
+// {
+// 	data_type_t type;
+// 	union
+// 	{
+// 		int value_int;
+// 		float value_float;
+// 		const char* value_string;
+// 		bool value_null; // TODO: how to represent null?
+// 	} value;
+// } sym_const_t;
 
 typedef const char *htab_key_t;
 
@@ -86,7 +86,6 @@ typedef struct token_data
 	{
 		sym_func_t function;
 		sym_var_t variable;
-		sym_const_t constant;
 	} data;
 } token_data_t;
 

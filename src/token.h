@@ -23,9 +23,9 @@ void destroyParamList(param_list_t * param_list);
 token_data_t *createTokenDataFunction(char *ID, param_list_t* param_list, data_type_t return_type, bool defined); // param_list must be created first
 token_data_t *createTokenDataVariable(char *ID, data_type_t type);
 
-token_data_t *createTokenDataConstantInt(char *ID, int value);
-token_data_t *createTokenDataConstantFloat(char *ID, float value);
-token_data_t *createTokenDataConstantString(char *ID, char *value);
-token_data_t *createTokenDataConstantNull(char *ID);
+// token_data_t *createTokenDataConstantInt(char *ID, int value);
+// token_data_t *createTokenDataConstantFloat(char *ID, float value);
+// token_data_t *createTokenDataConstantString(char *ID, char *value);
+// token_data_t *createTokenDataConstantNull(char *ID);
 
 #endif
