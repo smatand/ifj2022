@@ -87,17 +87,17 @@ void gen_checkType(){
 			"pops LF@_var1\n"
 			"type LF@type_var1 LF@_var1\n"
 			"type LF@type_var2 LF@_var2\n"
-			"jumpifneq arit1 LF@_operand string@add\n"
-			"jumpifneq arit1 LF@_operand string@sub\n"
-			"jumpifneq arit1 LF@_operand string@mul\n"
+			"jumpifeq arit1 LF@_operand string@add\n"
+			"jumpifeq arit1 LF@_operand string@sub\n"
+			"jumpifeq arit1 LF@_operand string@mul\n"
 
 
 
 			"#arit1 = + * / \n"
-			"label arit1\n"
-			// "jumpifeq checkEnd LF@type_var1 LF@type_var2\n" zle lebo moze nastat "asd" * "str"
+			"label arit1\n"//what type if first operant ?
 			"jumpifeq arit1_firstint LF@type_var1 string@int\n"
 			"jumpifeq arit1_firstfloat LF@type_var1 string@float\n"
+			"jumpifeq arit1_firstnull LF@type_var1 string@nil\n"
 			
 
 			
@@ -119,6 +119,12 @@ void gen_checkType(){
 			"pops LF@_var2\n"
 			"label arit1_skip2\n"
 			"jump checkEnd\n"
+			
+			"label arit1_firstnull\n"
+			// "write string@nasielsomnull\n"
+			" "
+			//$var = $a+$b;
+			//$z = $var +1;
 
 
 
@@ -182,6 +188,12 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	// gencodeMul();
 	gen_compute();
 	puts("label $skipOperations");
+	printf(
+			"createframe\n"
+			"pushframe\n"
+			"defvar LF@$var\n"
+			"move LF@$var int@3\n"
+			);
 	printf("\n####################\n");
 	printf("#### Expression ####\n");
 	printf("####################\n");
@@ -400,14 +412,14 @@ int exprReduce(eStack_t *stack){
 			printf("defvar LF@tmp%ld\n",nonTermCnt);
 			// printf("ADD LF@tmp%ld LF@tmp%ld LF@tmp%ld\n",nonTermCnt,currItem->id,currItem3->id);
 			if(currItemOperand->token->type == TOK_PLUS){
-				printf("pushs LF@tmp%ld\n",currItem->id);
 				printf("pushs LF@tmp%ld\n",currItem3->id);
+				printf("pushs LF@tmp%ld\n",currItem->id);
 				printf("pushs string@add\n");
 				printf("call compute\n");
 			}
 			else if(currItemOperand->token->type == TOK_STAR){
-				printf("pushs LF@tmp%ld\n",currItem->id);
 				printf("pushs LF@tmp%ld\n",currItem3->id);
+				printf("pushs LF@tmp%ld\n",currItem->id);
 				printf("pushs string@mul\n");
 				printf("call compute\n");
 			}
@@ -454,6 +466,19 @@ int exprReduce(eStack_t *stack){
 			else if (currItem->token->type == TOK_DEC_LIT){
 				printf("defvar LF@tmp%ld\n",nonTermCnt);
 				printf("move LF@tmp%ld float@%a\n",nonTermCnt, currItem->token->attribute.decVal);
+			}
+			else if (currItem->token->type == TOK_KEYWORD && currItem->token->attribute.kwVal == KW_NULL){
+				printf("defvar LF@tmp%ld\n",nonTermCnt);
+				printf("move LF@tmp%ld nil@nil\n",nonTermCnt);
+			}
+			else if(currItem->token->type == TOK_VARIABLE){
+				printf("defvar LF@tmp%ld\n",nonTermCnt);
+				printf("defvar LF@_tmp%ld\n",nonTermCnt);
+				printf("popframe\n");
+				printf("pushs LF@%s\n",currItem->token->attribute.strVal->str);
+				printf("pushframe\n");
+				printf("pops LF@_tmp%ld \n",nonTermCnt);
+				printf("move LF@tmp%ld LF@_tmp%ld \n",nonTermCnt,nonTermCnt);
 			}
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
