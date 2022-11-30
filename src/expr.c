@@ -26,9 +26,46 @@ int main(){
 
 
 }
+void gencodeAdd(){
+	printf(
+			"\n"
+			"label $add\n"
+			"createframe\n"
+			"pushframe\n"
+			"defvar LF@$addRet\n"
+			"defvar LF@$add1\n"
+			"defvar LF@$add1Type\n"
+			"defvar LF@$add2\n"
+			"defvar LF@$add2Type\n"
+			"pops LF@$add1\n"
+			"pops LF@$add2\n"
+			"type LF@$add1Type LF@$add1\n"
+			"type LF@$add2Type LF@$add2\n"
+			"jumpifeq $addDo LF@$add1Type LF@$add2Type\n"
+			"jumpifeq $addFirstInt LF@$add1Type string@int\n" 
+
+			"label $addFirstInt\n"
+			"jumpifeq $addFloatVal1 LF@$add2Type string@float\n"
+
+			"label $addFloatVal1\n"
+			"push $add1\n"
+			"call floatval"
+
+			"label $addDo\n"
+			"ADD LF@$addRet LF@$add1 LF@$add2\n"
+			"pushs LF@$addRet\n"
+		  	"popframe\n"
+			"return\n"
+			"\n"
+			);
+}
+
 
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	printf(".IFJcode22\n");
+	puts("call $skipOperations");
+	gencodeAdd();
+	puts("label $skipOperations");
 	printf("createframe\n");
 	printf("pushframe\n");
 
@@ -228,6 +265,7 @@ eItem_t *findClosestTerm(eStack_t *stack){
     return currItem;
 }
 
+
 int exprReduce(eStack_t *stack){
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;
@@ -241,7 +279,11 @@ int exprReduce(eStack_t *stack){
 			//E
 			eItem_t *currItem3 = eStackPopItem(stack);	
 			printf("defvar LF@tmp%ld\n",nonTermCnt);
-			printf("ADD LF@tmp%ld LF@tmp%ld LF@tmp%ld\n",nonTermCnt,currItem->id,currItem3->id);
+			// printf("ADD LF@tmp%ld LF@tmp%ld LF@tmp%ld\n",nonTermCnt,currItem->id,currItem3->id);
+			printf("pushs LF@tmp%ld\n",currItem->id);
+			printf("pushs LF@tmp%ld\n",currItem3->id);
+			printf("call $add\n");
+			printf("pops LF@tmp%ld\n",nonTermCnt);
 
 			freeItem(currItem);
 			freeItem(currItemOperand);
@@ -280,6 +322,10 @@ int exprReduce(eStack_t *stack){
 				printf("defvar LF@tmp%ld\n",nonTermCnt);
 				printf("move LF@tmp%ld int@%d\n",nonTermCnt, currItem->token->attribute.intVal);
 			}
+			else if (currItem->token->type == TOK_DEC_LIT){
+				printf("defvar LF@tmp%ld\n",nonTermCnt);
+				printf("move LF@tmp%ld float@%a\n",nonTermCnt, currItem->token->attribute.decVal);
+			}
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
@@ -297,7 +343,6 @@ int exprReduce(eStack_t *stack){
 	}
 	return ERR_SYN_ANALYSIS;
 }
-
 
 eRules_t exprFindRule(eStack_t *stack){
 	int currState = E_STATE_START;

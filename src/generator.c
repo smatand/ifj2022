@@ -81,6 +81,7 @@ int gen_write(token_t * token, DLList_t * list) {
 
 void gen_floatval() {
     printf(
+            "label floatval"
             "defvar LF@_param # also retval\n"
             "defvar LF@_type\n"
             "defvar LF@_condition\n"
