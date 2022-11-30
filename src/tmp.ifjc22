@@ -34,22 +34,43 @@ return
 label checktype
 createframe
 pushframe
-defvar LF@$var1
-defvar LF@$var2
-defvar LF@$operand
-defvar LF@type$var1
-defvar LF@type$var2
-pops LF@$operand
-pops LF@$var2
-pops LF@$var1
-type LF@type$var1 LF@$var1
-type LF@type$var2 LF@$var2
-jumpifneq checkAdd LF@$operand string@add
-label checkAdd
-jumpifeq checkEnd LF@type$var1 LF@type$var2
+defvar LF@_var1
+defvar LF@_var2
+defvar LF@_operand
+defvar LF@type_var1
+defvar LF@type_var2 #pravy operand
+pops LF@_operand
+pops LF@_var2
+pops LF@_var1
+type LF@type_var1 LF@_var1
+type LF@type_var2 LF@_var2
+jumpifneq arit1 LF@_operand string@add
+jumpifneq arit1 LF@_operand string@sub
+jumpifneq arit1 LF@_operand string@mul
+#arit1 = + * / 
+label arit1
+jumpifeq arit1_firstint LF@type_var1 string@int
+jumpifeq arit1_firstfloat LF@type_var1 string@float
+label arit1_firstint
+jumpifeq checkEnd LF@type_var2 string@int
+jumpifneq arit1_skip1 LF@type_var2 string@float
+pushs LF@_var1
+call floatval
+pops LF@_var1
+jump checkEnd
+label arit1_skip1
+jump checkEnd
+label arit1_firstfloat
+jumpifeq checkEnd LF@type_var2 string@float
+jumpifneq arit1_skip2 LF@type_var2 string@int
+pushs LF@_var2
+call floatval
+pops LF@_var2
+label arit1_skip2
+jump checkEnd
 label checkEnd
-pushs LF@$var2
-pushs LF@$var1
+pushs LF@_var2
+pushs LF@_var1
 popframe
 return
 
@@ -81,13 +102,27 @@ label $skipOperations
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@2
+move LF@tmp1 int@1
 defvar LF@tmp2
-move LF@tmp2 int@3
+move LF@tmp2 float@0x1.999999999999ap-5
 defvar LF@tmp3
+move LF@tmp3 float@0x1.999999999999ap-5
+defvar LF@tmp4
+pushs LF@tmp3
 pushs LF@tmp2
+call $add
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp4
 pushs LF@tmp1
 call $add
-pops LF@tmp3
-write LF@tmp3
+pops LF@tmp5
+defvar LF@tmp6
+move LF@tmp6 float@0x1.999999999999ap-4
+defvar LF@tmp7
+pushs LF@tmp6
+pushs LF@tmp5
+call $add
+pops LF@tmp7
+write LF@tmp7
 popframe
