@@ -14,7 +14,8 @@
 
 void gen_reads() {
     printf(
-            "label reads\n"
+            "label reads\n" 
+            "createframe\n"
             "pushframe\n" // save frame
 
             "defvar LF@_retval\n" // local variable
@@ -29,6 +30,7 @@ void gen_reads() {
 void gen_readi() {
     printf(
             "label readi\n"
+            "createframe\n"
             "pushframe\n"
 
             "defvar LF@_retval\n"
@@ -43,6 +45,7 @@ void gen_readi() {
 void gen_readf() {
     printf(
             "label readf\n"
+            "createframe\n"
             "pushframe\n"
 
             "defvar LF@_retval\n"
@@ -81,7 +84,9 @@ int gen_write(token_t * token, DLList_t * list) {
 
 void gen_floatval() {
     printf(
-            "label floatval"
+            "label floatval\n"
+            "createframe\n"
+            "pushframe\n"
             "defvar LF@_param # also retval\n"
             "defvar LF@_type\n"
             "defvar LF@_condition\n"
@@ -124,6 +129,7 @@ void gen_floatval() {
 void gen_intval() {
     printf(
         "label intval\n"
+        "createframe\n"
         "pushframe\n"
 
         "defvar LF@_param # also retval\n"
@@ -168,6 +174,7 @@ void gen_intval() {
 void gen_strval() {
     printf(
         "label strval\n"
+        "createframe\n"
         "pushframe\n"
 
         "defvar LF@_retval\n"
@@ -193,6 +200,7 @@ void gen_strlen(/*string*/) {
 void gen_substring() {
     printf(
         "label substring\n"
+        "createframe\n"
         "pushframe\n"
 
         "defvar LF@_string\n"
@@ -251,6 +259,7 @@ void gen_substring() {
 void gen_ord() {
     printf(
         "label ord\n"
+        "createframe\n"
         "pushframe\n"
 
         "defvar LF@_string\n"
@@ -276,6 +285,7 @@ void gen_ord() {
 void gen_chr() {
     printf(
         "label chr\n"
+        "createframe\n"
         "pushframe\n"
 
         "defvar LF@_int\n"
@@ -317,6 +327,7 @@ void genInit() {
 
 
     printf("createframe\n");
+    printf("pushframe\n");
     printf("call $main\n");
 
     gen_builtin_functions();

@@ -12,6 +12,7 @@
 #include"./scanner.h"
 #include"./str.h"
 #include"./error.h"
+// #include"./generator.h"
 
 //temporary global variable.
 size_t nonTermCnt;
@@ -25,6 +26,49 @@ int main(){
 	(void)returnVal;
 
 
+}
+
+void gen_floatval() {
+    printf(
+            "label floatval\n"
+			"createframe\n"
+			"pushframe\n"
+            "defvar LF@_param # also retval\n"
+            "defvar LF@_type\n"
+            "defvar LF@_condition\n"
+            "pops LF@_param\n"
+            
+            "move LF@_condition bool@false\n"
+            "type LF@_type LF@_param # int, bool, float, string or nil\n"
+            
+            "jumpifeq floatval_end LF@_type string@float # no need to convert\n"
+            
+            "jumpifeq int_to_float LF@_type string@int\n"
+            
+            "jumpifeq bool_to_float LF@_type string@bool\n"
+
+            "move LF@_param float@0x0.0p+0\n" 
+            "jump floatval_end\n"
+
+            "label bool_to_float\n"
+            "eq LF@_condition LF@_param bool@true\n"
+            "jumpifneq bool_false_to_float LF@_condition bool@true\n"
+            
+            "move LF@_param float@0x1.0p+0\n"
+            "jump floatval_end\n"
+            
+            "label bool_false_to_float\n"
+            "move LF@_param float@0x0.0p+0\n"
+            "jump floatval_end\n"
+
+            "label int_to_float\n"
+            "int2float LF@_param LF@_param\n"
+
+            "label floatval_end\n"
+            "pushs LF@_param\n"
+            "popframe\n"
+            "return\n"
+            );
 }
 void gencodeAdd(){
 	printf(
@@ -48,8 +92,10 @@ void gencodeAdd(){
 			"jumpifeq $addFloatVal1 LF@$add2Type string@float\n"
 
 			"label $addFloatVal1\n"
-			"push $add1\n"
-			"call floatval"
+			"pushs LF@$add1\n"
+			"call floatval\n"
+			"pops LF@$add1\n"
+			"jump $addDo\n"
 
 			"label $addDo\n"
 			"ADD LF@$addRet LF@$add1 LF@$add2\n"
@@ -63,7 +109,9 @@ void gencodeAdd(){
 
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	printf(".IFJcode22\n");
+
 	puts("call $skipOperations");
+	gen_floatval();
 	gencodeAdd();
 	puts("label $skipOperations");
 	printf("createframe\n");

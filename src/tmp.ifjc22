@@ -1,5 +1,33 @@
 .IFJcode22
 call $skipOperations
+label floatval
+createframe
+pushframe
+defvar LF@_param # also retval
+defvar LF@_type
+defvar LF@_condition
+pops LF@_param
+move LF@_condition bool@false
+type LF@_type LF@_param # int, bool, float, string or nil
+jumpifeq floatval_end LF@_type string@float # no need to convert
+jumpifeq int_to_float LF@_type string@int
+jumpifeq bool_to_float LF@_type string@bool
+move LF@_param float@0x0.0p+0
+jump floatval_end
+label bool_to_float
+eq LF@_condition LF@_param bool@true
+jumpifneq bool_false_to_float LF@_condition bool@true
+move LF@_param float@0x1.0p+0
+jump floatval_end
+label bool_false_to_float
+move LF@_param float@0x0.0p+0
+jump floatval_end
+label int_to_float
+int2float LF@_param LF@_param
+label floatval_end
+pushs LF@_param
+popframe
+return
 
 label $add
 createframe
@@ -13,8 +41,16 @@ pops LF@$add1
 pops LF@$add2
 type LF@$add1Type LF@$add1
 type LF@$add2Type LF@$add2
-jumpifeq $add2 LF@$add1Type LF@$add2Type
-label $add2
+jumpifeq $addDo LF@$add1Type LF@$add2Type
+jumpifeq $addFirstInt LF@$add1Type string@int
+label $addFirstInt
+jumpifeq $addFloatVal1 LF@$add2Type string@float
+label $addFloatVal1
+pushs LF@$add1
+call floatval
+pops LF@$add1
+jump $addDo
+label $addDo
 ADD LF@$addRet LF@$add1 LF@$add2
 pushs LF@$addRet
 popframe
@@ -24,27 +60,13 @@ label $skipOperations
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@2
+move LF@tmp1 int@1
 defvar LF@tmp2
-move LF@tmp2 int@1
+move LF@tmp2 float@0x1.999999999999ap-3
 defvar LF@tmp3
 pushs LF@tmp2
 pushs LF@tmp1
 call $add
 pops LF@tmp3
-defvar LF@tmp4
-move LF@tmp4 int@1
-defvar LF@tmp5
-pushs LF@tmp4
-pushs LF@tmp3
-call $add
-pops LF@tmp5
-defvar LF@tmp6
-move LF@tmp6 int@3
-defvar LF@tmp7
-pushs LF@tmp6
-pushs LF@tmp5
-call $add
-pops LF@tmp7
-write LF@tmp7
+write LF@tmp3
 popframe
