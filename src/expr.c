@@ -70,6 +70,39 @@ void gen_floatval() {
             "return\n"
             );
 }
+void gen_checkType(){
+	printf(
+			"\n"
+			"#checktype(var1,var2,operand)\n"
+			"#returns 1.var1,2.var2\n"
+			"label checktype\n"
+			"createframe\n"
+			"pushframe\n"
+			"defvar LF@$var1\n"
+			"defvar LF@$var2\n"
+			"defvar LF@$operand\n"
+			"defvar LF@type$var1\n"
+			"defvar LF@type$var2\n"
+			"pops LF@$operand\n"
+			"pops LF@$var2\n"
+			"pops LF@$var1\n"
+			"type LF@type$var1 LF@$var1\n"
+			"type LF@type$var2 LF@$var2\n"
+			"jumpifneq checkAdd LF@$operand string@add\n"
+
+			"label checkAdd\n"
+			"jumpifeq checkEnd LF@type$var1 LF@type$var2\n"
+
+
+			"label checkEnd\n"
+			"pushs LF@$var2\n"
+			"pushs LF@$var1\n"
+			"popframe\n"
+			"return\n"
+			"\n"
+			);
+}
+
 void gencodeAdd(){
 	printf(
 			"\n"
@@ -78,26 +111,30 @@ void gencodeAdd(){
 			"pushframe\n"
 			"defvar LF@$addRet\n"
 			"defvar LF@$add1\n"
-			"defvar LF@$add1Type\n"
+			// "defvar LF@$add1Type\n"
 			"defvar LF@$add2\n"
-			"defvar LF@$add2Type\n"
+			// "defvar LF@$add2Type\n"
 			"pops LF@$add1\n"
 			"pops LF@$add2\n"
-			"type LF@$add1Type LF@$add1\n"
-			"type LF@$add2Type LF@$add2\n"
-			"jumpifeq $addDo LF@$add1Type LF@$add2Type\n"
-			"jumpifeq $addFirstInt LF@$add1Type string@int\n" 
-
-			"label $addFirstInt\n"
-			"jumpifeq $addFloatVal1 LF@$add2Type string@float\n"
-
-			"label $addFloatVal1\n"
 			"pushs LF@$add1\n"
-			"call floatval\n"
+			"pushs LF@$add2\n"
+			"pushs string@add\n"
+			"call checktype\n"
 			"pops LF@$add1\n"
-			"jump $addDo\n"
+			"pops LF@$add2\n"
+			// "type LF@$add1Type LF@$add1\n"
+			// "type LF@$add2Type LF@$add2\n"
+			// "jumpifeq $addDo LF@$add1Type LF@$add2Type\n"
+			// "jumpifeq $addFirstInt LF@$add1Type string@int\n" 
 
-			"label $addDo\n"
+			// "label $addFirstInt\n"
+			// "jumpifeq $addFloatVal1 LF@$add2Type string@float\n"
+
+			// "label $addFloatVal1\n"
+			// "pushs LF@$add1\n"
+			// "call floatval\n"
+			// "pops LF@$add1\n"
+			// "jump $addDo\n"
 			"ADD LF@$addRet LF@$add1 LF@$add2\n"
 			"pushs LF@$addRet\n"
 		  	"popframe\n"
@@ -112,8 +149,12 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 
 	puts("call $skipOperations");
 	gen_floatval();
+	gen_checkType();
 	gencodeAdd();
 	puts("label $skipOperations");
+	printf("\n####################\n");
+	printf("#### Expression ####\n");
+	printf("####################\n");
 	printf("createframe\n");
 	printf("pushframe\n");
 
