@@ -74,7 +74,6 @@ void gen_checkType(){
 	printf(
 			"\n"
 			"#checktype(var1,var2,operand)\n"
-			"#returns 1.var1,2.var2\n"
 			"label checktype\n"
 			"createframe\n"
 			"pushframe\n"
@@ -126,46 +125,46 @@ void gen_checkType(){
 			"label checkEnd\n"
 			"pushs LF@_var2\n"
 			"pushs LF@_var1\n"
+			"pushs LF@_operand\n"
 			"popframe\n"
 			"return\n"
 			"\n"
 			);
 }
 
-void gencodeAdd(){
+void gen_compute(){
 	printf(
 			"\n"
-			"label $add\n"
+			"##############################\n"
+			"##compute(op1,op2,operation)##\n"
+			"##############################\n"
+			"label compute\n"
 			"createframe\n"
 			"pushframe\n"
-			"defvar LF@$addRet\n"
-			"defvar LF@$add1\n"
-			// "defvar LF@$add1Type\n"
-			"defvar LF@$add2\n"
-			// "defvar LF@$add2Type\n"
-			"pops LF@$add1\n"
-			"pops LF@$add2\n"
-			"pushs LF@$add1\n"
-			"pushs LF@$add2\n"
-			"pushs string@add\n"
+			"defvar LF@_returnVal\n"
+			"defvar LF@_op1\n"
+			"defvar LF@_op2\n"
+			"defvar LF@_operation\n"
 			"call checktype\n"
-			"pops LF@$add1\n"
-			"pops LF@$add2\n"
-			// "type LF@$add1Type LF@$add1\n"
-			// "type LF@$add2Type LF@$add2\n"
-			// "jumpifeq $addDo LF@$add1Type LF@$add2Type\n"
-			// "jumpifeq $addFirstInt LF@$add1Type string@int\n" 
+			"pops LF@_operation\n"
+			"pops LF@_op1\n"
+			"pops LF@_op2\n"
+			
+			"jumpifeq computeAdd LF@_operation string@add\n"				
+			"jumpifeq computeMul LF@_operation string@mul\n"				
 
-			// "label $addFirstInt\n"
-			// "jumpifeq $addFloatVal1 LF@$add2Type string@float\n"
+			"label computeAdd\n"
+			"ADD LF@_returnVal LF@_op1 LF@_op2\n"
+			"jump computeEnd\n"
 
-			// "label $addFloatVal1\n"
-			// "pushs LF@$add1\n"
-			// "call floatval\n"
-			// "pops LF@$add1\n"
-			// "jump $addDo\n"
-			"ADD LF@$addRet LF@$add1 LF@$add2\n"
-			"pushs LF@$addRet\n"
+			"label computeMul\n"
+			"MUL LF@_returnVal LF@_op1 LF@_op2\n"
+			"jump computeEnd\n"
+
+
+
+			"label computeEnd\n"
+			"pushs LF@_returnVal\n"
 		  	"popframe\n"
 			"return\n"
 			"\n"
@@ -179,7 +178,9 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	puts("call $skipOperations");
 	gen_floatval();
 	gen_checkType();
-	gencodeAdd();
+	// gencodeAdd();
+	// gencodeMul();
+	gen_compute();
 	puts("label $skipOperations");
 	printf("\n####################\n");
 	printf("#### Expression ####\n");
@@ -398,9 +399,19 @@ int exprReduce(eStack_t *stack){
 			eItem_t *currItem3 = eStackPopItem(stack);	
 			printf("defvar LF@tmp%ld\n",nonTermCnt);
 			// printf("ADD LF@tmp%ld LF@tmp%ld LF@tmp%ld\n",nonTermCnt,currItem->id,currItem3->id);
-			printf("pushs LF@tmp%ld\n",currItem->id);
-			printf("pushs LF@tmp%ld\n",currItem3->id);
-			printf("call $add\n");
+			if(currItemOperand->token->type == TOK_PLUS){
+				printf("pushs LF@tmp%ld\n",currItem->id);
+				printf("pushs LF@tmp%ld\n",currItem3->id);
+				printf("pushs string@add\n");
+				printf("call compute\n");
+			}
+			else if(currItemOperand->token->type == TOK_STAR){
+				printf("pushs LF@tmp%ld\n",currItem->id);
+				printf("pushs LF@tmp%ld\n",currItem3->id);
+				printf("pushs string@mul\n");
+				printf("call compute\n");
+			}
+
 			printf("pops LF@tmp%ld\n",nonTermCnt);
 
 			freeItem(currItem);

@@ -30,7 +30,6 @@ popframe
 return
 
 #checktype(var1,var2,operand)
-#returns 1.var1,2.var2
 label checktype
 createframe
 pushframe
@@ -71,26 +70,35 @@ jump checkEnd
 label checkEnd
 pushs LF@_var2
 pushs LF@_var1
+pushs LF@_operand
 popframe
 return
 
 
-label $add
+##############################
+##compute(op1,op2,operation)##
+##############################
+label compute
 createframe
 pushframe
-defvar LF@$addRet
-defvar LF@$add1
-defvar LF@$add2
-pops LF@$add1
-pops LF@$add2
-pushs LF@$add1
-pushs LF@$add2
-pushs string@add
+defvar LF@_returnVal
+defvar LF@_op1
+defvar LF@_op2
+defvar LF@_operation
 call checktype
-pops LF@$add1
-pops LF@$add2
-ADD LF@$addRet LF@$add1 LF@$add2
-pushs LF@$addRet
+pops LF@_operation
+pops LF@_op1
+pops LF@_op2
+jumpifeq computeAdd LF@_operation string@add
+jumpifeq computeMul LF@_operation string@mul
+label computeAdd
+ADD LF@_returnVal LF@_op1 LF@_op2
+jump computeEnd
+label computeMul
+MUL LF@_returnVal LF@_op1 LF@_op2
+jump computeEnd
+label computeEnd
+pushs LF@_returnVal
 popframe
 return
 
@@ -102,27 +110,22 @@ label $skipOperations
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@1
+move LF@tmp1 int@2
 defvar LF@tmp2
-move LF@tmp2 float@0x1.999999999999ap-5
+move LF@tmp2 int@3
 defvar LF@tmp3
-move LF@tmp3 float@0x1.999999999999ap-5
+move LF@tmp3 int@4
 defvar LF@tmp4
 pushs LF@tmp3
 pushs LF@tmp2
-call $add
+pushs string@mul
+call compute
 pops LF@tmp4
 defvar LF@tmp5
 pushs LF@tmp4
 pushs LF@tmp1
-call $add
+pushs string@add
+call compute
 pops LF@tmp5
-defvar LF@tmp6
-move LF@tmp6 float@0x1.999999999999ap-4
-defvar LF@tmp7
-pushs LF@tmp6
-pushs LF@tmp5
-call $add
-pops LF@tmp7
-write LF@tmp7
+write LF@tmp5
 popframe
