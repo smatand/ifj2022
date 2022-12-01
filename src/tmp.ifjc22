@@ -46,11 +46,13 @@ type LF@type_var2 LF@_var2
 jumpifeq arit1 LF@_operand string@add
 jumpifeq arit1 LF@_operand string@sub
 jumpifeq arit1 LF@_operand string@mul
-#arit1 = + * / 
+jumpifeq arit2 LF@_operand string@div
+#arit1 = + *
 label arit1
 jumpifeq arit1_firstint LF@type_var1 string@int
 jumpifeq arit1_firstfloat LF@type_var1 string@float
 jumpifeq arit1_firstnull LF@type_var1 string@nil
+jump error_sem7 #wrong type of operand
 label arit1_firstint
 jumpifeq checkEnd LF@type_var2 string@int
 jumpifneq arit1_skip1 LF@type_var2 string@float
@@ -80,6 +82,30 @@ jumpifneq arit1_skip8 LF@type_var2 string@int
 move LF@_var1 int@0
 label arit1_skip8
 jump checkEnd
+label arit2
+jumpifeq error_sem7 LF@_var2 int@0
+jumpifeq error_sem7 LF@_var2 float@0x0.0p+0
+jumpifeq arit2_seconod LF@type_var1 string@float
+jumpifneq arit2_skip1 LF@type_var1 string@int
+pushs LF@_var1
+call floatval
+pops LF@_var1
+jump arit2_second
+label arit2_skip1
+jumpifneq error_sem7 LF@type_var1 string@nil
+move LF@_var1 float@0x0.0p+0 
+jump arit2_second
+label arit2_second
+jumpifeq checkEnd LF@type_var2 string@float
+jumpifneq arit2_skip2 LF@type_var2 string@int
+pushs LF@_var1
+call floatval
+pops LF@_var2
+jump checkEnd
+label arit2_skip2
+jumpifneq error_sem7 LF@type_var2 string@nil
+move LF@_var2 float@0x0.0p+0
+jump checkEnd
 label error_sem7
 write string@checkType_error_sem_7
 exit int@7
@@ -107,11 +133,15 @@ pops LF@_op1
 pops LF@_op2
 jumpifeq computeAdd LF@_operation string@add
 jumpifeq computeMul LF@_operation string@mul
+jumpifeq computeSub LF@_operation string@sub
 label computeAdd
 ADD LF@_returnVal LF@_op1 LF@_op2
 jump computeEnd
 label computeMul
 MUL LF@_returnVal LF@_op1 LF@_op2
+jump computeEnd
+label computeSub
+sub LF@_returnVal LF@_op1 LF@_op2
 jump computeEnd
 label computeEnd
 pushs LF@_returnVal
@@ -130,13 +160,13 @@ move LF@$var int@3
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 nil@nil
+move LF@tmp1 int@4
 defvar LF@tmp2
-move LF@tmp2 nil@nil
+move LF@tmp2 int@0
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@add
+pushs string@div
 call compute
 pops LF@tmp3
 write LF@tmp3

@@ -90,16 +90,17 @@ void gen_checkType(){
 			"jumpifeq arit1 LF@_operand string@add\n"
 			"jumpifeq arit1 LF@_operand string@sub\n"
 			"jumpifeq arit1 LF@_operand string@mul\n"
+			"jumpifeq arit2 LF@_operand string@div\n"
 
 
 
-			"#arit1 = + * / \n"
-			"label arit1\n"//what is the type of first operant ?
+			//valid operands in +;-;*;/ -> int dec null
+			"#arit1 = + *\n"
+			"label arit1\n"//what is the type of the first operant ?
 			"jumpifeq arit1_firstint LF@type_var1 string@int\n"
 			"jumpifeq arit1_firstfloat LF@type_var1 string@float\n"
 			"jumpifeq arit1_firstnull LF@type_var1 string@nil\n"
-			
-
+			"jump error_sem7 #wrong type of operand\n"
 			
 			"label arit1_firstint\n"
 			"jumpifeq checkEnd LF@type_var2 string@int\n"
@@ -112,9 +113,6 @@ void gen_checkType(){
 			"jumpifneq error_sem7 LF@type_var2 string@nil\n"
 			"move LF@_var2 int@0\n"
 			"jump checkEnd\n"
-			// "label arit1_skip2\n"
-			// "write string@ERROR\n"
-			// "exit int@7\n"
 			
 			"label arit1_firstfloat\n"
 			"jumpifeq checkEnd LF@type_var2 string@float\n"
@@ -124,7 +122,7 @@ void gen_checkType(){
 			"pops LF@_var2\n"
 			"label arit1_skip4\n"
 			"jump checkEnd\n"
-			
+
 			"label arit1_firstnull\n"
 			"jumpifneq arit1_skip7 LF@type_var2 string@nil\n"
 			"move LF@_var1 int@0\n"
@@ -136,6 +134,35 @@ void gen_checkType(){
 			"label arit1_skip8\n"
 			"jump checkEnd\n"
 
+
+			//arit2 -> divide
+			"label arit2\n"
+			//dividing by 0
+			"jumpifeq error_sem7 LF@_var2 int@0\n"
+			"jumpifeq error_sem7 LF@_var2 float@0x0.0p+0\n"
+			//dividing by 0
+			"jumpifeq arit2_seconod LF@type_var1 string@float\n"
+			"jumpifneq arit2_skip1 LF@type_var1 string@int\n"
+			"pushs LF@_var1\n"
+			"call floatval\n"
+			"pops LF@_var1\n"
+			"jump arit2_second\n"
+			"label arit2_skip1\n"
+			"jumpifneq error_sem7 LF@type_var1 string@nil\n"
+			"move LF@_var1 float@0x0.0p+0 \n"
+			"jump arit2_second\n"
+
+			"label arit2_second\n"
+			"jumpifeq checkEnd LF@type_var2 string@float\n"
+			"jumpifneq arit2_skip2 LF@type_var2 string@int\n"
+			"pushs LF@_var1\n"
+			"call floatval\n"
+			"pops LF@_var2\n"
+			"jump checkEnd\n"
+			"label arit2_skip2\n"
+			"jumpifneq error_sem7 LF@type_var2 string@nil\n"
+			"move LF@_var2 float@0x0.0p+0\n"
+			"jump checkEnd\n"
 
 			"label error_sem7\n"
 			"write string@checkType_error_sem_7\n"
@@ -172,6 +199,7 @@ void gen_compute(){
 			
 			"jumpifeq computeAdd LF@_operation string@add\n"				
 			"jumpifeq computeMul LF@_operation string@mul\n"				
+			"jumpifeq computeSub LF@_operation string@sub\n"				
 
 			"label computeAdd\n"
 			"ADD LF@_returnVal LF@_op1 LF@_op2\n"
@@ -179,6 +207,10 @@ void gen_compute(){
 
 			"label computeMul\n"
 			"MUL LF@_returnVal LF@_op1 LF@_op2\n"
+			"jump computeEnd\n"
+
+			"label computeSub\n"
+			"sub LF@_returnVal LF@_op1 LF@_op2\n"
 			"jump computeEnd\n"
 
 
@@ -433,6 +465,18 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt){
 				printf("pushs LF@tmp%ld\n",currItem3->id);
 				printf("pushs LF@tmp%ld\n",currItem->id);
 				printf("pushs string@mul\n");
+				printf("call compute\n");
+			}
+			else if(currItemOperand->token->type == TOK_MINUS){
+				printf("pushs LF@tmp%ld\n",currItem3->id);
+				printf("pushs LF@tmp%ld\n",currItem->id);
+				printf("pushs string@sub\n");
+				printf("call compute\n");
+			}
+			else if(currItemOperand->token->type == TOK_SLASH){
+				printf("pushs LF@tmp%ld\n",currItem3->id);
+				printf("pushs LF@tmp%ld\n",currItem->id);
+				printf("pushs string@div\n");
 				printf("call compute\n");
 			}
 
