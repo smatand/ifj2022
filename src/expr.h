@@ -73,7 +73,7 @@ precTokenType_t tokenTypeToeType(token_t *token);
  * 
  * @param stack pointer to stack
  */
-int exprReduce(eStack_t *stack);
+int exprReduce(eStack_t *stack, size_t *nonTermCnt);
 
 //used for debugging
 char *tokenTypeToStr(token_t *token);

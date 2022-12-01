@@ -59,17 +59,31 @@ call floatval
 pops LF@_var1
 jump checkEnd
 label arit1_skip1
+jumpifneq error_sem7 LF@type_var2 string@nil
+move LF@_var2 int@0
 jump checkEnd
 label arit1_firstfloat
 jumpifeq checkEnd LF@type_var2 string@float
-jumpifneq arit1_skip2 LF@type_var2 string@int
+jumpifneq arit1_skip4 LF@type_var2 string@int
 pushs LF@_var2
 call floatval
 pops LF@_var2
-label arit1_skip2
+label arit1_skip4
 jump checkEnd
 label arit1_firstnull
- label checkEnd
+jumpifneq arit1_skip7 LF@type_var2 string@nil
+move LF@_var1 int@0
+move LF@_var2 int@0
+jump checkEnd
+label arit1_skip7
+jumpifneq arit1_skip8 LF@type_var2 string@int
+move LF@_var1 int@0
+label arit1_skip8
+jump checkEnd
+label error_sem7
+write string@checkType_error_sem_7
+exit int@7
+label checkEnd
 pushs LF@_var2
 pushs LF@_var1
 pushs LF@_operand
@@ -116,14 +130,9 @@ move LF@$var int@3
 createframe
 pushframe
 defvar LF@tmp1
-defvar LF@_tmp1
-popframe
-pushs LF@$var
-pushframe
-pops LF@_tmp1 
-move LF@tmp1 LF@_tmp1 
+move LF@tmp1 nil@nil
 defvar LF@tmp2
-move LF@tmp2 int@1
+move LF@tmp2 nil@nil
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
@@ -131,4 +140,5 @@ pushs string@add
 call compute
 pops LF@tmp3
 write LF@tmp3
+popframe
 popframe
