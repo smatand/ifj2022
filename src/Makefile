@@ -61,7 +61,7 @@ e: expr
 expr_test: expr_test.o expr.o expr_stack.o
 	$(CC) $(CFLAGS) $^ -o $@
 
-expr: expr.o expr_stack.o scanner.o str.o 
+expr: expr.o expr_stack.o scanner.o str.o generator.o dll.o
 	$(CC) -o $@ $^
 
 clean:

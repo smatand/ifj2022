@@ -59,26 +59,26 @@ void gen_readf() {
 
 int gen_write(token_t * token, DLList_t * list) {
     switch(token->type) {
-        case TOK_STRING_LIT:
+        case TOK_STRING_LIT: ;
             char * ptr = convertStringToIFJ(token->attribute.strVal->str); // dynamically allocated str
             CONCAT_STRINGS_DLL("write string@", ptr);
             free(ptr); 
 
             break;
-        case TOK_INT_LIT:
+        case TOK_INT_LIT: ;
             char * ptr2 = convertIntToIFJ(token->attribute.intVal);
             CONCAT_STRINGS_DLL("write int@", ptr2);
             free(ptr2);
             break;
-        case TOK_DEC_LIT:
+        case TOK_DEC_LIT: ;
             char * ptr3 = convertFloatToIFJ(token->attribute.decVal);
             CONCAT_STRINGS_DLL("write float@", ptr3);
             free(ptr3);
             break;
         default:
             return ERR_SEM_PARAMS; // todo not sure if this is correct
-
     }
+    return ERR_SEM_PARAMS;
 
 }
 
