@@ -137,10 +137,6 @@ void gen_checkType(){
 
 			//arit2 -> divide
 			"label arit2\n"
-			//dividing by 0
-			"jumpifeq error_sem7 LF@_var2 int@0\n"
-			"jumpifeq error_sem7 LF@_var2 float@0x0.0p+0\n"
-			//dividing by 0
 			"jumpifeq arit2_seconod LF@type_var1 string@float\n"
 			"jumpifneq arit2_skip1 LF@type_var1 string@int\n"
 			"pushs LF@_var1\n"
