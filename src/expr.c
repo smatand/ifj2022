@@ -49,6 +49,7 @@ void gen_checkType(){
 			"jumpifeq arit2 LF@_operand string@div\n"
 			"jumpifeq concat LF@_operand string@concat\n"
 			"jumpifeq compare LF@_operand string@compare\n"
+			"jumpifeq compare LF@_operand string@ncompare\n"
 			"jumpifeq rel1 LF@_operand string@greater\n"
 
 
@@ -204,6 +205,7 @@ void gen_compute(){
 			"jumpifeq computeDiv LF@_operation string@div\n"				
 			"jumpifeq computeConcat LF@_operation string@concat\n"				
 			"jumpifeq computeCompare LF@_operation string@compare\n"				
+			"jumpifeq computeNCompare LF@_operation string@ncompare\n"				
 			"jumpifeq computeGreater LF@_operation string@greater\n"				
 
 			"label computeAdd\n"
@@ -228,6 +230,14 @@ void gen_compute(){
 
 			"label computeCompare\n"
 			"move LF@_returnVal LF@_op1\n"
+			"jump computeEnd\n"
+
+			"label computeNCompare\n"
+			"jumpifeq ncmp_jmp LF@_op1 bool@true\n"
+			"move LF@_returnVal bool@true\n"
+			"jump computeEnd\n"
+			"label ncmp_jmp\n"
+			"move LF@_returnVal bool@false\n"
 			"jump computeEnd\n"
 
 			"label computeGreater\n"
@@ -552,6 +562,9 @@ void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationIte
 			break;
 		case TOK_COMPARISON:
 			printf("pushs string@compare\n");
+			break;
+		case TOK_NEG_COMPARISON:
+			printf("pushs string@ncompare\n");
 			break;
 		default:
 			break;
