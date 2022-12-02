@@ -493,14 +493,14 @@ void generateCode_defvar(eItem_t *item, size_t *nonTermCnt){
 	printf("defvar LF@tmp%ld\n",*nonTermCnt);
 	switch(type){
 		case TOK_INT_LIT:
-			printf("move LF@tmp%ld int@%d\n",*nonTermCnt, token->attribute.intVal);
+			printf("move LF@tmp%ld int@%s\n",*nonTermCnt, convertIntToIFJ(token->attribute.intVal));
 			break;
 		case TOK_DEC_LIT:
-			printf("move LF@tmp%ld float@%a\n",*nonTermCnt, token->attribute.decVal);
+			printf("move LF@tmp%ld float@%s\n",*nonTermCnt, convertFloatToIFJ(token->attribute.decVal));
 			break;
 		case TOK_STRING_LIT:
 			printf("defvar LF@_tmp%ld\n",*nonTermCnt);
-			printf("move LF@_tmp%ld string@%s\n",*nonTermCnt,token->attribute.strVal->str);
+			printf("move LF@_tmp%ld string@%s\n",*nonTermCnt, convertStringToIFJ(token->attribute.strVal->str));
 			printf("move LF@tmp%ld LF@_tmp%ld \n",*nonTermCnt,*nonTermCnt);
 			break;
 		case TOK_VARIABLE:
