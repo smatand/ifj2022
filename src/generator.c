@@ -345,8 +345,8 @@ char * convertStringToIFJ(char * str) {
 
     // just to use the library of str.h
     string_t * tmp = stringInit(&retVal);
-    if (retVal == ERR_INTERNAL) {
-        exit(ERR_INTERNAL);
+    if (retVal) {
+        return retVal;
     }
 
     if (*ptr == '\0') {
@@ -375,7 +375,7 @@ char * convertStringToIFJ(char * str) {
     // reuse the defined variable to return the demanded string
     ptr = malloc(tmp->realLen);
     if (ptr == NULL) {
-        exit(ERR_INTERNAL); //todo
+        exit(ERR_INTERNAL);
     }
 
     memcpy(ptr, tmp->str, tmp->realLen);
