@@ -20,7 +20,25 @@ jumpifeq arit1 LF@_operand string@sub
 jumpifeq arit1 LF@_operand string@mul
 jumpifeq arit2 LF@_operand string@div
 jumpifeq concat LF@_operand string@concat
+jumpifeq compare LF@_operand string@compare
 jumpifeq rel1 LF@_operand string@greater
+label false_label
+move LF@_var1 bool@false
+move LF@_var2 bool@false
+jump checkEnd
+label true_label
+move LF@_var1 bool@true
+move LF@_var2 bool@true
+jump checkEnd
+label compare
+jumpifeq skip_compare1 LF@type_var1 LF@type_var2
+jump false_label
+label skip_compare1
+jumpifneq skip_compare2 LF@_var1 LF@_var2
+jump true_label
+label skip_compare2
+jump false_label
+jump checkEnd
 label concat
 jumpifneq skip_concat1 LF@type_var1 string@nil
 move LF@_var1 string@
@@ -122,6 +140,7 @@ jumpifeq computeMul LF@_operation string@mul
 jumpifeq computeSub LF@_operation string@sub
 jumpifeq computeDiv LF@_operation string@div
 jumpifeq computeConcat LF@_operation string@concat
+jumpifeq computeCompare LF@_operation string@compare
 jumpifeq computeGreater LF@_operation string@greater
 label computeAdd
 add LF@_returnVal LF@_op1 LF@_op2
@@ -137,6 +156,9 @@ div LF@_returnVal LF@_op1 LF@_op2
 jump computeEnd
 label computeConcat
 concat LF@_returnVal LF@_op1 LF@_op2
+jump computeEnd
+label computeCompare
+move LF@_returnVal LF@_op1
 jump computeEnd
 label computeGreater
 gt LF@_returnVal LF@_op1 LF@_op2
@@ -320,16 +342,28 @@ pushframe
 defvar LF@tmp1
 move LF@tmp1 nil@nil
 defvar LF@tmp2
-move LF@tmp2 nil@nil
+move LF@tmp2 int@0
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@concat
+pushs string@compare
 call compute
 pops LF@tmp3
 defvar LF@type_tmp3
-write LF@tmp3
+type LF@type_tmp3 LF@tmp3
+jumpifeq exprSkip1 LF@type_tmp3 string@bool
+write string@didnt_return_boolean
+exit int@7
+label exprSkip1
+jumpifeq exprTrue LF@tmp3 bool@true
+write string@false
 jump exprEnd
+
+label exprTrue
+write string@true
+jump exprEnd
+
 label exprEnd
+pushs LF@tmp3
 popframe
 popframe

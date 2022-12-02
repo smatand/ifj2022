@@ -48,8 +48,28 @@ void gen_checkType(){
 			"jumpifeq arit1 LF@_operand string@mul\n"
 			"jumpifeq arit2 LF@_operand string@div\n"
 			"jumpifeq concat LF@_operand string@concat\n"
+			"jumpifeq compare LF@_operand string@compare\n"
 			"jumpifeq rel1 LF@_operand string@greater\n"
 
+
+			"label false_label\n"
+			"move LF@_var1 bool@false\n"
+			"move LF@_var2 bool@false\n"
+			"jump checkEnd\n"
+			"label true_label\n"
+			"move LF@_var1 bool@true\n"
+			"move LF@_var2 bool@true\n"
+			"jump checkEnd\n"
+
+			"label compare\n"
+			"jumpifeq skip_compare1 LF@type_var1 LF@type_var2\n"
+			"jump false_label\n"
+			"label skip_compare1\n"
+			"jumpifneq skip_compare2 LF@_var1 LF@_var2\n"
+			"jump true_label\n"
+			"label skip_compare2\n"
+			"jump false_label\n"
+			"jump checkEnd\n"
 
 			"label concat\n"
 			"jumpifneq skip_concat1 LF@type_var1 string@nil\n"
@@ -168,6 +188,7 @@ void gen_compute(){
 			"label compute\n"
 			"createframe\n"
 			"pushframe\n"
+			// "defvar LF@_returnNull\n"
 			"defvar LF@_returnVal\n"
 			"defvar LF@_op1\n"
 			"defvar LF@_op2\n"
@@ -182,6 +203,7 @@ void gen_compute(){
 			"jumpifeq computeSub LF@_operation string@sub\n"				
 			"jumpifeq computeDiv LF@_operation string@div\n"				
 			"jumpifeq computeConcat LF@_operation string@concat\n"				
+			"jumpifeq computeCompare LF@_operation string@compare\n"				
 			"jumpifeq computeGreater LF@_operation string@greater\n"				
 
 			"label computeAdd\n"
@@ -202,6 +224,10 @@ void gen_compute(){
 
 			"label computeConcat\n"
 			"concat LF@_returnVal LF@_op1 LF@_op2\n"
+			"jump computeEnd\n"
+
+			"label computeCompare\n"
+			"move LF@_returnVal LF@_op1\n"
 			"jump computeEnd\n"
 
 			"label computeGreater\n"
@@ -382,26 +408,36 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 							//free last token, ; OR ) and empty whole stack
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
-							(incomingTokenType == P_RIGHT_PAREN) ? (*returnToken =  TOK_RIGHT_PAREN): (*returnToken =  TOK_SEMICOLON);
 							printf("defvar LF@type_tmp%ld\n",nonTermCnt);
-							// printf("defvar LF@exprTrue%ld\n",nonTermCnt);
-							// printf("defvar LF@exprFalse%ld\n",nonTermCnt);
-							// puts("move LF@exprTrue bool@true");
-							// printf("type LF@type_tmp%ld LF@tmp%ld\n",nonTermCnt,nonTermCnt);
-							// printf("jumpifeq exprBoolret LF@type_tmp%ld LF@exprTrue\n",nonTermCnt);
-							// printf("jumpifeq exprBoolret LF@type_tmp%ld string@false\n",nonTermCnt);
-							printf("write LF@tmp%ld\n",nonTermCnt);
-							puts("jump exprEnd");
-							// printf("label exprBoolret\n");
-							// printf("defvar LF@retBool\n");
-							//printf("eq LF@tmp%ld LF@tmp%ld bool@true");
-							// printf("jumpifeq exprTrueret LF@_tmp%ld bool@true\n",nonTermCnt);
-							// printf("write string@false\n");
-							// puts("jump exprEnd");
-							// printf("label exprTrueret\n");
-							// printf("write string@true\n");
-							// puts("jump exprEnd");
+							printf("type LF@type_tmp%ld LF@tmp%ld\n",nonTermCnt,nonTermCnt);
+
+							//doplnit ke je ) aby sa pretipovalo 0.0 na false a pod.
+							if(incomingTokenType == P_RIGHT_PAREN){
+								*returnToken = TOK_RIGHT_PAREN;
+								printf("jumpifeq exprSkip1 LF@type_tmp%ld string@bool\n",nonTermCnt);
+								printf("write string@didnt_return_boolean\n");
+								printf("exit int@7\n");
+								printf("label exprSkip1\n");
+								printf("jumpifeq exprTrue LF@tmp%ld bool@true\n",nonTermCnt);
+								printf("write string@false\n");
+								puts("jump exprEnd\n");
+								printf("label exprTrue\n");
+								printf("write string@true\n");
+								puts("jump exprEnd\n");
+							}
+							else{
+								*returnToken = TOK_SEMICOLON;
+								printf("jumpifneq exprSkip9 LF@type_tmp%ld string@bool\n",nonTermCnt);
+								printf("write string@cannot_return_boolean\n");
+								printf("exit int@7\n");
+								printf("label exprSkip9\n");
+								printf("write LF@tmp%ld\n",nonTermCnt); // dbg
+								puts("jump exprEnd");
+							}
+
+
 							printf("label exprEnd\n");
+							printf("pushs LF@tmp%ld\n",nonTermCnt);
 							printf("popframe\n");
 							printf("popframe\n");
 							return returnVal; 
@@ -513,6 +549,9 @@ void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationIte
 			break;
 		case TOK_DOT:
 			printf("pushs string@concat\n");
+			break;
+		case TOK_COMPARISON:
+			printf("pushs string@compare\n");
 			break;
 		default:
 			break;
