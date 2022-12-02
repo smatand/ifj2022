@@ -63,7 +63,6 @@ int gen_write(token_t * token, DLList_t * list) {
             char * ptr = convertStringToIFJ(token->attribute.strVal->str); // dynamically allocated str
             CONCAT_STRINGS_DLL("write string@", ptr);
             free(ptr); 
-
             break;
         case TOK_INT_LIT: ;
             char * ptr2 = convertIntToIFJ(token->attribute.intVal);
@@ -75,8 +74,13 @@ int gen_write(token_t * token, DLList_t * list) {
             CONCAT_STRINGS_DLL("write float@", ptr3);
             free(ptr3);
             break;
+        case TOK_KEYWORD:
+            if (token->attribute.kwVal == KW_NULL) {
+                DLLInsertLast(list, "write nil@nil", strlen("write nil@nil")+1);
+            }
+            break;
         default:
-            return ERR_SEM_PARAMS; // todo not sure if this is correct
+            return ERR_SEM_PARAMS;
     }
     return ERR_SEM_PARAMS;
 
@@ -346,7 +350,7 @@ char * convertStringToIFJ(char * str) {
     // just to use the library of str.h
     string_t * tmp = stringInit(&retVal);
     if (retVal) {
-        return retVal;
+        exit(retVal);
     }
 
     if (*ptr == '\0') {
@@ -354,10 +358,10 @@ char * convertStringToIFJ(char * str) {
     }
 
     while (*ptr != '\0') {
-        if (*ptr == '\\') {
-            charPushBack(tmp, '\\');
+        if (*ptr == 92) { // backslash
+            strPushBack(tmp, "\\092", 4);
         } else if (*ptr == 35) { // #
-            strPushBack(tmp, "\\035", 3);
+            strPushBack(tmp, "\\035", 4);
         }
         else if (*ptr <= 32) {
             charPushBack(tmp, '\\');
