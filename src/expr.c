@@ -25,6 +25,7 @@ int main(){
 
 }
 
+
 void gen_checkType(){
 	printf(
 			"\n"
@@ -46,12 +47,30 @@ void gen_checkType(){
 			"jumpifeq arit1 LF@_operand string@sub\n"
 			"jumpifeq arit1 LF@_operand string@mul\n"
 			"jumpifeq arit2 LF@_operand string@div\n"
+			"jumpifeq concat LF@_operand string@concat\n"
+			"jumpifeq rel1 LF@_operand string@greater\n"
 
 
-
+			"label concat\n"
+			"jumpifneq skip_concat1 LF@type_var1 string@nil\n"
+			"move LF@_var1 string@\n"
+			"move LF@type_var1 string@string\n"
+			"label skip_concat1\n"
+			"jumpifneq skip_concat2 LF@type_var2 string@nil\n"
+			"move LF@_var2 string@\n"
+			"move LF@type_var2 string@string\n"
+			"label skip_concat2\n"
+			"jumpifneq error_sem7 LF@type_var1 string@string\n"
+			"jumpifneq error_sem7 LF@type_var2 string@string\n"
+			"jump checkEnd\n"
 			//valid operands in +;-;*;/ -> int dec null
+
+
+
 			"#arit1 = + *\n"
 			"label arit1\n"//what is the type of the first operant ?
+			"defvar LF@booltest\n"
+			"move LF@booltest bool@true\n"
 			"jumpifeq arit1_firstint LF@type_var1 string@int\n"
 			"jumpifeq arit1_firstfloat LF@type_var1 string@float\n"
 			"jumpifeq arit1_firstnull LF@type_var1 string@nil\n"
@@ -106,7 +125,7 @@ void gen_checkType(){
 			"label arit2_second\n"
 			"jumpifeq checkEnd LF@type_var2 string@float\n"
 			"jumpifneq arit2_skip2 LF@type_var2 string@int\n"
-			"pushs LF@_var1\n"
+			"pushs LF@_var2\n"
 			"call floatval\n"
 			"pops LF@_var2\n"
 			"jump checkEnd\n"
@@ -115,6 +134,16 @@ void gen_checkType(){
 			"move LF@_var2 float@0x0.0p+0\n"
 			"jump checkEnd\n"
 
+			// "label rel1\n"
+			// "jumpifeq rel1_skipnull LF@type_var1 string@nil\n"
+			// "jumpifeq rel1_skipnull LF@type_var2 string@nil\n"
+
+
+			// "label rel1_skipnull\n"
+			// "move LF@_var1 bool@false\n"
+			// "move LF@_var2 bool@false\n"
+			// "jump checkEnd\n"
+			
 			"label error_sem7\n"
 			"write string@checkType_error_sem_7\n"
 			"exit int@7\n"
@@ -151,19 +180,33 @@ void gen_compute(){
 			"jumpifeq computeAdd LF@_operation string@add\n"				
 			"jumpifeq computeMul LF@_operation string@mul\n"				
 			"jumpifeq computeSub LF@_operation string@sub\n"				
+			"jumpifeq computeDiv LF@_operation string@div\n"				
+			"jumpifeq computeConcat LF@_operation string@concat\n"				
+			"jumpifeq computeGreater LF@_operation string@greater\n"				
 
 			"label computeAdd\n"
-			"ADD LF@_returnVal LF@_op1 LF@_op2\n"
+			"add LF@_returnVal LF@_op1 LF@_op2\n"
 			"jump computeEnd\n"
 
 			"label computeMul\n"
-			"MUL LF@_returnVal LF@_op1 LF@_op2\n"
+			"mul LF@_returnVal LF@_op1 LF@_op2\n"
 			"jump computeEnd\n"
 
 			"label computeSub\n"
 			"sub LF@_returnVal LF@_op1 LF@_op2\n"
 			"jump computeEnd\n"
 
+			"label computeDiv\n"
+			"div LF@_returnVal LF@_op1 LF@_op2\n"
+			"jump computeEnd\n"
+
+			"label computeConcat\n"
+			"concat LF@_returnVal LF@_op1 LF@_op2\n"
+			"jump computeEnd\n"
+
+			"label computeGreater\n"
+			"gt LF@_returnVal LF@_op1 LF@_op2\n"
+			"jump computeEnd\n"
 
 
 			"label computeEnd\n"
@@ -179,9 +222,9 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	printf(".IFJcode22\n");
 
 	puts("call $skipOperations");
-	gen_floatval();
 	gen_checkType();
 	gen_compute();
+	gen_builtin_functions();
 	puts("label $skipOperations");
 	printf(
 			"createframe\n"
@@ -340,7 +383,25 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
 							(incomingTokenType == P_RIGHT_PAREN) ? (*returnToken =  TOK_RIGHT_PAREN): (*returnToken =  TOK_SEMICOLON);
+							printf("defvar LF@type_tmp%ld\n",nonTermCnt);
+							// printf("defvar LF@exprTrue%ld\n",nonTermCnt);
+							// printf("defvar LF@exprFalse%ld\n",nonTermCnt);
+							// puts("move LF@exprTrue bool@true");
+							// printf("type LF@type_tmp%ld LF@tmp%ld\n",nonTermCnt,nonTermCnt);
+							// printf("jumpifeq exprBoolret LF@type_tmp%ld LF@exprTrue\n",nonTermCnt);
+							// printf("jumpifeq exprBoolret LF@type_tmp%ld string@false\n",nonTermCnt);
 							printf("write LF@tmp%ld\n",nonTermCnt);
+							puts("jump exprEnd");
+							// printf("label exprBoolret\n");
+							// printf("defvar LF@retBool\n");
+							//printf("eq LF@tmp%ld LF@tmp%ld bool@true");
+							// printf("jumpifeq exprTrueret LF@_tmp%ld bool@true\n",nonTermCnt);
+							// printf("write string@false\n");
+							// puts("jump exprEnd");
+							// printf("label exprTrueret\n");
+							// printf("write string@true\n");
+							// puts("jump exprEnd");
+							printf("label exprEnd\n");
 							printf("popframe\n");
 							printf("popframe\n");
 							return returnVal; 
@@ -384,6 +445,40 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 }
 
 
+void generateCode_defvar(eItem_t *item, size_t *nonTermCnt){
+	int type = item->token->type;
+	token_t *token = item->token;
+	printf("defvar LF@tmp%ld\n",*nonTermCnt);
+	switch(type){
+		case TOK_INT_LIT:
+			printf("move LF@tmp%ld int@%d\n",*nonTermCnt, token->attribute.intVal);
+			break;
+		case TOK_DEC_LIT:
+			printf("move LF@tmp%ld float@%a\n",*nonTermCnt, token->attribute.decVal);
+			break;
+		case TOK_STRING_LIT:
+			printf("defvar LF@_tmp%ld\n",*nonTermCnt);
+			printf("move LF@_tmp%ld string@%s\n",*nonTermCnt,token->attribute.strVal->str);
+			printf("move LF@tmp%ld LF@_tmp%ld \n",*nonTermCnt,*nonTermCnt);
+			break;
+		case TOK_VARIABLE:
+			printf("defvar LF@_tmp%ld\n",*nonTermCnt);
+			printf("popframe\n");
+			printf("pushs LF@%s\n",token->attribute.strVal->str);
+			printf("pushframe\n");
+			printf("pops LF@_tmp%ld \n",*nonTermCnt);
+			printf("move LF@tmp%ld LF@_tmp%ld \n",*nonTermCnt,*nonTermCnt);
+			break;
+		case TOK_KEYWORD:
+			if(token->attribute.kwVal == KW_NULL){
+				printf("move LF@tmp%ld nil@nil\n",*nonTermCnt);
+			}
+			break;
+		default:
+			break;			
+	}
+}
+
 eItem_t *findClosestTerm(eStack_t *stack){
     eItem_t *currItem = stack->head;
     while(currItem->type == INDENT || currItem->type == NONTERM){
@@ -392,6 +487,40 @@ eItem_t *findClosestTerm(eStack_t *stack){
     return currItem;
 }
 
+void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationItem,size_t *nonTermCnt){
+	// token_t *token1 = item1->token;
+	// token_t *token2 = item2->token;
+	// token_t *tokenOperation = operation->token;
+	//A+B
+	//item1 = A
+	//item2 = B
+	int operation = operationItem->token->type;
+	printf("defvar LF@tmp%ld\n",*nonTermCnt);
+	printf("pushs LF@tmp%ld\n",item2->id);
+	printf("pushs LF@tmp%ld\n",item1->id);
+	switch(operation){
+		case TOK_PLUS:
+			printf("pushs string@add\n");
+			break;
+		case TOK_MINUS:
+			printf("pushs string@sub\n");		
+			break;
+		case TOK_STAR:
+			printf("pushs string@mul\n");
+			break;
+		case TOK_SLASH:
+			printf("pushs string@div\n");
+			break;
+		case TOK_DOT:
+			printf("pushs string@concat\n");
+			break;
+		default:
+			break;
+	}
+	printf("call compute\n");
+	printf("pops LF@tmp%ld\n",*nonTermCnt);
+
+}
 
 int exprReduce(eStack_t *stack,size_t *nonTermCnt){
 	int ruleType = exprFindRule(stack);
@@ -399,43 +528,15 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt){
 	switch(ruleType){
 		case RULE1: //E->E+E, E->E<E, ...
 			(*nonTermCnt)++;
-			//E
 			currItem = eStackPopItem(stack);	
-			//oparand
 			eItem_t *currItemOperand = eStackPopItem(stack);	
-			//E
-			eItem_t *currItem3 = eStackPopItem(stack);	
-			printf("defvar LF@tmp%ld\n",*nonTermCnt);
-			if(currItemOperand->token->type == TOK_PLUS){
-				printf("pushs LF@tmp%ld\n",currItem3->id);
-				printf("pushs LF@tmp%ld\n",currItem->id);
-				printf("pushs string@add\n");
-				printf("call compute\n");
-			}
-			else if(currItemOperand->token->type == TOK_STAR){
-				printf("pushs LF@tmp%ld\n",currItem3->id);
-				printf("pushs LF@tmp%ld\n",currItem->id);
-				printf("pushs string@mul\n");
-				printf("call compute\n");
-			}
-			else if(currItemOperand->token->type == TOK_MINUS){
-				printf("pushs LF@tmp%ld\n",currItem3->id);
-				printf("pushs LF@tmp%ld\n",currItem->id);
-				printf("pushs string@sub\n");
-				printf("call compute\n");
-			}
-			else if(currItemOperand->token->type == TOK_SLASH){
-				printf("pushs LF@tmp%ld\n",currItem3->id);
-				printf("pushs LF@tmp%ld\n",currItem->id);
-				printf("pushs string@div\n");
-				printf("call compute\n");
-			}
+			eItem_t *currItem2 = eStackPopItem(stack);	
 
-			printf("pops LF@tmp%ld\n",*nonTermCnt);
+			generateCode_operation(currItem,currItem2,currItemOperand,nonTermCnt);
 
 			freeItem(currItem);
 			freeItem(currItemOperand);
-			freeItem(currItem3);
+			freeItem(currItem2);
 			//indent
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
@@ -464,34 +565,7 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt){
 			break;
 		case RULE3: //E->i
 			(*nonTermCnt)++;
-			//2,$var,"test",2.1, true,false,null,
-			if(currItem->token->type == TOK_INT_LIT){
-				printf("defvar LF@tmp%ld\n",*nonTermCnt);
-				printf("move LF@tmp%ld int@%d\n",*nonTermCnt, currItem->token->attribute.intVal);
-			}
-			else if (currItem->token->type == TOK_DEC_LIT){
-				printf("defvar LF@tmp%ld\n",*nonTermCnt);
-				printf("move LF@tmp%ld float@%a\n",*nonTermCnt, currItem->token->attribute.decVal);
-			}
-			else if (currItem->token->type == TOK_KEYWORD && currItem->token->attribute.kwVal == KW_NULL){
-				printf("defvar LF@tmp%ld\n",*nonTermCnt);
-				printf("move LF@tmp%ld nil@nil\n",*nonTermCnt);
-			}
-			else if(currItem->token->type == TOK_VARIABLE){
-				printf("defvar LF@tmp%ld\n",*nonTermCnt);
-				printf("defvar LF@_tmp%ld\n",*nonTermCnt);
-				printf("popframe\n");
-				printf("pushs LF@%s\n",currItem->token->attribute.strVal->str);
-				printf("pushframe\n");
-				printf("pops LF@_tmp%ld \n",*nonTermCnt);
-				printf("move LF@tmp%ld LF@_tmp%ld \n",*nonTermCnt,*nonTermCnt);
-			}
-			else if(currItem->token->type == TOK_STRING_LIT){
-				printf("defvar LF@tmp%ld\n",*nonTermCnt);
-				printf("defvar LF@_tmp%ld\n",*nonTermCnt);
-				printf("move LF@_tmp%ld string@%s\n",*nonTermCnt,currItem->token->attribute.strVal->str);
-				printf("move LF@tmp%ld LF@_tmp%ld \n",*nonTermCnt,*nonTermCnt);
-			}
+			generateCode_defvar(currItem,nonTermCnt);
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 

@@ -1,33 +1,5 @@
 .IFJcode22
 call $skipOperations
-label floatval
-createframe
-pushframe
-defvar LF@_param # also retval
-defvar LF@_type
-defvar LF@_condition
-pops LF@_param
-move LF@_condition bool@false
-type LF@_type LF@_param # int, bool, float, string or nil
-jumpifeq floatval_end LF@_type string@float # no need to convert
-jumpifeq int_to_float LF@_type string@int
-jumpifeq bool_to_float LF@_type string@bool
-move LF@_param float@0x0.0p+0
-jump floatval_end
-label bool_to_float
-eq LF@_condition LF@_param bool@true
-jumpifneq bool_false_to_float LF@_condition bool@true
-move LF@_param float@0x1.0p+0
-jump floatval_end
-label bool_false_to_float
-move LF@_param float@0x0.0p+0
-jump floatval_end
-label int_to_float
-int2float LF@_param LF@_param
-label floatval_end
-pushs LF@_param
-popframe
-return
 
 #checktype(var1,var2,operand)
 label checktype
@@ -47,8 +19,24 @@ jumpifeq arit1 LF@_operand string@add
 jumpifeq arit1 LF@_operand string@sub
 jumpifeq arit1 LF@_operand string@mul
 jumpifeq arit2 LF@_operand string@div
+jumpifeq concat LF@_operand string@concat
+jumpifeq rel1 LF@_operand string@greater
+label concat
+jumpifneq skip_concat1 LF@type_var1 string@nil
+move LF@_var1 string@
+move LF@type_var1 string@string
+label skip_concat1
+jumpifneq skip_concat2 LF@type_var2 string@nil
+move LF@_var2 string@
+move LF@type_var2 string@string
+label skip_concat2
+jumpifneq error_sem7 LF@type_var1 string@string
+jumpifneq error_sem7 LF@type_var2 string@string
+jump checkEnd
 #arit1 = + *
 label arit1
+defvar LF@booltest
+move LF@booltest bool@true
 jumpifeq arit1_firstint LF@type_var1 string@int
 jumpifeq arit1_firstfloat LF@type_var1 string@float
 jumpifeq arit1_firstnull LF@type_var1 string@nil
@@ -83,8 +71,6 @@ move LF@_var1 int@0
 label arit1_skip8
 jump checkEnd
 label arit2
-jumpifeq error_sem7 LF@_var2 int@0
-jumpifeq error_sem7 LF@_var2 float@0x0.0p+0
 jumpifeq arit2_seconod LF@type_var1 string@float
 jumpifneq arit2_skip1 LF@type_var1 string@int
 pushs LF@_var1
@@ -98,7 +84,7 @@ jump arit2_second
 label arit2_second
 jumpifeq checkEnd LF@type_var2 string@float
 jumpifneq arit2_skip2 LF@type_var2 string@int
-pushs LF@_var1
+pushs LF@_var2
 call floatval
 pops LF@_var2
 jump checkEnd
@@ -134,20 +120,192 @@ pops LF@_op2
 jumpifeq computeAdd LF@_operation string@add
 jumpifeq computeMul LF@_operation string@mul
 jumpifeq computeSub LF@_operation string@sub
+jumpifeq computeDiv LF@_operation string@div
+jumpifeq computeConcat LF@_operation string@concat
+jumpifeq computeGreater LF@_operation string@greater
 label computeAdd
-ADD LF@_returnVal LF@_op1 LF@_op2
+add LF@_returnVal LF@_op1 LF@_op2
 jump computeEnd
 label computeMul
-MUL LF@_returnVal LF@_op1 LF@_op2
+mul LF@_returnVal LF@_op1 LF@_op2
 jump computeEnd
 label computeSub
 sub LF@_returnVal LF@_op1 LF@_op2
+jump computeEnd
+label computeDiv
+div LF@_returnVal LF@_op1 LF@_op2
+jump computeEnd
+label computeConcat
+concat LF@_returnVal LF@_op1 LF@_op2
+jump computeEnd
+label computeGreater
+gt LF@_returnVal LF@_op1 LF@_op2
 jump computeEnd
 label computeEnd
 pushs LF@_returnVal
 popframe
 return
 
+label reads
+createframe
+pushframe
+defvar LF@_retval
+read TF@_retval string 
+pushs TF@_retval
+popframe
+return
+label readi
+createframe
+pushframe
+defvar LF@_retval
+read LF@_retval int
+pushs LF@_retval
+popframe
+return
+label readf
+createframe
+pushframe
+defvar LF@_retval
+read LF@_retval float
+pushs LF@_retval
+popframe
+return
+label floatval
+createframe
+pushframe
+defvar LF@_param # also retval
+defvar LF@_type
+defvar LF@_condition
+pops LF@_param
+move LF@_condition bool@false
+type LF@_type LF@_param # int, bool, float, string or nil
+jumpifeq floatval_end LF@_type string@float # no need to convert
+jumpifeq int_to_float LF@_type string@int
+jumpifeq bool_to_float LF@_type string@bool
+move LF@_param float@0x0.0p+0
+jump floatval_end
+label bool_to_float
+eq LF@_condition LF@_param bool@true
+jumpifneq bool_false_to_float LF@_condition bool@true
+move LF@_param float@0x1.0p+0
+jump floatval_end
+label bool_false_to_float
+move LF@_param float@0x0.0p+0
+jump floatval_end
+label int_to_float
+int2float LF@_param LF@_param
+label floatval_end
+pushs LF@_param
+popframe
+return
+label intval
+createframe
+pushframe
+defvar LF@_param # also retval
+defvar LF@_type
+defvar LF@_condition
+pops LF@_param
+move LF@_condition bool@false
+type LF@_type LF@_param # int, bool, float, string or nil
+jumpifeq intval_end LF@_type string@int # no need to convert
+jumpifeq float_to_int LF@_type string@float
+jumpifeq bool_to_int LF@_type string@bool
+move LF@_param int@0
+jump intval_end 
+label bool_to_int
+eq LF@_condition LF@_param bool@true
+jumpifneq bool_false_to_int LF@_condition bool@true
+move LF@_param int@1
+jump intval_end
+label bool_false_to_int
+move LF@_param int@0
+jump intval_end
+label float_to_int
+float2int LF@_param LF@_param
+label intval_end
+pushs LF@_param
+popframe
+return
+label strval
+createframe
+pushframe
+defvar LF@_retval
+defvar LF@_condition
+pops LF@_retval
+eq LF@_condition LF@_retval nil@nil
+jumpifeq strval_end LF@_condition bool@false
+move LF@_retval string@
+label strval_end
+pushs LF@_retval
+popframe
+return
+label substring
+createframe
+pushframe
+defvar LF@_string
+defvar LF@_index_from
+defvar LF@_index_to
+defvar LF@_retval
+move LF@_retval string@
+defvar LF@_tmp
+defvar LF@_strlen
+pops LF@_index_to # $j
+pops LF@_index_from # $i
+pops LF@_string # $s
+# errors
+lt LF@_tmp LF@_index_from int@0 # $i < 0
+jumpifeq substring_return_null LF@_tmp bool@true
+lt LF@_tmp LF@_index_to int@0 # $j < 0
+jumpifeq substring_return_null LF@_tmp bool@true
+gt LF@_tmp LF@_index_from LF@_index_to # $i > $j
+jumpifeq substring_return_null LF@_tmp bool@true
+strlen LF@_strlen LF@_string
+gt LF@_tmp LF@_index_from LF@_strlen # $i > strlen($s)
+jumpifeq substring_return_null LF@_tmp bool@true
+jumpifeq substring_return_null LF@_index_from LF@_strlen
+gt LF@_tmp LF@_index_to LF@_strlen # $j > strlen($s)
+jumpifeq substring_return_null LF@_tmp bool@true
+jumpifeq substring_return_null LF@_index_to LF@_index_from
+# getchar <var> <symb1> <symb2>
+label substring_while
+getchar LF@_tmp LF@_string LF@_index_from
+concat LF@_retval LF@_retval LF@_tmp
+add LF@_index_from LF@_index_from int@1 # $i++
+jumpifneq substring_while LF@_index_from LF@_index_to
+jump substring_end
+label substring_return_null
+move LF@_retval nil@nil
+label substring_end
+pushs LF@_retval
+popframe
+return
+label ord
+createframe
+pushframe
+defvar LF@_string
+defvar LF@_retval
+pops LF@_string
+jumpifeq ord_empty_string LF@_string string@
+stri2int LF@_retval LF@_string int@0
+jump ord_end
+label ord_empty_string
+move LF@_retval int@0
+label ord_end
+pushs LF@_retval
+popframe
+return
+label chr
+createframe
+pushframe
+defvar LF@_int
+defvar LF@_retval
+pops LF@_int
+int2char LF@_retval LF@_int
+jump chr_end
+label chr_end
+pushs LF@_retval
+popframe
+return
 label $skipOperations
 createframe
 pushframe
@@ -160,15 +318,18 @@ move LF@$var int@3
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@4
+move LF@tmp1 nil@nil
 defvar LF@tmp2
-move LF@tmp2 int@0
+move LF@tmp2 nil@nil
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@div
+pushs string@concat
 call compute
 pops LF@tmp3
+defvar LF@type_tmp3
 write LF@tmp3
+jump exprEnd
+label exprEnd
 popframe
 popframe
