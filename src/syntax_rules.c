@@ -196,7 +196,6 @@ int rStatements(Parser_t *parser)
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
-			destroyParser(parser);
 			return retVal;
 		}
 		parser->nextToken->type = ret;
@@ -244,7 +243,6 @@ int rVariableStatement(Parser_t *parser)
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
-			destroyParser(parser);
 			return retVal;
 		}
 		parser->nextToken->type = ret;
@@ -291,7 +289,6 @@ int rAssignmentStatement(Parser_t *parser)
 		int retVal = exprParse(parser->currentToken, NULL, ret);
 		if (retVal != SUCCESS)
 		{
-			destroyParser(parser);
 			return retVal;
 		}
 		parser->nextToken->type = ret;
@@ -309,7 +306,6 @@ int rConditionalStatement(Parser_t *parser)
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 	if (retVal != SUCCESS)
 	{
-		destroyParser(parser);
 		return retVal;
 	}
 	parser->nextToken->type = ret;
@@ -333,7 +329,6 @@ int rWhileLoopStatement(Parser_t *parser)
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 	if (retVal != SUCCESS)
 	{
-		destroyParser(parser);
 		return retVal;
 	}
 	parser->nextToken->type = ret;
@@ -430,7 +425,6 @@ int rReturnValue(Parser_t *parser)
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
-			destroyParser(parser);
 			return retVal;
 		}
 		parser->nextToken->type = ret;
