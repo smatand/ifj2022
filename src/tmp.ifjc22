@@ -23,6 +23,10 @@ jumpifeq concat LF@_operand string@concat
 jumpifeq compare LF@_operand string@compare
 jumpifeq compare LF@_operand string@ncompare
 jumpifeq rel1 LF@_operand string@greater
+label rel1
+jumpifeq false_label LF@type_var1 string@nil
+jumpifeq false_label LF@type_var2 string@nil
+jump checkEnd
 label false_label
 move LF@_var1 bool@false
 move LF@_var2 bool@false
@@ -349,29 +353,29 @@ move LF@$var int@3
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 float@0x1.051eb851eb852p-1
+defvar LF@_tmp1
+move LF@_tmp1 string@
+
+move LF@tmp1 LF@_tmp1 
 defvar LF@tmp2
-move LF@tmp2 float@0x1.051eb851eb852p-1
+defvar LF@_tmp2
+move LF@_tmp2 string@
+
+move LF@tmp2 LF@_tmp2 
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@ncompare
+pushs string@concat
 call compute
 pops LF@tmp3
 defvar LF@type_tmp3
 type LF@type_tmp3 LF@tmp3
-jumpifeq exprSkip1 LF@type_tmp3 string@bool
-write string@didnt_return_boolean
+jumpifneq exprSkip9 LF@type_tmp3 string@bool
+write string@cannot_return_boolean
 exit int@7
-label exprSkip1
-jumpifeq exprTrue LF@tmp3 bool@true
-write string@false
+label exprSkip9
+write LF@tmp3
 jump exprEnd
-
-label exprTrue
-write string@true
-jump exprEnd
-
 label exprEnd
 pushs LF@tmp3
 popframe

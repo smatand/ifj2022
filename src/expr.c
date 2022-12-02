@@ -52,6 +52,12 @@ void gen_checkType(){
 			"jumpifeq compare LF@_operand string@ncompare\n"
 			"jumpifeq rel1 LF@_operand string@greater\n"
 
+			"label rel1\n"
+			"jumpifeq false_label LF@type_var1 string@nil\n"
+			"jumpifeq false_label LF@type_var2 string@nil\n"
+			""
+			"jump checkEnd\n"
+
 
 			"label false_label\n"
 			"move LF@_var1 bool@false\n"
@@ -154,16 +160,6 @@ void gen_checkType(){
 			"jumpifneq error_sem7 LF@type_var2 string@nil\n"
 			"move LF@_var2 float@0x0.0p+0\n"
 			"jump checkEnd\n"
-
-			// "label rel1\n"
-			// "jumpifeq rel1_skipnull LF@type_var1 string@nil\n"
-			// "jumpifeq rel1_skipnull LF@type_var2 string@nil\n"
-
-
-			// "label rel1_skipnull\n"
-			// "move LF@_var1 bool@false\n"
-			// "move LF@_var2 bool@false\n"
-			// "jump checkEnd\n"
 			
 			"label error_sem7\n"
 			"write string@checkType_error_sem_7\n"
