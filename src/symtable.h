@@ -38,6 +38,8 @@ typedef struct token_data
 	token_type_t type;
 } token_data_t;
 
+//typedef struct token_data token_data_t;
+
 /** @brief Structure of a hash table item's content */
 typedef struct htab_pair
 {
@@ -45,12 +47,16 @@ typedef struct htab_pair
 	token_data_t *data;
 } htab_pair_t;
 
+//typedef struct htab_pair htab_pair_t;
+
 /** @brief Structure of a hash table item */
 typedef struct htab_item
 {
 	htab_pair_t pair;
 	struct htab_item* next;
 } htab_item_t;
+
+//typedef struct htab_item htab_item_t;
 
 /** @brief Structure of hash table */
 typedef struct htab

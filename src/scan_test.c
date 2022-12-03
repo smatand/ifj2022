@@ -14,18 +14,16 @@ int main() {
         int ret = scanToken(token); 
         if (ret == ERR_LEX_ANALYSIS) {
             printf("RETURNED ERR_LEX_ANALYSIS\n");
-            token->type = TOK_EMPTY;
             break;
 
         } else if (ret == ERR_INTERNAL){
             printf("RETURNED ERR_INTERNAL\n");
-            token->type = TOK_EMPTY;
             break; // e. g. malloc error
         }
         
         switch (token->type) {
-            case TOK_EMPTY: // comments
-                printf("TOK_EMPTY\n");
+            case TOK_DECLARE_STRICT: // comments
+                printf("TOK_DECLARE_STRICT\n");
                 break;
 
             case TOK_LEFT_PAREN:

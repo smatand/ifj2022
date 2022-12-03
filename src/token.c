@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "token.h"
 
 char *createTokenKey(string_t* ID)
@@ -10,7 +12,7 @@ char *createTokenKey(string_t* ID)
 
 token_data_t *createTokenDataFunction(char *ID)
 {
-	token_data_t *data = malloc(sizeof(token_data_t));
+	struct token_data *data = malloc(sizeof(struct token_data));
 	if (data == NULL)
 	{
 		fprintf(stderr, "[ERROR] Token data allocation error.\n");
@@ -23,9 +25,9 @@ token_data_t *createTokenDataFunction(char *ID)
 	return data;
 }
 
-token_data_t *createTokenDataVariable(char *ID)
+struct token_data *createTokenDataVariable(char *ID)
 {
-	token_data_t *data = malloc(sizeof(token_data_t));
+	struct token_data *data = malloc(sizeof(struct token_data));
 	if (data == NULL)
 	{
 		fprintf(stderr, "[ERROR] Token data allocation error.\n");

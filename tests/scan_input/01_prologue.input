@@ -1,6 +1,6 @@
 <?php // ifj2022, no whitespaces/comments should appear before prologue
 
-declare(strict_types=1
-);
+declare(strict_types=1);
+// 928
 
 ?>

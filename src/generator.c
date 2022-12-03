@@ -77,13 +77,14 @@ int gen_write(token_t * token, DLList_t * list) {
         case TOK_KEYWORD:
             if (token->attribute.kwVal == KW_NULL) {
                 DLLInsertLast(list, "write nil@nil", strlen("write nil@nil")+1);
+            } else if (token->attribute.kwVal == KW_TRUE) {
+                DLLInsertLast(list, "write bool@true", strlen("write bool@true")+1);
             }
             break;
         default:
             return ERR_SEM_PARAMS;
     }
     return ERR_SEM_PARAMS;
-
 }
 
 void gen_floatval() {
@@ -332,11 +333,20 @@ void genInit() {
 
     printf("createframe\n");
     printf("pushframe\n");
-    printf("call $main\n");
+    printf("call _START\n");
 
     gen_builtin_functions();
 
-    printf("label $main\n");
+    printf("label _START\n");
+    printf("createframe\n");
+
+    // todo call to main function using dll algorithm (?)
+
+    printf("call _END\n");
+    printf("label _NIL_SEM_ERR\n");
+
+    printf("exit 8\n");
+    printf("label _END\n"); // the last line
 }
 
 char * convertStringToIFJ(char * str) {
@@ -408,4 +418,37 @@ char * convertFloatToIFJ(float x) {
     snprintf(ptr, 32, "%a", x); // printing in hexadecimal format as required
 
     return ptr;
+}
+
+void genFunctionStart(char * functionName) {
+    printf(
+        "label \%%s\n"
+        "pushframe\n"
+    , functionName);
+}
+
+void genFunctionEnd(char * functionName) {
+    printf(
+        "label \%%s_end"
+        "popframe\n"
+        "return\n"
+    , functionName);
+}
+
+void genFunctionParamDefault(char * paramName) {
+    printf(
+        "defvar LF@%s\n"
+        "move LF@%s nil@nil\n"
+    , paramName, paramName);
+}
+
+void genFunctionParam(char * functionName, char * paramName) {
+    static int paramCounter = 0;
+
+    printf(
+        "defvar LF@%s\n"
+        "move LF@%s LF@%s\n"
+
+        "defvar LF@%s\n"
+        "move LF@%s LF@%s\n");
 }

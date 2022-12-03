@@ -1,8 +1,18 @@
 #include "sym_table_stack.h"
 
-void init_stack(sym_stack_t *stack)
+#define INITIAL_BUCKET_COUNT 113
+
+int init_stack(sym_stack_t *stack)
 {
+	stack = malloc(sizeof(sym_stack_t));
+	if (stack == NULL)
+	{
+		return ERR_INTERNAL;
+	}
+
 	stack->top = NULL;
+
+	return SUCCESS;
 }
 
 void push_table(sym_stack_t *stack, htab_t *table)
@@ -53,6 +63,11 @@ htab_t *top(sym_stack_t *stack)
 	}
 
 	return NULL;
+}
+
+bool is_empty(sym_stack_t *stack)
+{
+	return (stack->top == NULL);
 }
 
 bool is_empty(sym_stack_t *stack)
