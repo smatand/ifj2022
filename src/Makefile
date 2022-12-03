@@ -64,6 +64,7 @@ expr_test: expr_test.o expr.o expr_stack.o
 
 scan_test: scan_test.o scanner.o str.o
 	$(CC) $(CFLAGS) $^ -o $@
+	mv scan_test ../tests
 	cd ../tests/ && ./scanner_test.sh
 	#../tests/scanner_test.sh
 
