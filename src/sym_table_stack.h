@@ -41,6 +41,6 @@ htab_t *top(sym_stack_t *stack);
 bool is_empty(sym_stack_t *stack);
 
 
-void destroy_stack(sym_stack_t *stack);
+void empty_stack(sym_stack_t *stack);
 
 #endif

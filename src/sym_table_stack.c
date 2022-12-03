@@ -19,6 +19,20 @@ void push_table(sym_stack_t *stack, htab_t *table)
 	stack->top = new;
 }
 
+void push_empty(sym_stack_t *stack)
+{
+	sym_stack_element_t *new = malloc(sizeof(sym_stack_element_t));
+	if (new == NULL)
+	{
+		fprintf(stderr, "[ERROR] Sym table stack, failure to allocate element in push function");
+		exit(ERR_INTERNAL);
+	}
+
+	new->table = htab_init(INITIAL_BUCKET_COUNT);
+	new->next = stack->top;
+	stack->top = new;
+}
+
 void pop(sym_stack_t *stack)
 {
 	sym_stack_element_t *temp;
@@ -37,6 +51,8 @@ htab_t *top(sym_stack_t *stack)
 	{
 		return stack->top->table;
 	}
+
+	return NULL;
 }
 
 bool is_empty(sym_stack_t *stack)
@@ -44,7 +60,10 @@ bool is_empty(sym_stack_t *stack)
 	return (stack->top == NULL);
 }
 
-void destroy_stack(sym_stack_t *stack)
+void empty_stack(sym_stack_t *stack)
 {
-	// TODO?
+	while (is_empty(stack) == false)
+	{
+		pop(stack);
+	}
 }
