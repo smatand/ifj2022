@@ -25,7 +25,6 @@ int main(){
 
 }
 
-
 void gen_checkType(){
 	printf(
 			"\n"
@@ -33,6 +32,11 @@ void gen_checkType(){
 			"label checktype\n"
 			"createframe\n"
 			"pushframe\n"
+			"defvar LF@_bool\n"
+			"defvar LF@_bool2\n"
+			"defvar LF@_jumprel2\n"
+			"move LF@_jumprel2 bool@false\n"
+
 			"defvar LF@_var1\n"
 			"defvar LF@_var2\n"
 			"defvar LF@_operand\n"
@@ -51,13 +55,54 @@ void gen_checkType(){
 			"jumpifeq compare LF@_operand string@compare\n"
 			"jumpifeq compare LF@_operand string@ncompare\n"
 			"jumpifeq rel1 LF@_operand string@greater\n"
+			"jumpifeq rel1 LF@_operand string@lesser\n"
+			"jumpifeq rel2 LF@_operand string@greatereq\n"
 
+			"label rel2\n"
+			"move LF@_jumprel2 bool@true\n"
+			"jumpifeq true_label LF@type_var1 string@nil\n"
+			"jumpifeq true_label LF@type_var2 string@nil\n"
+			""
+
+
+			// < 
 			"label rel1\n"
 			"jumpifeq false_label LF@type_var1 string@nil\n"
 			"jumpifeq false_label LF@type_var2 string@nil\n"
-			""
-			"jump checkEnd\n"
+			"jumpifeq rel1_firststring LF@type_var1 string@string\n"
+			"jumpifeq rel1_firstint LF@type_var1 string@int\n"
+			"jumpifeq rel1_firstfloat LF@type_var1 string@float\n"
 
+			"label rel1_firstint\n"
+			"jumpifeq rel1_secondfloat LF@type_var2 string@float\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"move LF@_var1 LF@_bool\n"
+			"move LF@_var2 LF@_bool\n"
+			"jump checkEnd\n"
+			"label rel1_secondfloat\n"
+			"pushs LF@_var1\n"
+			"call floatval\n"
+			"pops LF@_var1\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"move LF@_var1 LF@_bool\n"
+			"move LF@_var2 LF@_bool\n"
+			"jump checkEnd\n"
+			"label rel1_firstfloat\n"
+			"pushs LF@_var2\n"
+			"call floatval\n"
+			"pops LF@_var2\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"move LF@_var1 LF@_bool\n"
+			"move LF@_var2 LF@_bool\n"
+			"jump checkEnd\n"
+			"label rel1_firststring\n"
+			"jumpifneq error_sem7 LF@type_var2 string@string\n"
+			//is shows corret bool, only when they are swapped 
+			"gt LF@_bool LF@_var2 LF@_var1\n"
+			"move LF@_var1 LF@_bool\n"
+			"move LF@_var2 LF@_bool\n"
+			"jump checkEnd\n"
+			// > 
 
 			"label false_label\n"
 			"move LF@_var1 bool@false\n"
@@ -93,7 +138,8 @@ void gen_checkType(){
 			//valid operands in +;-;*;/ -> int dec null
 
 
-
+	);
+	printf(
 			"#arit1 = + *\n"
 			"label arit1\n"//what is the type of the first operant ?
 			"defvar LF@booltest\n"
@@ -203,6 +249,8 @@ void gen_compute(){
 			"jumpifeq computeCompare LF@_operation string@compare\n"				
 			"jumpifeq computeNCompare LF@_operation string@ncompare\n"				
 			"jumpifeq computeGreater LF@_operation string@greater\n"				
+			"jumpifeq computeLesser LF@_operation string@lesser\n"				
+			"jumpifeq computeGreatereq LF@_operation string@greatereq\n"				
 
 			"label computeAdd\n"
 			"add LF@_returnVal LF@_op1 LF@_op2\n"
@@ -228,6 +276,8 @@ void gen_compute(){
 			"move LF@_returnVal LF@_op1\n"
 			"jump computeEnd\n"
 
+
+			//reversing return from compare
 			"label computeNCompare\n"
 			"jumpifeq ncmp_jmp LF@_op1 bool@true\n"
 			"move LF@_returnVal bool@true\n"
@@ -237,7 +287,21 @@ void gen_compute(){
 			"jump computeEnd\n"
 
 			"label computeGreater\n"
-			"gt LF@_returnVal LF@_op1 LF@_op2\n"
+			"move LF@_returnVal LF@_op1\n"
+			"jump computeEnd\n"
+
+			//reversing return from greater
+			"label computeLesser\n"
+			"jumpifeq lesser_jmp LF@_op1 bool@true\n"
+			"move LF@_returnVal bool@true\n"
+			"jump computeEnd\n"
+			"label lesser_jmp\n"
+			"move LF@_returnVal bool@false\n"
+			"jump computeEnd\n"
+
+
+			"label computeGreatereq\n"
+			"move LF@_returnVal LF@_op1\n"
 			"jump computeEnd\n"
 
 
@@ -561,6 +625,15 @@ void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationIte
 			break;
 		case TOK_NEG_COMPARISON:
 			printf("pushs string@ncompare\n");
+			break;
+		case TOK_GREATER:
+			printf("pushs string@greater\n");
+			break;
+		case TOK_LESS:
+			printf("pushs string@lesser\n");
+			break;
+		case TOK_GREATER_EQUAL:
+			printf("pushs string@greatereq\n");
 			break;
 		default:
 			break;

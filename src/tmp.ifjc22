@@ -5,6 +5,10 @@ call $skipOperations
 label checktype
 createframe
 pushframe
+defvar LF@_bool
+defvar LF@_bool2
+defvar LF@_jumprel2
+move LF@_jumprel2 bool@false
 defvar LF@_var1
 defvar LF@_var2
 defvar LF@_operand
@@ -23,9 +27,45 @@ jumpifeq concat LF@_operand string@concat
 jumpifeq compare LF@_operand string@compare
 jumpifeq compare LF@_operand string@ncompare
 jumpifeq rel1 LF@_operand string@greater
+jumpifeq rel1 LF@_operand string@lesser
+jumpifeq rel2 LF@_operand string@greatereq
+label rel2
+move LF@_jumprel2 bool@true
+jumpifeq true_label LF@type_var1 string@nil
+jumpifeq true_label LF@type_var2 string@nil
 label rel1
 jumpifeq false_label LF@type_var1 string@nil
 jumpifeq false_label LF@type_var2 string@nil
+jumpifeq rel1_firststring LF@type_var1 string@string
+jumpifeq rel1_firstint LF@type_var1 string@int
+jumpifeq rel1_firstfloat LF@type_var1 string@float
+label rel1_firstint
+jumpifeq rel1_secondfloat LF@type_var2 string@float
+gt LF@_bool LF@_var1 LF@_var2
+move LF@_var1 LF@_bool
+move LF@_var2 LF@_bool
+jump checkEnd
+label rel1_secondfloat
+pushs LF@_var1
+call floatval
+pops LF@_var1
+gt LF@_bool LF@_var1 LF@_var2
+move LF@_var1 LF@_bool
+move LF@_var2 LF@_bool
+jump checkEnd
+label rel1_firstfloat
+pushs LF@_var2
+call floatval
+pops LF@_var2
+gt LF@_bool LF@_var1 LF@_var2
+move LF@_var1 LF@_bool
+move LF@_var2 LF@_bool
+jump checkEnd
+label rel1_firststring
+jumpifneq error_sem7 LF@type_var2 string@string
+gt LF@_bool LF@_var2 LF@_var1
+move LF@_var1 LF@_bool
+move LF@_var2 LF@_bool
 jump checkEnd
 label false_label
 move LF@_var1 bool@false
@@ -148,6 +188,8 @@ jumpifeq computeConcat LF@_operation string@concat
 jumpifeq computeCompare LF@_operation string@compare
 jumpifeq computeNCompare LF@_operation string@ncompare
 jumpifeq computeGreater LF@_operation string@greater
+jumpifeq computeLesser LF@_operation string@lesser
+jumpifeq computeGreatereq LF@_operation string@greatereq
 label computeAdd
 add LF@_returnVal LF@_op1 LF@_op2
 jump computeEnd
@@ -174,7 +216,17 @@ label ncmp_jmp
 move LF@_returnVal bool@false
 jump computeEnd
 label computeGreater
-gt LF@_returnVal LF@_op1 LF@_op2
+move LF@_returnVal LF@_op1
+jump computeEnd
+label computeLesser
+jumpifeq lesser_jmp LF@_op1 bool@true
+move LF@_returnVal bool@true
+jump computeEnd
+label lesser_jmp
+move LF@_returnVal bool@false
+jump computeEnd
+label computeGreatereq
+move LF@_returnVal LF@_op1
 jump computeEnd
 label computeEnd
 pushs LF@_returnVal
@@ -353,19 +405,13 @@ move LF@$var int@3
 createframe
 pushframe
 defvar LF@tmp1
-defvar LF@_tmp1
-move LF@_tmp1 string@
-
-move LF@tmp1 LF@_tmp1 
+move LF@tmp1 int@2
 defvar LF@tmp2
-defvar LF@_tmp2
-move LF@_tmp2 string@
-
-move LF@tmp2 LF@_tmp2 
+move LF@tmp2 int@2
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@concat
+pushs string@add
 call compute
 pops LF@tmp3
 defvar LF@type_tmp3
