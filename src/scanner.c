@@ -121,7 +121,10 @@ double convertStringToDouble(string_t *s)
 
 int checkForMatch(FILE * fp, char * toMatch) {
     int len = strlen(toMatch);
-    char * loadedChars = calloc(len, 1); // 1 is sizeof(char)
+    char * loadedChars = calloc(len+1, 1); // 1 is sizeof(char)
+    if (loadedChars == NULL) {
+        return ERR_INTERNAL;
+    }
 
     int c = 0;
     for (int i = 0; i < len; i++) {
@@ -134,10 +137,14 @@ int checkForMatch(FILE * fp, char * toMatch) {
         }
     }
 
+    loadedChars[len] = '\0';
+
     if (strcmp(loadedChars, toMatch)) {
+        free(loadedChars);
         return ERR_LEX_ANALYSIS;
     } else {
         // match found
+        free(loadedChars);
         return 0;
     }
 
@@ -168,10 +175,14 @@ int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
 
         // specifically handling declare function, which is a part of prologue
         if (!strcmp(s->str, "declare")) {
-            if (checkForMatch(fp, "(strict_types=1)") == 0) {
+            int retVal = checkForMatch(fp, "(strict_types=1)");
+            if (retVal == 0) {
                 token->type = TOK_DECLARE_STRICT; // declare(strict_types=1) is found
                 stringDestroy(s);
                 return SUCCESS;
+            } else if (retVal) {
+                stringDestroy(s);
+                return retVal;
             }
         }
     }
