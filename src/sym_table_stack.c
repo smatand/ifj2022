@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "sym_table_stack.h"
 
 #define INITIAL_BUCKET_COUNT 113
@@ -5,19 +7,11 @@
 int init_stack(sym_stack_t **stack)
 {
 	// dynamically allocate memory for the stack
-	*stack = malloc(sizeof(sym_stack_t));
+	*stack = calloc(sizeof(sym_stack_t), 1);
 	if (*stack == NULL)
 	{
 		return ERR_INTERNAL;
 	}
-
-	//stack = malloc(sizeof(struct sym_stack));
-	//if (stack == NULL)
-	//{
-	//	return ERR_INTERNAL;
-	//}
-
-	//stack->top = NULL;
 
 	return SUCCESS;
 }
@@ -50,23 +44,20 @@ void push_empty(sym_stack_t *stack)
 	stack->top = new;
 }
 
-void pop(sym_stack_t *stack)
+int pop(sym_stack_t *stack)
 {
-	if (stack->top != NULL)
-	{
-		sym_stack_element_t *tmp = stack->top;
-		stack->top = stack->top->next;
-		free(tmp);
+	if (stack->top == NULL) {
+		return 1;
 	}
+
+	sym_stack_element_t *tmp = stack->top;
+	stack->top = tmp->next;
+	htab_free(tmp->table);
+	free(tmp);
+
+
+	return 0;
 }
-	
-	//if (stack->top != NULL)
-	//{
-	//	temp = stack->top;
-	//	stack->top = stack->top->next;
-	//	free(temp->table);
-	//	free(temp);
-	//}
 
 htab_t *top(sym_stack_t *stack)
 {
@@ -85,8 +76,7 @@ bool is_empty(sym_stack_t *stack)
 
 void empty_stack(sym_stack_t *stack)
 {
-	while (is_empty(stack) == false)
-	{
-		pop(stack);
-	}
+	while (!pop(stack)) ;
+
+	free(stack);
 }

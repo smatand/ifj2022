@@ -75,7 +75,7 @@ void destroyParser(Parser_t *parser)
 	freeToken(parser->currentToken);
 	freeToken(parser->nextToken);
 	htab_free(parser->globalSymTable);
-	//empty_stack(parser->localSymStack);
+	empty_stack(parser->localSymStack);
 
 	free(parser);
 	parser = NULL;

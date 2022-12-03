@@ -32,7 +32,7 @@ void push_table(sym_stack_t *stack, htab_t *table);
 void push_empty(sym_stack_t *stack);
 
 
-void pop(sym_stack_t *stack);
+int pop(sym_stack_t *stack);
 
 
 htab_t *top(sym_stack_t *stack);
