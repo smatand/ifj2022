@@ -9,6 +9,8 @@
 #include "error.h"
 #include "expr.h"
 #include "sym_table_stack.h"
+#include "token.h"
+
 
 int rProgram(Parser_t *parser)
 {
@@ -196,13 +198,13 @@ int rStatements(Parser_t *parser)
 			 parser->currentToken->type == TOK_STRING_LIT)
 	{
 		int ret;
+
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
-			destroyParser(parser);
 			return retVal;
 		}
-		parser->nextToken->type = ret;
+		parser->nextToken->type = *ret;
 		getNextToken(parser);					   // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); // expressions in statements end with a semicolon
 		CALL_RULE(rStatements);
@@ -244,13 +246,13 @@ int rVariableStatement(Parser_t *parser)
 	else if (checkForOperator(parser->nextToken) == 0)
 	{
 		int ret;
+    
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
-			destroyParser(parser);
 			return retVal;
 		}
-		parser->nextToken->type = ret;
+		parser->nextToken->type = *ret;
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
@@ -291,13 +293,13 @@ int rAssignmentStatement(Parser_t *parser)
 	else
 	{
 		int ret;
+
 		int retVal = exprParse(parser->currentToken, NULL, ret);
 		if (retVal != SUCCESS)
 		{
-			destroyParser(parser);
 			return retVal;
 		}
-		parser->nextToken->type = ret;
+		parser->nextToken->type = *ret;
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
@@ -308,14 +310,15 @@ int rConditionalStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_IF);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
+  
 	int ret;
+
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 	if (retVal != SUCCESS)
 	{
-		destroyParser(parser);
 		return retVal;
 	}
-	parser->nextToken->type = ret;
+	parser->nextToken->type = *ret;
 	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
@@ -332,14 +335,15 @@ int rWhileLoopStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
+
 	int ret;
+
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 	if (retVal != SUCCESS)
 	{
-		destroyParser(parser);
 		return retVal;
 	}
-	parser->nextToken->type = ret;
+	parser->nextToken->type = *ret;
 	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
@@ -429,14 +433,15 @@ int rReturnValue(Parser_t *parser)
 	}
 	else
 	{
+
 		int ret;
+
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
-			destroyParser(parser);
 			return retVal;
 		}
-		parser->nextToken->type = ret;
+		parser->nextToken->type = *ret;
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}

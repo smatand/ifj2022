@@ -9,64 +9,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "token.h"
 
 #define HTAB_MINIMUM_SIZE 23
 #define HTAB_AVG_LEN_MIN 32
 #define HTAB_AVG_LEN_MAX 128
 #define MINIMUM_SIZE 23
 
+#define INITIAL_BUCKET_COUNT 113
+
 /** @brief Types of token data */
 typedef enum
 {
 	DATA_UNDEFINED, DATA_INT, DATA_FLOAT, DATA_STRING, DATA_NULL
 } data_type_t;
-
-// /** @brief Types of token data */
-// typedef struct
-// {
-// 	data_type_t type;
-// 	char* name;
-// } parameter_t; // TODO: unnecessary
-
-// typedef struct
-// {
-// 	parameter_t *vector;
-// 	size_t length; // maximum amount of elements (space allocated)
-// 	size_t size; // current amount of real elements
-// } param_list_t;
-
-// /** @brief Function structure */
-// typedef struct
-// {
-// 	// param_list_t* param_list;
-// 	data_type_t return_type;
-// 	// bool defined;
-// 	// bool paramsFilled;
-// } sym_func_t;
-
-typedef const char *htab_key_t;
-
-/** @brief Variable structure */
-typedef struct
-{
-	// data_type_t type; // TODO: unnecessary
-} sym_var_t;
-
-typedef const char *htab_key_t;
-
-// /** @brief Constant structure */
-// typedef struct
-// {
-// 	data_type_t type;
-// 	union
-// 	{
-// 		int value_int;
-// 		float value_float;
-// 		const char* value_string;
-// 		bool value_null; // TODO: how to represent null?
-// 	} value;
-// } sym_const_t;
 
 typedef const char *htab_key_t;
 
@@ -75,8 +30,6 @@ typedef enum
 {
 	TOKTYPE_FUNCTION, TOKTYPE_VARIABLE
 } token_type_t;
-
-typedef const char *htab_key_t;
 
 /** @brief Structure of token data */
 typedef struct token_data

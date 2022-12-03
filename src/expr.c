@@ -7,6 +7,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
+
 #include"expr_stack.h"
 #include"expr.h"
 #include"scanner.h"
@@ -25,7 +26,6 @@
 //
 //}
 
-
 void gen_checkType(){
 	printf(
 			"\n"
@@ -33,6 +33,14 @@ void gen_checkType(){
 			"label checktype\n"
 			"createframe\n"
 			"pushframe\n"
+			"defvar LF@_bool\n"
+			"defvar LF@_rel2eq\n"
+			"defvar LF@_rel2ans\n"
+			"defvar LF@_jumprel2\n"
+			"defvar LF@_jumprel3\n"
+			"move LF@_jumprel2 bool@false\n"
+			"move LF@_jumprel3 bool@false\n"
+
 			"defvar LF@_var1\n"
 			"defvar LF@_var2\n"
 			"defvar LF@_operand\n"
@@ -48,8 +56,101 @@ void gen_checkType(){
 			"jumpifeq arit1 LF@_operand string@mul\n"
 			"jumpifeq arit2 LF@_operand string@div\n"
 			"jumpifeq concat LF@_operand string@concat\n"
+			"jumpifeq compare LF@_operand string@compare\n"
+			"jumpifeq compare LF@_operand string@ncompare\n"
 			"jumpifeq rel1 LF@_operand string@greater\n"
+			"jumpifeq rel1 LF@_operand string@lesser\n"
+			"jumpifeq rel2 LF@_operand string@greatereq\n"
+			"jumpifeq rel3 LF@_operand string@lessereq\n"
 
+			"label rel3\n"
+			"move LF@_jumprel3 bool@true\n"
+			"jump rel2\n"
+			"label rel3_cmp\n"
+			"eq LF@_rel2eq LF@_var1 LF@_var2\n"
+			"not LF@_bool LF@_bool\n"
+			"or LF@_rel2ans LF@_bool LF@_rel2eq\n"
+			"jumpifeq true_label LF@_rel2ans bool@true\n"
+			"jump false_label\n"
+
+			//>=
+			"label rel2\n"
+			"move LF@_jumprel2 bool@true\n"
+			"jumpifeq true_label LF@type_var1 string@nil\n"
+			"jumpifeq true_label LF@type_var2 string@nil\n"
+			"jump rel2_jmp1\n"
+			"label rel2_cmp\n"
+			"jumpifeq rel3_cmp LF@_jumprel3 bool@true\n"
+			"eq LF@_rel2eq LF@_var1 LF@_var2\n"
+			"or LF@_rel2ans LF@_bool LF@_rel2eq\n"
+			"jumpifeq true_label LF@_rel2ans bool@true\n"
+			"jump false_label\n"
+
+			// < 
+			"label rel1\n"
+			"jumpifeq false_label LF@type_var1 string@nil\n"
+			"jumpifeq false_label LF@type_var2 string@nil\n"
+			"label rel2_jmp1\n"
+			"jumpifeq rel1_firststring LF@type_var1 string@string\n"
+			"jumpifeq rel1_firstint LF@type_var1 string@int\n"
+			"jumpifeq rel1_firstfloat LF@type_var1 string@float\n"
+
+			"label rel1_firstint\n"
+			"jumpifeq rel1_secondfloat LF@type_var2 string@float\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"move LF@_var1 LF@_bool\n"
+			"move LF@_var2 LF@_bool\n"
+			"jump checkEnd\n"
+			"label rel1_secondfloat\n"
+			"pushs LF@_var1\n"
+			"call floatval\n"
+			"pops LF@_var1\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"move LF@_var1 LF@_bool\n"
+			"move LF@_var2 LF@_bool\n"
+			"jump checkEnd\n"
+			"label rel1_firstfloat\n"
+			"pushs LF@_var2\n"
+			"call floatval\n"
+			"pops LF@_var2\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"move LF@_var1 LF@_bool\n"
+			"move LF@_var2 LF@_bool\n"
+			"jump checkEnd\n"
+			"label rel1_firststring\n"
+			"jumpifneq error_sem7 LF@type_var2 string@string\n"
+			//is shows corret bool, only when they are swapped 
+			"gt LF@_bool LF@_var2 LF@_var1\n"
+			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
+			"gt LF@_bool LF@_var2 LF@_var1\n"
+			"move LF@_var1 LF@_bool\n"
+			"move LF@_var2 LF@_bool\n"
+			"jump checkEnd\n"
+
+			"label false_label\n"
+			"move LF@_var1 bool@false\n"
+			"move LF@_var2 bool@false\n"
+			"jump checkEnd\n"
+			"label true_label\n"
+			"move LF@_var1 bool@true\n"
+			"move LF@_var2 bool@true\n"
+			"jump checkEnd\n"
+
+			"label compare\n"
+			"jumpifeq skip_compare1 LF@type_var1 LF@type_var2\n"
+			"jump false_label\n"
+			"label skip_compare1\n"
+			"jumpifneq skip_compare2 LF@_var1 LF@_var2\n"
+			"jump true_label\n"
+			"label skip_compare2\n"
+			"jump false_label\n"
+			"jump checkEnd\n"
 
 			"label concat\n"
 			"jumpifneq skip_concat1 LF@type_var1 string@nil\n"
@@ -66,7 +167,8 @@ void gen_checkType(){
 			//valid operands in +;-;*;/ -> int dec null
 
 
-
+	);
+	printf(
 			"#arit1 = + *\n"
 			"label arit1\n"//what is the type of the first operant ?
 			"defvar LF@booltest\n"
@@ -133,16 +235,6 @@ void gen_checkType(){
 			"jumpifneq error_sem7 LF@type_var2 string@nil\n"
 			"move LF@_var2 float@0x0.0p+0\n"
 			"jump checkEnd\n"
-
-			// "label rel1\n"
-			// "jumpifeq rel1_skipnull LF@type_var1 string@nil\n"
-			// "jumpifeq rel1_skipnull LF@type_var2 string@nil\n"
-
-
-			// "label rel1_skipnull\n"
-			// "move LF@_var1 bool@false\n"
-			// "move LF@_var2 bool@false\n"
-			// "jump checkEnd\n"
 			
 			"label error_sem7\n"
 			"write string@checkType_error_sem_7\n"
@@ -168,6 +260,7 @@ void gen_compute(){
 			"label compute\n"
 			"createframe\n"
 			"pushframe\n"
+			// "defvar LF@_returnNull\n"
 			"defvar LF@_returnVal\n"
 			"defvar LF@_op1\n"
 			"defvar LF@_op2\n"
@@ -182,7 +275,12 @@ void gen_compute(){
 			"jumpifeq computeSub LF@_operation string@sub\n"				
 			"jumpifeq computeDiv LF@_operation string@div\n"				
 			"jumpifeq computeConcat LF@_operation string@concat\n"				
+			"jumpifeq computeCompare LF@_operation string@compare\n"				
+			"jumpifeq computeNCompare LF@_operation string@ncompare\n"				
 			"jumpifeq computeGreater LF@_operation string@greater\n"				
+			"jumpifeq computeLesser LF@_operation string@lesser\n"				
+			"jumpifeq computeGreatereq LF@_operation string@greatereq\n"				
+			"jumpifeq computeLessereq LF@_operation string@lessereq\n"				
 
 			"label computeAdd\n"
 			"add LF@_returnVal LF@_op1 LF@_op2\n"
@@ -204,10 +302,41 @@ void gen_compute(){
 			"concat LF@_returnVal LF@_op1 LF@_op2\n"
 			"jump computeEnd\n"
 
-			"label computeGreater\n"
-			"gt LF@_returnVal LF@_op1 LF@_op2\n"
+			"label computeCompare\n"
+			"move LF@_returnVal LF@_op1\n"
 			"jump computeEnd\n"
 
+
+			//reversing return from compare
+			"label computeNCompare\n"
+			"jumpifeq ncmp_jmp LF@_op1 bool@true\n"
+			"move LF@_returnVal bool@true\n"
+			"jump computeEnd\n"
+			"label ncmp_jmp\n"
+			"move LF@_returnVal bool@false\n"
+			"jump computeEnd\n"
+
+			"label computeGreater\n"
+			"move LF@_returnVal LF@_op1\n"
+			"jump computeEnd\n"
+
+			//reversing return from greater
+			"label computeLesser\n"
+			"jumpifeq lesser_jmp LF@_op1 bool@true\n"
+			"move LF@_returnVal bool@true\n"
+			"jump computeEnd\n"
+			"label lesser_jmp\n"
+			"move LF@_returnVal bool@false\n"
+			"jump computeEnd\n"
+
+
+			"label computeGreatereq\n"
+			"move LF@_returnVal LF@_op1\n"
+			"jump computeEnd\n"
+
+			"label computeLessereq\n"
+			"move LF@_returnVal LF@_op1\n"
+			"jump computeEnd\n"
 
 			"label computeEnd\n"
 			"pushs LF@_returnVal\n"
@@ -254,7 +383,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	{'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // .
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // <
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // >
-	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '>', '>'},  // >=
+	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // >=
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // <=
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // ===
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // !==
@@ -382,26 +511,66 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 							//free last token, ; OR ) and empty whole stack
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
-							(incomingTokenType == P_RIGHT_PAREN) ? (*returnToken =  TOK_RIGHT_PAREN): (*returnToken =  TOK_SEMICOLON);
 							printf("defvar LF@type_tmp%ld\n",nonTermCnt);
-							// printf("defvar LF@exprTrue%ld\n",nonTermCnt);
-							// printf("defvar LF@exprFalse%ld\n",nonTermCnt);
-							// puts("move LF@exprTrue bool@true");
-							// printf("type LF@type_tmp%ld LF@tmp%ld\n",nonTermCnt,nonTermCnt);
-							// printf("jumpifeq exprBoolret LF@type_tmp%ld LF@exprTrue\n",nonTermCnt);
-							// printf("jumpifeq exprBoolret LF@type_tmp%ld string@false\n",nonTermCnt);
-							printf("write LF@tmp%ld\n",nonTermCnt);
-							puts("jump exprEnd");
-							// printf("label exprBoolret\n");
-							// printf("defvar LF@retBool\n");
-							//printf("eq LF@tmp%ld LF@tmp%ld bool@true");
-							// printf("jumpifeq exprTrueret LF@_tmp%ld bool@true\n",nonTermCnt);
-							// printf("write string@false\n");
-							// puts("jump exprEnd");
-							// printf("label exprTrueret\n");
-							// printf("write string@true\n");
-							// puts("jump exprEnd");
+							printf("defvar LF@exprResult\n");
+							printf("move LF@exprResult LF@tmp%ld\n",nonTermCnt);
+							printf("type LF@type_tmp%ld LF@tmp%ld\n",nonTermCnt,nonTermCnt);
+
+							//doplnit ke je ) aby sa pretipovalo 0.0 na false a pod.
+							if(incomingTokenType == P_RIGHT_PAREN){
+								*returnToken = TOK_RIGHT_PAREN;
+								printf("jumpifeq exprSkip1 LF@type_tmp%ld string@bool\n",nonTermCnt);
+								// printf("write string@didnt_return_boolean\n");
+
+								// printf("exit int@7\n");
+								//not bool, need to convert
+								printf("jumpifeq convert_num LF@type_tmp%ld string@int\n",nonTermCnt);
+								printf("jumpifeq convert_num LF@type_tmp%ld string@float\n",nonTermCnt);
+								printf("jumpifeq convert_string LF@type_tmp%ld string@float\n",nonTermCnt);
+								printf("jumpifeq exprFalse LF@type_tmp%ld string@nil\n",nonTermCnt);
+
+								printf("label convert_string\n");
+								printf("jumpifeq exprFalse LF@tmp%ld string@0\n",nonTermCnt);
+								printf("defvar LF@str_len\n");
+								printf("strlen LF@str_len LF@tmp%ld\n",nonTermCnt);
+								printf("jumpifeq exprFalse LF@str_len int@0\n");
+								printf("write LF@str_len\n");
+								printf("jump exprTrue\n");
+								printf("label convert_num\n");
+								printf("pushs LF@tmp%ld\n",nonTermCnt);
+								printf("call floatval\n");
+								printf("pops LF@tmp%ld\n",nonTermCnt);
+								printf("jumpifeq exprFalse LF@tmp%ld float@0x0p+0\n",nonTermCnt);
+								printf("jump exprTrue\n");
+
+								printf("label exprSkip1\n");
+								printf("jumpifeq exprTrue LF@tmp%ld bool@true\n",nonTermCnt);
+
+								printf("label exprFalse\n");
+								printf("write string@false\n");
+								printf("move LF@exprResult bool@false\n");
+								printf("jump exprEnd\n");
+
+								printf("label exprTrue\n");
+								printf("move LF@exprResult bool@true\n");
+								printf("write string@true\n");
+								printf("jump exprEnd\n");
+							}
+							else{
+								*returnToken = TOK_SEMICOLON;
+								printf("jumpifneq exprSkip9 LF@type_tmp%ld string@bool\n",nonTermCnt);
+								printf("write string@cannot_return_boolean\n");
+								printf("exit int@7\n");
+								printf("label exprSkip9\n");
+								printf("write LF@tmp%ld\n",nonTermCnt); // dbg
+								printf("move LF@exprResult LF@tmp%ld\n",nonTermCnt); // dbg
+								printf("jump exprEnd\n");
+							}
+
+
 							printf("label exprEnd\n");
+							// printf("pushs LF@tmp%ld\n",nonTermCnt);
+							printf("pushs LF@exprResult\n");
 							printf("popframe\n");
 							printf("popframe\n");
 							return returnVal; 
@@ -513,6 +682,24 @@ void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationIte
 			break;
 		case TOK_DOT:
 			printf("pushs string@concat\n");
+			break;
+		case TOK_COMPARISON:
+			printf("pushs string@compare\n");
+			break;
+		case TOK_NEG_COMPARISON:
+			printf("pushs string@ncompare\n");
+			break;
+		case TOK_GREATER:
+			printf("pushs string@greater\n");
+			break;
+		case TOK_LESS:
+			printf("pushs string@lesser\n");
+			break;
+		case TOK_GREATER_EQUAL:
+			printf("pushs string@greatereq\n");
+			break;
+		case TOK_LESS_EQUAL:
+			printf("pushs string@lessereq\n");
 			break;
 		default:
 			break;

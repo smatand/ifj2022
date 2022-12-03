@@ -32,5 +32,6 @@ int main()
         fprintf(stderr, "PARSER ERROR (main): Exit with error code %d", ret);
     }
 
+    destroyParser(parser);
     exit(ret);
 }

@@ -75,7 +75,7 @@ void destroyParser(Parser_t *parser)
 	freeToken(parser->currentToken);
 	freeToken(parser->nextToken);
 	htab_free(parser->globalSymTable);
-	destroy_stack(parser->localSymStack);
+	empty_stack(parser->localSymStack);
 
 	free(parser);
 	parser = NULL;
@@ -136,5 +136,6 @@ int checkTokenKeyword(token_t* token, keyword_t keyword)
 
 void setLatestFuncID(Parser_t *parser, htab_item_t *ID)
 {
-	parser->latestFuncDeclared = ID;
+	parser->latestFuncDeclared = &ID->pair;
 }
+
