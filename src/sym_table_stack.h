@@ -23,7 +23,7 @@ typedef struct
 	sym_stack_element_t *top;
 } sym_stack_t;
 
-void init_stack(sym_stack_t *stack);
+int init_stack(sym_stack_t *stack);
 
 
 void push_table(sym_stack_t *stack, htab_t *table);

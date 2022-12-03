@@ -2,9 +2,17 @@
 
 #define INITIAL_BUCKET_COUNT 113
 
-void init_stack(sym_stack_t *stack)
+int init_stack(sym_stack_t *stack)
 {
+	stack = malloc(sizeof(sym_stack_t));
+	if (stack == NULL)
+	{
+		return ERR_INTERNAL;
+	}
+
 	stack->top = NULL;
+
+	return SUCCESS;
 }
 
 void push_table(sym_stack_t *stack, htab_t *table)

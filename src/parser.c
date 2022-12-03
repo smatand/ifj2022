@@ -14,50 +14,40 @@ Parser_t *initParser()
 
 	if (parser == NULL)
 	{
-		return NULL;
+		goto returnNull;
 	}
 
 	if ((parser->globalSymTable = htab_init(INITIAL_BUCKET_COUNT)) == NULL)
 	{
-		free(parser);
-		return NULL;
+		goto freeParser;
 	}
 
 	if ((parser->currentToken = tokenInit()) == NULL) // allocate memory for the first token
 	{
-		htab_clear(parser->globalSymTable);
-		free(parser);
-		return NULL;
+		goto freeHtab;
 	}
 
-	if ((parser->nextToken = tokenInit() == NULL)) // allocate memory for the second token
+	if ((parser->nextToken = tokenInit()) == NULL) // allocate memory for the second token
 	{
-		htab_clear(parser->globalSymTable);
-		freeToken(parser->currentToken);
-		free(parser);
-		return NULL;
+		goto freeCurrentToken;
 	}
 
 	if (scanToken(parser->currentToken) != SUCCESS) // scan first token
 	{
-		htab_clear(parser->globalSymTable);
-		freeToken(parser->currentToken);
-		freeToken(parser->nextToken);
-		free(parser);
-		return NULL;
+		goto freeNextToken;
 	}
 
 	if (scanToken(parser->nextToken) != SUCCESS) // scan second token
 	{
-		htab_clear(parser->globalSymTable);
-		freeToken(parser->currentToken);
-		freeToken(parser->nextToken);
-		free(parser);
-		return NULL;
+		goto freeNextToken;
 	}
 
-	init_stack(parser->localSymStack);
-	push_empty(parser->localSymStack);
+	if (init_stack(parser->localSymStack) != SUCCESS)
+	{
+		goto freeNextToken;
+	}
+
+	push_empty(parser->localSymStack); // TODO no effect, no body in function sym_table_stack.c
 
 	parser->latestFuncDeclared = NULL;
 	parser->latestFuncCalled = NULL;
@@ -67,6 +57,17 @@ Parser_t *initParser()
 	parser->currentArgument = 0;
 
 	return parser;
+
+freeNextToken:
+	freeToken(parser->nextToken);
+freeCurrentToken:
+	freeToken(parser->currentToken);
+freeHtab:
+	htab_clear(parser->globalSymTable);
+freeParser:
+	free(parser);
+returnNull:
+	return NULL; // ERR_INTERNAL
 }
 
 void destroyParser(Parser_t *parser)
