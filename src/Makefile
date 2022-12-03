@@ -50,6 +50,9 @@ expr_stack.o: expr_stack.c expr_stack.h scanner.h expr.h error.h
 dll.o: dll.c dll.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
+scan_test.o: scan_test.c scanner.h str.h error.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
 ###################################################################################
 
 
@@ -58,6 +61,11 @@ e: expr
 #main
 expr_test: expr_test.o expr.o expr_stack.o
 	$(CC) $(CFLAGS) $^ -o $@
+
+scan_test: scan_test.o scanner.o str.o
+	$(CC) $(CFLAGS) $^ -o $@
+	cd ../tests/ && ./scanner_test.sh
+	#../tests/scanner_test.sh
 
 expr: expr.o expr_stack.o scanner.o str.o generator.o dll.o
 	$(CC) -o $@ $^
