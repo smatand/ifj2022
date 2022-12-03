@@ -14,16 +14,16 @@
 #include"./error.h"
 #include"./generator.h"
 
-int main(){ 
-	token_t *token = tokenInit();
-	scanToken(token);
-	int returnToken;
-	int returnVal = exprParse(token,NULL,&returnToken);
-	(void)returnToken;
-	(void)returnVal;
+// int main(){ 
+// 	token_t *token = tokenInit();
+// 	scanToken(token);
+// 	int returnToken;
+// 	int returnVal = exprParse(token,NULL,&returnToken);
+// 	(void)returnToken;
+// 	(void)returnVal;
 
 
-}
+// }
 
 
 void gen_checkType(){

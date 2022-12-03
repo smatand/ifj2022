@@ -29,7 +29,7 @@ Parser_t *initParser()
 		return NULL;
 	}
 
-	if ((parser->nextToken = tokenInit() == NULL)) // allocate memory for the second token
+	if ((parser->nextToken = tokenInit()) == NULL) // allocate memory for the second token
 	{
 		htab_clear(parser->globalSymTable);
 		freeToken(parser->currentToken);
@@ -73,7 +73,7 @@ void destroyParser(Parser_t *parser)
 	freeToken(parser->currentToken);
 	freeToken(parser->nextToken);
 	htab_free(parser->globalSymTable);
-	destroy_stack(parser->localSymStack);
+	empty_stack(parser->localSymStack);
 
 	free(parser);
 	parser = NULL;
@@ -122,5 +122,5 @@ int checkTokenKeyword(token_t* token, keyword_t keyword)
 
 void setLatestFuncID(Parser_t *parser, htab_item_t *ID)
 {
-	parser->latestFuncDeclared = ID;
+	parser->latestFuncDeclared = &ID->pair;
 }

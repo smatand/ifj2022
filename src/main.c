@@ -13,7 +13,7 @@ int main()
     int ret = SUCCESS;
     // initializing structures 
     Parser_t * parser;
-    if(parser = initParser() == NULL)
+    if((parser = initParser()) == NULL)
     {
         exit(ERR_INTERNAL);
     }

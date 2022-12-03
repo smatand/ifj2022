@@ -13,8 +13,6 @@
 #include "symtable.h"
 #include "sym_table_stack.h"
 
-#define INITIAL_BUCKET_COUNT 113
-
 /** @brief Parser structure */
 typedef struct Parser
 {
