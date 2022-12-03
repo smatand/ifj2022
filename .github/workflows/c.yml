@@ -16,6 +16,7 @@ jobs:
     # scanner tests
     - name: scanner_tests
       run: |
+        cd src
         make clean
         make scan_test
     # parser tests

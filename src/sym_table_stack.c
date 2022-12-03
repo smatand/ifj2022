@@ -70,11 +70,6 @@ bool is_empty(sym_stack_t *stack)
 	return (stack->top == NULL);
 }
 
-bool is_empty(sym_stack_t *stack)
-{
-	return (stack->top == NULL);
-}
-
 void empty_stack(sym_stack_t *stack)
 {
 	while (is_empty(stack) == false)
