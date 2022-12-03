@@ -438,31 +438,23 @@ move LF@$var int@3
 createframe
 pushframe
 defvar LF@tmp1
-defvar LF@_tmp1
-move LF@_tmp1 string@a
-move LF@tmp1 LF@_tmp1 
+move LF@tmp1 int@4
 defvar LF@tmp2
-defvar LF@_tmp2
-move LF@_tmp2 string@b
-move LF@tmp2 LF@_tmp2 
+move LF@tmp2 int@4
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@concat
+pushs string@mul
 call compute
 pops LF@tmp3
 defvar LF@tmp4
-defvar LF@_tmp4
-move LF@_tmp4 string@a
-move LF@tmp4 LF@_tmp4 
+move LF@tmp4 int@5
 defvar LF@tmp5
-defvar LF@_tmp5
-move LF@_tmp5 string@a
-move LF@tmp5 LF@_tmp5 
+move LF@tmp5 int@3
 defvar LF@tmp6
 pushs LF@tmp4
 pushs LF@tmp5
-pushs string@concat
+pushs string@mul
 call compute
 pops LF@tmp6
 defvar LF@tmp7
@@ -472,20 +464,38 @@ pushs string@greatereq
 call compute
 pops LF@tmp7
 defvar LF@type_tmp7
+defvar LF@exprResult
+move LF@exprResult LF@tmp7
 type LF@type_tmp7 LF@tmp7
 jumpifeq exprSkip1 LF@type_tmp7 string@bool
-write string@didnt_return_boolean
-exit int@7
+jumpifeq convert_num LF@type_tmp7 string@int
+jumpifeq convert_num LF@type_tmp7 string@float
+jumpifeq convert_string LF@type_tmp7 string@float
+jumpifeq exprFalse LF@type_tmp7 string@nil
+label convert_string
+jumpifeq exprFalse LF@tmp7 string@0
+defvar LF@str_len
+strlen LF@str_len LF@tmp7
+jumpifeq exprFalse LF@str_len int@0
+write LF@str_len
+jump exprTrue
+label convert_num
+pushs LF@tmp7
+call floatval
+pops LF@tmp7
+jumpifeq exprFalse LF@tmp7 float@0x0p+0
+jump exprTrue
 label exprSkip1
 jumpifeq exprTrue LF@tmp7 bool@true
+label exprFalse
 write string@false
+move LF@exprResult bool@false
 jump exprEnd
-
 label exprTrue
+move LF@exprResult bool@true
 write string@true
 jump exprEnd
-
 label exprEnd
-pushs LF@tmp7
+pushs LF@exprResult
 popframe
 popframe

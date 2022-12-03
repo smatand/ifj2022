@@ -511,21 +511,49 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
 							printf("defvar LF@type_tmp%ld\n",nonTermCnt);
+							printf("defvar LF@exprResult\n");
+							printf("move LF@exprResult LF@tmp%ld\n",nonTermCnt);
 							printf("type LF@type_tmp%ld LF@tmp%ld\n",nonTermCnt,nonTermCnt);
 
 							//doplnit ke je ) aby sa pretipovalo 0.0 na false a pod.
 							if(incomingTokenType == P_RIGHT_PAREN){
 								*returnToken = TOK_RIGHT_PAREN;
 								printf("jumpifeq exprSkip1 LF@type_tmp%ld string@bool\n",nonTermCnt);
-								printf("write string@didnt_return_boolean\n");
-								printf("exit int@7\n");
+								// printf("write string@didnt_return_boolean\n");
+
+								// printf("exit int@7\n");
+								//not bool, need to convert
+								printf("jumpifeq convert_num LF@type_tmp%ld string@int\n",nonTermCnt);
+								printf("jumpifeq convert_num LF@type_tmp%ld string@float\n",nonTermCnt);
+								printf("jumpifeq convert_string LF@type_tmp%ld string@float\n",nonTermCnt);
+								printf("jumpifeq exprFalse LF@type_tmp%ld string@nil\n",nonTermCnt);
+
+								printf("label convert_string\n");
+								printf("jumpifeq exprFalse LF@tmp%ld string@0\n",nonTermCnt);
+								printf("defvar LF@str_len\n");
+								printf("strlen LF@str_len LF@tmp%ld\n",nonTermCnt);
+								printf("jumpifeq exprFalse LF@str_len int@0\n");
+								printf("write LF@str_len\n");
+								printf("jump exprTrue\n");
+								printf("label convert_num\n");
+								printf("pushs LF@tmp%ld\n",nonTermCnt);
+								printf("call floatval\n");
+								printf("pops LF@tmp%ld\n",nonTermCnt);
+								printf("jumpifeq exprFalse LF@tmp%ld float@0x0p+0\n",nonTermCnt);
+								printf("jump exprTrue\n");
+
 								printf("label exprSkip1\n");
 								printf("jumpifeq exprTrue LF@tmp%ld bool@true\n",nonTermCnt);
+
+								printf("label exprFalse\n");
 								printf("write string@false\n");
-								puts("jump exprEnd\n");
+								printf("move LF@exprResult bool@false\n");
+								printf("jump exprEnd\n");
+
 								printf("label exprTrue\n");
+								printf("move LF@exprResult bool@true\n");
 								printf("write string@true\n");
-								puts("jump exprEnd\n");
+								printf("jump exprEnd\n");
 							}
 							else{
 								*returnToken = TOK_SEMICOLON;
@@ -534,12 +562,14 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 								printf("exit int@7\n");
 								printf("label exprSkip9\n");
 								printf("write LF@tmp%ld\n",nonTermCnt); // dbg
-								puts("jump exprEnd");
+								printf("move LF@exprResult LF@tmp%ld\n",nonTermCnt); // dbg
+								printf("jump exprEnd\n");
 							}
 
 
 							printf("label exprEnd\n");
-							printf("pushs LF@tmp%ld\n",nonTermCnt);
+							// printf("pushs LF@tmp%ld\n",nonTermCnt);
+							printf("pushs LF@exprResult\n");
 							printf("popframe\n");
 							printf("popframe\n");
 							return returnVal; 
