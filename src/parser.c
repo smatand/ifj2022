@@ -60,8 +60,10 @@ Parser_t *initParser()
 
 freeNextToken:
 	freeToken(parser->nextToken);
+    free(parser->nextToken);
 freeCurrentToken:
 	freeToken(parser->currentToken);
+    free(parser->currentToken);
 freeHtab:
 	htab_clear(parser->globalSymTable);
 freeParser:
@@ -72,8 +74,10 @@ returnNull:
 
 void destroyParser(Parser_t *parser)
 {
-	freeToken(parser->currentToken);
-	freeToken(parser->nextToken);
+	//freeToken(parser->currentToken);
+	//freeToken(parser->nextToken);
+	free(parser->currentToken);
+	free(parser->nextToken);
 	htab_free(parser->globalSymTable);
 	empty_stack(parser->localSymStack);
 
@@ -101,6 +105,7 @@ int getNextToken(Parser_t *parser)
 	parser->currentToken = parser->nextToken;
 
 	// TODO check if no mem leak is here cause of not freeing the string inside token
+	freeToken(temp); // just the string freeing
 
 	parser->nextToken = temp;
 

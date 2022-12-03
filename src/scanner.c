@@ -29,69 +29,56 @@ void freeToken(token_t *token)
     {
         stringDestroy(token->attribute.strVal); // if there is a string allocated in token, free it
     }
-    free(token); // todo maybe redo it due to loss of pointer to memory?
 }
 
 int checkKeyword(token_t *token, string_t *s)
 {
     if (!strcmp(s->str, "if"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_IF;
     }
     else if (!strcmp(s->str, "else"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_ELSE;
     }
     else if (!strcmp(s->str, "int"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_INT;
     }
     else if (!strcmp(s->str, "float"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FLOAT;
     }
     else if (!strcmp(s->str, "function"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FUNCTION;
     }
     else if (!strcmp(s->str, "null"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_NULL;
     }
     else if (!strcmp(s->str, "return"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_RETURN;
     }
     else if (!strcmp(s->str, "string"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_STRING;
     }
     else if (!strcmp(s->str, "void"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_VOID;
     }
     else if (!strcmp(s->str, "while"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_WHILE;
     }
     else if (!strcmp(s->str, "true"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_TRUE;
     }
     else if (!strcmp(s->str, "false"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FALSE;
     }
     else
@@ -99,6 +86,7 @@ int checkKeyword(token_t *token, string_t *s)
         return 0; // no keyword found, it is ID, need string
     }
 
+    stringDestroy(s);
     token->type = TOK_KEYWORD;
     return 1; // caller must take care of //()!
 }
@@ -819,7 +807,9 @@ int scanToken(token_t *token)
                 return ERR_INTERNAL;
             }
 
-            checkKeyword(token, str); // changes token->type
+            if (token->type != TOK_DECLARE_STRICT) {
+                checkKeyword(token, str); // changes token->type
+            }
 
             return SUCCESS;
         case S_QSTN_MARK:
