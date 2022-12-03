@@ -7,23 +7,23 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
-#include"./expr_stack.h"
-#include"./expr.h"
-#include"./scanner.h"
-#include"./str.h"
-#include"./error.h"
-#include"./generator.h"
+#include"expr_stack.h"
+#include"expr.h"
+#include"scanner.h"
+#include"str.h"
+#include"error.h"
+#include"generator.h"
 
-int main(){ 
-	token_t *token = tokenInit();
-	scanToken(token);
-	int returnToken;
-	int returnVal = exprParse(token,NULL,&returnToken);
-	(void)returnToken;
-	(void)returnVal;
-
-
-}
+//int main(){ 
+//	token_t *token = tokenInit();
+//	scanToken(token);
+//	int returnToken;
+//	int returnVal = exprParse(token,NULL,&returnToken);
+//	(void)returnToken;
+//	(void)returnVal;
+//
+//
+//}
 
 
 void gen_checkType(){

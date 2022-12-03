@@ -23,13 +23,13 @@ scanner.o: scanner.c scanner.h str.h error.h
 str.o: str.c str.h error.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-parser.o: parser.c parser.h symtable.h scanner.h error.h 
+parser.o: parser.c parser.h symtable.h scanner.h error.h sym_table_stack.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-syntax_rules.o: syntax_rules.c parser.h parser_macros.h error.h
+syntax_rules.o: syntax_rules.c parser.h parser_macros.h error.h sym_table_stack.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-token.o: token.c token.h symtable.h error.h
+token.o: token.c token.h symtable.h error.h str.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 symtable.o: symtable.c symtable.h
@@ -54,8 +54,6 @@ dll.o: dll.c dll.h
 
 
 e: expr
-
-
 
 #main
 expr_test: expr_test.o expr.o expr_stack.o

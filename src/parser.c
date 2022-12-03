@@ -6,6 +6,7 @@
 
 #include "parser.h"
 #include "error.h"
+#include "sym_table_stack.h"
 
 Parser_t *initParser()
 {

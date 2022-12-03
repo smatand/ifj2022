@@ -8,6 +8,7 @@
 #include "parser_macros.h"
 #include "error.h"
 #include "expr.h"
+#include "sym_table_stack.h"
 
 int rProgram(Parser_t *parser)
 {
@@ -71,8 +72,9 @@ int rFunctionDefinition(Parser_t *parser)
 
 	getNextToken(parser);
 
-	if (parser->firstPass == false)
+	if (parser->firstPass == false) {
 		push_empty(parser->localSymStack); // push new sym_table
+    }
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rParams); // params are added to the new symtable as variables here
@@ -192,7 +194,7 @@ int rStatements(Parser_t *parser)
 	else if (parser->currentToken->type == TOK_INT_LIT || parser->currentToken->type == TOK_DEC_LIT ||
 			 parser->currentToken->type == TOK_STRING_LIT)
 	{
-		int *ret;
+		int ret;
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
@@ -240,7 +242,7 @@ int rVariableStatement(Parser_t *parser)
 	}
 	else if (checkForOperator(parser->nextToken) == 0)
 	{
-		int *ret;
+		int ret;
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
@@ -287,7 +289,7 @@ int rAssignmentStatement(Parser_t *parser)
 	}
 	else
 	{
-		int *ret;
+		int ret;
 		int retVal = exprParse(parser->currentToken, NULL, ret);
 		if (retVal != SUCCESS)
 		{
@@ -305,7 +307,7 @@ int rConditionalStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_IF);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
-	int *ret;
+	int ret;
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 	if (retVal != SUCCESS)
 	{
@@ -329,7 +331,7 @@ int rWhileLoopStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
-	int *ret;
+	int ret;
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 	if (retVal != SUCCESS)
 	{
@@ -426,7 +428,7 @@ int rReturnValue(Parser_t *parser)
 	}
 	else
 	{
-		int *ret;
+		int ret;
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{

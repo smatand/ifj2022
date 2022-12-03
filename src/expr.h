@@ -6,8 +6,8 @@
 #ifndef EXPR_H
 #define EXPR_H
 
-#include<stdio.h>
-#include"./scanner.h"
+#include <stdio.h>
+#include "scanner.h"
 #define TABLE_SIZE 15 //size of precedence table
 
 typedef enum{
@@ -73,7 +73,7 @@ precTokenType_t tokenTypeToeType(token_t *token);
  * 
  * @param stack pointer to stack
  */
-int exprReduce(eStack_t *stack, size_t *nonTermCnt);
+int exprReduce(struct eStack *stack, size_t *nonTermCnt);
 
 //used for debugging
 char *tokenTypeToStr(token_t *token);
@@ -84,14 +84,14 @@ char *tokenTypeToStr(token_t *token);
  * @param stack pointer to stack    
  * @return eRules_t returns which rule has occured
  */
-eRules_t exprFindRule(eStack_t *stack);
+eRules_t exprFindRule(struct eStack *stack);
 /**
  * @brief function that finds the closest term in the stack
  * 
  * @param stack pointer tu stack
- * @return eItem_t* pointer to found token
+ * @return struct eItem* pointer to found token
  */
-eItem_t *findClosestTerm(eStack_t *stack);
+struct eItem *findClosestTerm(struct eStack *stack);
 
 /**
  * @brief function reads incoming tokens, till we find ';' or error occurs with 

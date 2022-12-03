@@ -1,5 +1,7 @@
 #include "sym_table_stack.h"
 
+#define INITIAL_BUCKET_COUNT 113
+
 void init_stack(sym_stack_t *stack)
 {
 	stack->top = NULL;
@@ -46,5 +48,9 @@ bool is_empty(sym_stack_t *stack)
 
 void destroy_stack(sym_stack_t *stack)
 {
+	// TODO?
+}
+
+void push_empty(sym_stack_t *stack) {
 	// TODO?
 }

@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "token.h"
 
 char *createTokenKey(string_t* ID)
@@ -60,9 +62,9 @@ char *createTokenKey(string_t* ID)
 // 	free(param_list);
 // }
 
-token_data_t *createTokenDataFunction(char *ID)
+struct token_data *createTokenDataFunction(char *ID)
 {
-	token_data_t *data = malloc(sizeof(token_data_t));
+	struct token_data *data = malloc(sizeof(struct token_data));
 	if (data == NULL)
 	{
 		fprintf(stderr, "[ERROR] Token data allocation error.\n");
@@ -73,9 +75,9 @@ token_data_t *createTokenDataFunction(char *ID)
 	data->ID = ID;
 }
 
-token_data_t *createTokenDataVariable(char *ID)
+struct token_data *createTokenDataVariable(char *ID)
 {
-	token_data_t *data = malloc(sizeof(token_data_t));
+	struct token_data *data = malloc(sizeof(struct token_data));
 	if (data == NULL)
 	{
 		fprintf(stderr, "[ERROR] Token data allocation error.\n");
@@ -86,9 +88,9 @@ token_data_t *createTokenDataVariable(char *ID)
 	data->ID = ID;
 }
 
-// token_data_t *createTokenDataConstantInt(char *ID, int value)
+// struct token_data *createTokenDataConstantInt(char *ID, int value)
 // {
-// 	token_data_t *data = malloc(sizeof(token_data_t));
+// 	struct token_data *data = malloc(sizeof(struct token_data));
 // 	if (data == NULL)
 // 	{
 // 		fprintf(stderr, "[ERROR] Token data allocation error.\n");
@@ -101,9 +103,9 @@ token_data_t *createTokenDataVariable(char *ID)
 // 	data->data.constant.value.value_int = value;
 // }
 
-// token_data_t *createTokenDataConstantFloat(char *ID, float value)
+// struct token_data *createTokenDataConstantFloat(char *ID, float value)
 // {
-// 	token_data_t *data = malloc(sizeof(token_data_t));
+// 	struct token_data *data = malloc(sizeof(struct token_data));
 // 	if (data == NULL)
 // 	{
 // 		fprintf(stderr, "[ERROR] Token data allocation error.\n");
@@ -116,9 +118,9 @@ token_data_t *createTokenDataVariable(char *ID)
 // 	data->data.constant.value.value_float = value;
 // }
 
-// token_data_t *createTokenDataConstantString(char *ID, char *value)
+// struct token_data *createTokenDataConstantString(char *ID, char *value)
 // {
-// 	token_data_t *data = malloc(sizeof(token_data_t));
+// 	struct token_data *data = malloc(sizeof(struct token_data));
 // 	if (data == NULL)
 // 	{
 // 		fprintf(stderr, "[ERROR] Token data allocation error.\n");
@@ -131,9 +133,9 @@ token_data_t *createTokenDataVariable(char *ID)
 // 	data->data.constant.value.value_string = value;
 // }
 
-// token_data_t *createTokenDataConstantNull(char *ID)
+// struct token_data *createTokenDataConstantNull(char *ID)
 // {
-// 	token_data_t *data = malloc(sizeof(token_data_t));
+// 	struct token_data *data = malloc(sizeof(struct token_data));
 // 	if (data == NULL)
 // 	{
 // 		fprintf(stderr, "[ERROR] Token data allocation error.\n");
