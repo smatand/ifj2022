@@ -909,7 +909,7 @@ int scanToken(token_t *token)
         case S_S_COMMENT:
             if (c == EOF || c == '\n')
             {
-                return SUCCESS;
+                fsmState = S_START;
             }
             break;
         // multiline comments
@@ -934,7 +934,7 @@ int scanToken(token_t *token)
         case S_M_COMMENT_FIN:
             if (c == '/')
             {
-                return SUCCESS;
+                fsmState = S_START;
             }
             else
             {
