@@ -33,9 +33,12 @@ void gen_checkType(){
 			"createframe\n"
 			"pushframe\n"
 			"defvar LF@_bool\n"
-			"defvar LF@_bool2\n"
+			"defvar LF@_rel2eq\n"
+			"defvar LF@_rel2ans\n"
 			"defvar LF@_jumprel2\n"
+			"defvar LF@_jumprel3\n"
 			"move LF@_jumprel2 bool@false\n"
+			"move LF@_jumprel3 bool@false\n"
 
 			"defvar LF@_var1\n"
 			"defvar LF@_var2\n"
@@ -57,24 +60,44 @@ void gen_checkType(){
 			"jumpifeq rel1 LF@_operand string@greater\n"
 			"jumpifeq rel1 LF@_operand string@lesser\n"
 			"jumpifeq rel2 LF@_operand string@greatereq\n"
+			"jumpifeq rel3 LF@_operand string@lessereq\n"
 
+			"label rel3\n"
+			"move LF@_jumprel3 bool@true\n"
+			"jump rel2\n"
+			"label rel3_cmp\n"
+			"eq LF@_rel2eq LF@_var1 LF@_var2\n"
+			"not LF@_bool LF@_bool\n"
+			"or LF@_rel2ans LF@_bool LF@_rel2eq\n"
+			"jumpifeq true_label LF@_rel2ans bool@true\n"
+			"jump false_label\n"
+
+			//>=
 			"label rel2\n"
 			"move LF@_jumprel2 bool@true\n"
 			"jumpifeq true_label LF@type_var1 string@nil\n"
 			"jumpifeq true_label LF@type_var2 string@nil\n"
-			""
-
+			"jump rel2_jmp1\n"
+			"label rel2_cmp\n"
+			"jumpifeq rel3_cmp LF@_jumprel3 bool@true\n"
+			"eq LF@_rel2eq LF@_var1 LF@_var2\n"
+			"or LF@_rel2ans LF@_bool LF@_rel2eq\n"
+			"jumpifeq true_label LF@_rel2ans bool@true\n"
+			"jump false_label\n"
 
 			// < 
 			"label rel1\n"
 			"jumpifeq false_label LF@type_var1 string@nil\n"
 			"jumpifeq false_label LF@type_var2 string@nil\n"
+			"label rel2_jmp1\n"
 			"jumpifeq rel1_firststring LF@type_var1 string@string\n"
 			"jumpifeq rel1_firstint LF@type_var1 string@int\n"
 			"jumpifeq rel1_firstfloat LF@type_var1 string@float\n"
 
 			"label rel1_firstint\n"
 			"jumpifeq rel1_secondfloat LF@type_var2 string@float\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
 			"gt LF@_bool LF@_var1 LF@_var2\n"
 			"move LF@_var1 LF@_bool\n"
 			"move LF@_var2 LF@_bool\n"
@@ -84,6 +107,8 @@ void gen_checkType(){
 			"call floatval\n"
 			"pops LF@_var1\n"
 			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
+			"gt LF@_bool LF@_var1 LF@_var2\n"
 			"move LF@_var1 LF@_bool\n"
 			"move LF@_var2 LF@_bool\n"
 			"jump checkEnd\n"
@@ -92,6 +117,8 @@ void gen_checkType(){
 			"call floatval\n"
 			"pops LF@_var2\n"
 			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
+			"gt LF@_bool LF@_var1 LF@_var2\n"
 			"move LF@_var1 LF@_bool\n"
 			"move LF@_var2 LF@_bool\n"
 			"jump checkEnd\n"
@@ -99,10 +126,11 @@ void gen_checkType(){
 			"jumpifneq error_sem7 LF@type_var2 string@string\n"
 			//is shows corret bool, only when they are swapped 
 			"gt LF@_bool LF@_var2 LF@_var1\n"
+			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
+			"gt LF@_bool LF@_var2 LF@_var1\n"
 			"move LF@_var1 LF@_bool\n"
 			"move LF@_var2 LF@_bool\n"
 			"jump checkEnd\n"
-			// > 
 
 			"label false_label\n"
 			"move LF@_var1 bool@false\n"
@@ -251,6 +279,7 @@ void gen_compute(){
 			"jumpifeq computeGreater LF@_operation string@greater\n"				
 			"jumpifeq computeLesser LF@_operation string@lesser\n"				
 			"jumpifeq computeGreatereq LF@_operation string@greatereq\n"				
+			"jumpifeq computeLessereq LF@_operation string@lessereq\n"				
 
 			"label computeAdd\n"
 			"add LF@_returnVal LF@_op1 LF@_op2\n"
@@ -304,6 +333,9 @@ void gen_compute(){
 			"move LF@_returnVal LF@_op1\n"
 			"jump computeEnd\n"
 
+			"label computeLessereq\n"
+			"move LF@_returnVal LF@_op1\n"
+			"jump computeEnd\n"
 
 			"label computeEnd\n"
 			"pushs LF@_returnVal\n"
@@ -350,7 +382,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	{'<', '>', '>', '<', '>', '>', '>', '>', '>', '>', '>', '<', '>', '<', '>'},  // .
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // <
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // >
-	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '>', '>'},  // >=
+	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // >=
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // <=
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // ===
 	{'<', '<', '<', '<', '<', '!', '!', '!', '!', '!', '!', '<', '>', '<', '>'},  // !==
@@ -634,6 +666,9 @@ void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationIte
 			break;
 		case TOK_GREATER_EQUAL:
 			printf("pushs string@greatereq\n");
+			break;
+		case TOK_LESS_EQUAL:
+			printf("pushs string@lessereq\n");
 			break;
 		default:
 			break;
