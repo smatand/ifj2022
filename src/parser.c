@@ -92,11 +92,23 @@ int parseSource(Parser_t *parser)
 int getNextToken(Parser_t *parser)
 {
 	int ret = SUCCESS;
+
+	// it is just reassigning the pointer, now currToken = nextToken
+	//parser->currentToken = parser->nextToken; 
+
+	token_t * temp = parser->currentToken;
+
 	parser->currentToken = parser->nextToken;
+
+	// TODO check if no mem leak is here cause of not freeing the string inside token
+
+	parser->nextToken = temp;
+
 	if ((ret = scanToken(parser->nextToken)) != SUCCESS)
 	{
 		fprintf(stderr, "SCANNER ERROR (getNextToken): Exit with error code %d", ret);
 	}
+
 
 	return ret;
 }

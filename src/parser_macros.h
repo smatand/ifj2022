@@ -53,7 +53,10 @@
 		int check = checkTokenType(parser->currentToken, tokenType); \
 		if (check != 0)                                              \
 			return ERR_SYN_ANALYSIS;                                 \
-		getNextToken(parser);                                        \
+																	 \
+		int retValue = getNextToken(parser);						 \
+		if (retValue) 												 \
+			return retValue;										 \
 	} while (0)
 
 /**

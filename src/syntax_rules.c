@@ -21,7 +21,8 @@ int rProgram(Parser_t *parser)
 int rProlog(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_PROLOGUE);
-	// TODO generate code?
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_DECLARE_INIT);
+	CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	return SUCCESS;
 }
 

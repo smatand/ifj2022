@@ -11,9 +11,6 @@
 
 /** @brief Types of tokens */
 typedef enum {
-    // initial type
-    TOK_EMPTY,
-
     // single chars
     TOK_LEFT_PAREN,
     TOK_RIGHT_PAREN,
@@ -53,6 +50,7 @@ typedef enum {
     TOK_KEYWORD,
 
     TOK_PROLOGUE,
+    TOK_DECLARE_STRICT,
     TOK_END_PROLOGUE,
 
     TOK_EOF
@@ -169,8 +167,11 @@ double convertStringToDouble(string_t * s);
 /**
  * @brief Compares first 3 characters of source to "php"
  * @param fp pointer to input stream
+ * @param toMatch string to match
+ * 
+ * @return 0, otherwise ERR_LEX_ANALYSIS
  */
-int checkForPrologue(FILE * fp);
+int checkForMatch(FILE * fp, char * toMatch);
 
 /**
  * @brief Fills string with characters

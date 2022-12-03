@@ -29,7 +29,7 @@ void freeToken(token_t *token)
     {
         stringDestroy(token->attribute.strVal); // if there is a string allocated in token, free it
     }
-    free(token);
+    free(token); // todo maybe redo it due to loss of pointer to memory?
 }
 
 int checkKeyword(token_t *token, string_t *s)
@@ -131,34 +131,28 @@ double convertStringToDouble(string_t *s)
     return res;
 }
 
-int checkForPrologue(FILE *fp)
-{
-    // just simply get first 3 chars and compare them with "php"
-    char prologue[4] = "php";
+int checkForMatch(FILE * fp, char * toMatch) {
+    int len = strlen(toMatch);
+    char * loadedChars = calloc(len, 1); // 1 is sizeof(char)
 
-    char loadedChars[4];
     int c = 0;
-
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < len; i++) {
         c = getc(fp);
 
-        if (c != EOF)
-        {
+        if (c != EOF) {
             loadedChars[i] = c;
-        }
-        else
-        {
+        } else {
             return ERR_LEX_ANALYSIS;
         }
     }
-    loadedChars[3] = '\0';
 
-    if (c == EOF) {
-        ungetc(c, fp); // next scan of token shall be TOK_EOF
+    if (strcmp(loadedChars, toMatch)) {
+        return ERR_LEX_ANALYSIS;
+    } else {
+        // match found
+        return 0;
     }
 
-    return strcmp(loadedChars, prologue);
 }
 
 int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
@@ -174,6 +168,8 @@ int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
         c = getc(fp);
     }
 
+    ungetc(c, fp);
+
     if (varFlag == 1) 
     {
         token->type = TOK_VARIABLE;
@@ -181,6 +177,15 @@ int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
     else if (varFlag == 0)
     {
         token->type = TOK_FUNCTION;
+
+        // specifically handling declare function, which is a part of prologue
+        if (!strcmp(s->str, "declare")) {
+            if (checkForMatch(fp, "(strict_types=1)") == 0) {
+                token->type = TOK_DECLARE_STRICT; // declare(strict_types=1) is found
+                stringDestroy(s);
+                return SUCCESS;
+            }
+        }
     }
     else
     {
@@ -189,7 +194,6 @@ int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
 
     token->attribute.strVal = s;
 
-    ungetc(c, fp);
     return SUCCESS;
 }
 
@@ -430,7 +434,7 @@ int scanToken(token_t *token)
             }
             else if (c == '?')
             {
-                if (!checkForPrologue(fp))
+                if (!checkForMatch(fp, "php"))
                 {
                     token->type = TOK_PROLOGUE; // TOK_PROLOGUE is the whole expression "<?php" TODO should it be taken as syntax error (2) ?
 
@@ -905,8 +909,6 @@ int scanToken(token_t *token)
         case S_S_COMMENT:
             if (c == EOF || c == '\n')
             {
-                token->type = TOK_EMPTY;
-
                 return SUCCESS;
             }
             break;
@@ -932,8 +934,6 @@ int scanToken(token_t *token)
         case S_M_COMMENT_FIN:
             if (c == '/')
             {
-                token->type = TOK_EMPTY;
-
                 return SUCCESS;
             }
             else
