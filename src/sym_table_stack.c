@@ -2,15 +2,22 @@
 
 #define INITIAL_BUCKET_COUNT 113
 
-int init_stack(sym_stack_t *stack)
+int init_stack(sym_stack_t **stack)
 {
-	stack = malloc(sizeof(sym_stack_t));
-	if (stack == NULL)
+	// dynamically allocate memory for the stack
+	*stack = malloc(sizeof(sym_stack_t));
+	if (*stack == NULL)
 	{
 		return ERR_INTERNAL;
 	}
 
-	stack->top = NULL;
+	//stack = malloc(sizeof(struct sym_stack));
+	//if (stack == NULL)
+	//{
+	//	return ERR_INTERNAL;
+	//}
+
+	//stack->top = NULL;
 
 	return SUCCESS;
 }
@@ -45,15 +52,21 @@ void push_empty(sym_stack_t *stack)
 
 void pop(sym_stack_t *stack)
 {
-	sym_stack_element_t *temp;
 	if (stack->top != NULL)
 	{
-		temp = stack->top;
+		sym_stack_element_t *tmp = stack->top;
 		stack->top = stack->top->next;
-		free(temp->table);
-		free(temp);
+		free(tmp);
 	}
 }
+	
+	//if (stack->top != NULL)
+	//{
+	//	temp = stack->top;
+	//	stack->top = stack->top->next;
+	//	free(temp->table);
+	//	free(temp);
+	//}
 
 htab_t *top(sym_stack_t *stack)
 {

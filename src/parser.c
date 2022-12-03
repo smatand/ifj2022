@@ -32,17 +32,17 @@ Parser_t *initParser()
 		goto freeCurrentToken;
 	}
 
-	if (scanToken(parser->currentToken) != SUCCESS) // scan first token
+	if ((scanToken(parser->currentToken)) != SUCCESS) // scan first token
 	{
 		goto freeNextToken;
 	}
 
-	if (scanToken(parser->nextToken) != SUCCESS) // scan second token
+	if ((scanToken(parser->nextToken)) != SUCCESS) // scan second token
 	{
 		goto freeNextToken;
 	}
 
-	if (init_stack(parser->localSymStack) != SUCCESS)
+	if ((init_stack(&(parser->localSymStack))) != SUCCESS)
 	{
 		goto freeNextToken;
 	}
@@ -75,7 +75,7 @@ void destroyParser(Parser_t *parser)
 	freeToken(parser->currentToken);
 	freeToken(parser->nextToken);
 	htab_free(parser->globalSymTable);
-	empty_stack(parser->localSymStack);
+	//empty_stack(parser->localSymStack);
 
 	free(parser);
 	parser = NULL;

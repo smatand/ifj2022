@@ -27,10 +27,10 @@ int main()
     parser->firstPass = false;
 
     // calling syntax analysis, second pass
-    if((ret = parseSource(parser)) != SUCCESS)
-    {
-        fprintf(stderr, "PARSER ERROR (main): Exit with error code %d", ret);
-    }
+    //if((ret = parseSource(parser)) != SUCCESS)
+    //{
+    //    fprintf(stderr, "PARSER ERROR (main): Exit with error code %d", ret);
+    //}
 
     destroyParser(parser);
     exit(ret);
