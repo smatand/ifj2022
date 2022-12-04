@@ -59,6 +59,8 @@ int rFunctionDefinition(Parser_t *parser)
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
 	CURRENT_TOKEN_TYPE(TOK_FUNCTION);
 
+	token_data_t *definedFunc = NULL;
+
 	if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) != NULL) // redefinition of a function
 	{
 		//fprintf(stderr, "[ERROR] Semantic error, function redefinition.\n");
@@ -71,18 +73,17 @@ int rFunctionDefinition(Parser_t *parser)
 		return ERR_INTERNAL;
 	}
 
-	token_data_t *data = createTokenDataFunction(ID);
-	if (data == NULL)
-	{
-		return ERR_INTERNAL;
-	}
+	token_data_t *definedFunc = createTokenDataFunction(ID);
+	htab_add(parser->globalSymTable, ID, definedFunc);
+	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
 
-	parser->latestFuncDeclared = htab_add(parser->globalSymTable, ID, data);
-	if (parser->latestFuncDeclared == NULL)
-	{
-		return ERR_INTERNAL;
-	}
-	free(ID); // no more needed ig TODO
+	printf("label %s\n", definedFunc->ID); // generate function label
+	printf("pushframe"); // generate function label
+	printf("defvar LF@%%retval\n"); // generate return value as %retval, is used in rReturnStatement
+	printf("move LF@%%retval nil@nil\n"); // generate return value as %retval
+
+	// next codegen happens in param and param_n
+	parser->onParam = 0; // to keep track of the number of parameters, this is the only time onParam is used
 
 	int ret = getNextToken(parser);
 	if (ret) 
@@ -97,7 +98,7 @@ int rFunctionDefinition(Parser_t *parser)
 	}
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
-	CALL_RULE(rParams); // params are added to the new symtable as variables here
+	CALL_RULE(rParams); // params are added to the new symtable and generated as variables here
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
 
@@ -147,7 +148,11 @@ int rParam(Parser_t *parser)
 
 	htab_add(top(parser->localSymStack), ID, data);
 
-	free(ID); // no more needed ig TODO
+	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
+
+	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
+	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam++); // assign argX to paramX
+	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
 	getNextToken(parser);
 	return SUCCESS;
@@ -181,6 +186,12 @@ int rParam_n(Parser_t *parser)
 	token_data_t *data = createTokenDataVariable(ID);
 
 	htab_add(top(parser->localSymStack), ID, data);
+
+	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
+
+	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
+	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam++); // assign argX to paramX
+	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
 	getNextToken(parser);
 	return SUCCESS;
@@ -252,7 +263,7 @@ int rStatements(Parser_t *parser)
 	return SUCCESS;
 }
 
-int rVariableStatement(Parser_t *parser)
+int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 {
 	if (htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL)
 	{
@@ -313,7 +324,7 @@ int rAssignmentStatement(Parser_t *parser)
 	if (checkTokenType(parser->currentToken, TOK_FUNCTION))
 	{
 		CALL_RULE(rFunctionCallStatement);
-		printf("move LF@%s TF@%%retval1\n", definedVar->ID); // move return value from func (now in TF) to var
+		printf("move LF@%s TF@%%retval\n", definedVar->ID); // move return value from func (now in TF) to var
 	}
 	else
 	{
@@ -384,10 +395,13 @@ int rFunctionCallStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE(TOK_FUNCTION);
 
-	if ((parser->latestFuncCalled = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str)) == NULL)
+	if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) == NULL)
 	{
         return ERR_SEM;
 	}
+
+	printf("createframe");
+	token_data_t *calledFunction = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str)->data;
 
 	int ret = getNextToken(parser);
 	if (ret != SUCCESS)
@@ -469,6 +483,9 @@ int rReturnValue(Parser_t *parser)
 		{
 			return retVal;
 		}
+
+		printf("pops LF@%%retval"); // TODO: check some stuff here maybe (void?, return type?), maybe in assignment instead?
+
 		parser->nextToken->type = *ret;
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);

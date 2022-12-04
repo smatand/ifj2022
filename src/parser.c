@@ -83,9 +83,8 @@ Parser_t *initParser()
 	token_data_t *chr = createTokenDataFunction("chr");
 	htab_add(parser->globalSymTable, "chr", chr);
 
-	parser->latestFuncDeclared = NULL;
-	parser->latestFuncCalled = NULL;
-	parser->latestVar = NULL;
+	parser->onParam = 0;
+	parser->onArg = 0;
 
 	return parser;
 
@@ -169,9 +168,3 @@ int checkTokenKeyword(token_t* token, keyword_t keyword)
 	}
 	return 1;
 }
-
-void setLatestFuncID(Parser_t *parser, htab_item_t *ID)
-{
-	parser->latestFuncDeclared = &ID->pair;
-}
-

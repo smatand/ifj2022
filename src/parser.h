@@ -23,9 +23,8 @@ typedef struct Parser
 	token_t *currentToken;
 	token_t *nextToken;
 
-	htab_pair_t* latestFuncDeclared;
-	htab_pair_t* latestFuncCalled;
-	htab_pair_t* latestVar;
+	int onParam;
+	int onArg;
 } Parser_t;
 
 /**
@@ -66,8 +65,6 @@ int checkTokenType(token_t *token, tokenType_t type);
  * @return 0 if keywords match, otherwise 1
  */
 int checkTokenKeyword(token_t *token, keyword_t keyword);
-
-void setLatestFuncID(Parser_t *parser, htab_item_t *ID);
 
 /**
  * @brief Parse the source code
