@@ -24,6 +24,7 @@ jobs:
     # student tests
     - name: student_tests_by_galloj
       run: |
+        git pull origin master --allow-unrelated-histories
         git submodule update --remote --merge # update submodule from galloj
         cd src
         make clean
