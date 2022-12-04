@@ -14,8 +14,14 @@
 int rProgram(Parser_t *parser)
 {
 	CALL_RULE(rProlog);
+
+	genInit(); // initial code generation
+
 	CALL_RULE(rUnits);
 	CALL_RULE(rProgramEnd);
+
+	genEnd();
+
 	return SUCCESS;
 }
 
@@ -63,7 +69,7 @@ int rFunctionDefinition(Parser_t *parser)
 
 	if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) != NULL) // redefinition of a function
 	{
-		//fprintf(stderr, "[ERROR] Semantic error, function redefinition.\n");
+		// fprintf(stderr, "[ERROR] Semantic error, function redefinition.\n");
 		return ERR_SEM;
 	}
 
@@ -78,15 +84,15 @@ int rFunctionDefinition(Parser_t *parser)
 	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
 
 	printf("label $%s\n", definedFunc->ID); // generate function label
-	printf("pushframe\n"); // push temp frame containing arguments
-	printf("defvar LF@%%retval\n"); // generate return value as %retval, is used in rReturnStatement
-	printf("move LF@%%retval nil@nil\n"); // retval = null
+	printf("pushframe\n");					// push temp frame containing arguments
+	printf("defvar LF@%%retval\n");			// generate return value as %retval, is used in rReturnStatement
+	printf("move LF@%%retval nil@nil\n");	// retval = null
 
 	// next codegen happens in param and param_n
 	parser->onParam = 0; // to keep track of the number of parameters, this is the only time onParam is used
 
 	int ret = getNextToken(parser);
-	if (ret) 
+	if (ret)
 	{
 		return ret;
 	}
@@ -104,7 +110,7 @@ int rFunctionDefinition(Parser_t *parser)
 
 	CALL_RULE(rType);
 	ret = getNextToken(parser);
-	if (ret) 
+	if (ret)
 	{
 		return ret;
 	}
@@ -137,7 +143,8 @@ int rParam(Parser_t *parser)
 	CALL_RULE(rType);
 
 	int ret = getNextToken(parser);
-	if (ret) {
+	if (ret)
+	{
 		return ret;
 	}
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
@@ -150,7 +157,7 @@ int rParam(Parser_t *parser)
 
 	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
 
-	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
+	printf("defvar LF@param%d\n", parser->onParam);							 // generate param as paramX
 	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam++); // assign argX to paramX
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
@@ -189,7 +196,7 @@ int rParam_n(Parser_t *parser)
 
 	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
 
-	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
+	printf("defvar LF@param%d\n", parser->onParam);							 // generate param as paramX
 	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam++); // assign argX to paramX
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
@@ -201,10 +208,10 @@ int rType(Parser_t *parser)
 {
 	// the token in this position must either be type_id (checked by the scanner)
 	// or a keyword (which we have to check ourselves)
-	if (parser->currentToken->type == TOK_TYPE_ID || 
+	if (parser->currentToken->type == TOK_TYPE_ID ||
 		(parser->currentToken->type == TOK_KEYWORD &&
-				(parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
-				 parser->currentToken->attribute.kwVal == KW_STRING || parser->currentToken->attribute.kwVal == KW_VOID)))
+		 (parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
+		  parser->currentToken->attribute.kwVal == KW_STRING || parser->currentToken->attribute.kwVal == KW_VOID)))
 	{
 		return SUCCESS;
 	}
@@ -397,7 +404,7 @@ int rFunctionCallStatement(Parser_t *parser)
 
 	if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) == NULL)
 	{
-        return ERR_SEM;
+		return ERR_SEM;
 	}
 
 	printf("createframe\n");

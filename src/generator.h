@@ -62,8 +62,17 @@ void gen_builtin_functions();
 
 /************** END OF STANDARD LIBRARY (PHP) ************/
 
+// TODO: comment
+void gen_checkType();
+
+// TODO: comment
+void gen_compute();
+
 /** @brief Initialization of code generator*/
 void genInit();
+
+/** @brief End code generation*/
+void genEnd();
 
 /** @brief Convert from C string to IFJcode22 string
  * 
