@@ -13,10 +13,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with: 
+        submodules: true
     # scanner tests
     - name: scanner_tests
       run: |
         cd src
         make clean
         make scan_test
+    # student tests
+    - name: student_tests_by_galloj
+      run: |
+        git submodule update --remote --merge # update submodule from galloj
+        cd src
+        make clean
+        make student_test
     # parser tests
