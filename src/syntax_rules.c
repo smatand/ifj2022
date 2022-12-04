@@ -436,13 +436,10 @@ int rTerm(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_VARIABLE)
 	{
-		if (parser->firstPass == false)
+		if (htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable not declared
 		{
-			if (htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable not declared
-			{
-				fprintf(stderr, "[ERROR] Semantic error, passing undeclared variable as argument.\n");
-				exit(ERR_SEM_UNDEFINED_VAR);
-			}
+			fprintf(stderr, "[ERROR] Semantic error, passing undeclared variable as argument.\n");
+			exit(ERR_SEM_UNDEFINED_VAR);
 		}
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT)
