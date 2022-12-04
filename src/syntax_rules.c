@@ -78,9 +78,9 @@ int rFunctionDefinition(Parser_t *parser)
 	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
 
 	printf("label %s\n", definedFunc->ID); // generate function label
-	printf("pushframe"); // generate function label
+	printf("pushframe\n"); // push temp frame containing arguments
 	printf("defvar LF@%%retval\n"); // generate return value as %retval, is used in rReturnStatement
-	printf("move LF@%%retval nil@nil\n"); // generate return value as %retval
+	printf("move LF@%%retval nil@nil\n"); // retval = null
 
 	// next codegen happens in param and param_n
 	parser->onParam = 0; // to keep track of the number of parameters, this is the only time onParam is used
@@ -400,7 +400,7 @@ int rFunctionCallStatement(Parser_t *parser)
         return ERR_SEM;
 	}
 
-	printf("createframe");
+	printf("createframe\n");
 	token_data_t *calledFunction = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str)->data;
 
 	int ret = getNextToken(parser);
@@ -411,6 +411,8 @@ int rFunctionCallStatement(Parser_t *parser)
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rArguments);
+
+	printf("jump %s\n", calledFunction->ID);
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
@@ -484,7 +486,7 @@ int rReturnValue(Parser_t *parser)
 			return retVal;
 		}
 
-		printf("pops LF@%%retval"); // TODO: check some stuff here maybe (void?, return type?), maybe in assignment instead?
+		printf("pops LF@%%retval\n"); // TODO: check some stuff here maybe (void?, return type?), maybe in assignment instead?
 
 		parser->nextToken->type = *ret;
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
