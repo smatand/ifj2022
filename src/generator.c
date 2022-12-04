@@ -14,7 +14,7 @@
 
 void gen_reads() {
     printf(
-            "label reads\n" 
+            "label $reads\n" 
             "createframe\n"
             "pushframe\n" // save frame
 
@@ -29,7 +29,7 @@ void gen_reads() {
 
 void gen_readi() {
     printf(
-            "label readi\n"
+            "label $readi\n"
             "createframe\n"
             "pushframe\n"
 
@@ -44,7 +44,7 @@ void gen_readi() {
 
 void gen_readf() {
     printf(
-            "label readf\n"
+            "label $readf\n"
             "createframe\n"
             "pushframe\n"
 
@@ -89,7 +89,7 @@ int gen_write(token_t * token, DLList_t * list) {
 
 void gen_floatval() {
     printf(
-            "label floatval\n"
+            "label $floatval\n"
             "createframe\n"
             "pushframe\n"
             "defvar LF@_param # also retval\n"
@@ -133,7 +133,7 @@ void gen_floatval() {
 
 void gen_intval() {
     printf(
-        "label intval\n"
+        "label $intval\n"
         "createframe\n"
         "pushframe\n"
 
@@ -178,7 +178,7 @@ void gen_intval() {
 
 void gen_strval() {
     printf(
-        "label strval\n"
+        "label $strval\n"
         "createframe\n"
         "pushframe\n"
 
@@ -204,7 +204,7 @@ void gen_strlen(/*string*/) {
 
 void gen_substring() {
     printf(
-        "label substring\n"
+        "label $substring\n"
         "createframe\n"
         "pushframe\n"
 
@@ -263,7 +263,7 @@ void gen_substring() {
 
 void gen_ord() {
     printf(
-        "label ord\n"
+        "label $ord\n"
         "createframe\n"
         "pushframe\n"
 
@@ -289,7 +289,7 @@ void gen_ord() {
 
 void gen_chr() {
     printf(
-        "label chr\n"
+        "label $chr\n"
         "createframe\n"
         "pushframe\n"
 
@@ -326,7 +326,7 @@ void gen_checkType(){
 	printf(
 			"\n"
 			"#checktype(var1,var2,operand)\n"
-			"label checktype\n"
+			"label $checktype\n"
 			"createframe\n"
 			"pushframe\n"
 			"defvar LF@_bool\n"
@@ -401,7 +401,7 @@ void gen_checkType(){
 			"jump checkEnd\n"
 			"label rel1_secondfloat\n"
 			"pushs LF@_var1\n"
-			"call floatval\n"
+			"call $floatval\n"
 			"pops LF@_var1\n"
 			"gt LF@_bool LF@_var1 LF@_var2\n"
 			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
@@ -411,7 +411,7 @@ void gen_checkType(){
 			"jump checkEnd\n"
 			"label rel1_firstfloat\n"
 			"pushs LF@_var2\n"
-			"call floatval\n"
+			"call $floatval\n"
 			"pops LF@_var2\n"
 			"gt LF@_bool LF@_var1 LF@_var2\n"
 			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
@@ -478,7 +478,7 @@ void gen_checkType(){
 			"jumpifeq checkEnd LF@type_var2 string@int\n"
 			"jumpifneq arit1_skip1 LF@type_var2 string@float\n"
 			"pushs LF@_var1\n"
-			"call floatval\n"
+			"call $floatval\n"
 			"pops LF@_var1\n"
 			"jump checkEnd\n"
 			"label arit1_skip1\n"
@@ -490,7 +490,7 @@ void gen_checkType(){
 			"jumpifeq checkEnd LF@type_var2 string@float\n"
 			"jumpifneq arit1_skip4 LF@type_var2 string@int\n"
 			"pushs LF@_var2\n"
-			"call floatval\n"
+			"call $floatval\n"
 			"pops LF@_var2\n"
 			"label arit1_skip4\n"
 			"jump checkEnd\n"
@@ -512,7 +512,7 @@ void gen_checkType(){
 			"jumpifeq arit2_seconod LF@type_var1 string@float\n"
 			"jumpifneq arit2_skip1 LF@type_var1 string@int\n"
 			"pushs LF@_var1\n"
-			"call floatval\n"
+			"call $floatval\n"
 			"pops LF@_var1\n"
 			"jump arit2_second\n"
 			"label arit2_skip1\n"
@@ -524,7 +524,7 @@ void gen_checkType(){
 			"jumpifeq checkEnd LF@type_var2 string@float\n"
 			"jumpifneq arit2_skip2 LF@type_var2 string@int\n"
 			"pushs LF@_var2\n"
-			"call floatval\n"
+			"call $floatval\n"
 			"pops LF@_var2\n"
 			"jump checkEnd\n"
 			"label arit2_skip2\n"
@@ -553,7 +553,7 @@ void gen_compute(){
 			"##############################\n"
 			"##compute(op1,op2,operation)##\n"
 			"##############################\n"
-			"label compute\n"
+			"label $compute\n"
 			"createframe\n"
 			"pushframe\n"
 			// "defvar LF@_returnNull\n"
@@ -561,7 +561,7 @@ void gen_compute(){
 			"defvar LF@_op1\n"
 			"defvar LF@_op2\n"
 			"defvar LF@_operation\n"
-			"call checktype\n"
+			"call $checktype\n"
 			"pops LF@_operation\n"
 			"pops LF@_op1\n"
 			"pops LF@_op2\n"
@@ -669,7 +669,7 @@ void genEnd()
     printf("jump _END\n");
     printf("label _NIL_SEM_ERR\n");
 
-    printf("exit 8\n");
+    printf("exit int@8\n");
     printf("label _END\n"); // the last line
 }
 

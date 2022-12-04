@@ -65,7 +65,7 @@ int rFunctionDefinition(Parser_t *parser)
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
 	CURRENT_TOKEN_TYPE(TOK_FUNCTION);
 
-	token_data_t *definedFunc = NULL;
+	htab_pair_t *definedFunc = NULL;
 
 	if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) != NULL) // redefinition of a function
 	{
@@ -73,20 +73,13 @@ int rFunctionDefinition(Parser_t *parser)
 		return ERR_SEM;
 	}
 
-	char *ID = createTokenKey(parser->currentToken->attribute.strVal);
-	if (ID == NULL)
-	{
-		return ERR_INTERNAL;
-	}
+	token_data_t *data = createTokenDataFunction();
+	definedFunc = htab_add(parser->globalSymTable, parser->currentToken->attribute.strVal->str, data);
 
-	definedFunc = createTokenDataFunction(ID);
-	htab_add(parser->globalSymTable, ID, definedFunc);
-	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
-
-	printf("label $%s\n", definedFunc->ID); // generate function label
-	printf("pushframe\n");					// push temp frame containing arguments
-	printf("defvar LF@%%retval\n");			// generate return value as %retval, is used in rReturnStatement
-	printf("move LF@%%retval nil@nil\n");	// retval = null
+	printf("label $%s\n", definedFunc->key); // generate function label
+	printf("pushframe\n");					 // push temp frame containing arguments
+	printf("defvar LF@%%retval\n");			 // generate return value as %retval, is used in rReturnStatement
+	printf("move LF@%%retval nil@nil\n");	 // retval = null
 
 	// next codegen happens in param and param_n
 	parser->onParam = 0; // to keep track of the number of parameters, this is the only time onParam is used
@@ -150,15 +143,14 @@ int rParam(Parser_t *parser)
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
 	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
-	char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
-	token_data_t *data = createTokenDataVariable(ID);
+	token_data_t *data = createTokenDataVariable();
 
-	htab_add(top(parser->localSymStack), ID, data);
+	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 
-	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
-
-	printf("defvar LF@param%d\n", parser->onParam);							 // generate param as paramX
-	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam++); // assign argX to paramX
+	printf("defvar LF@param%d\n", parser->onParam);						   // generate param as paramX
+	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
+	fflush(stdout);
+	parser->onParam++;
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
 	getNextToken(parser);
@@ -189,15 +181,14 @@ int rParam_n(Parser_t *parser)
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
 	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
-	char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
-	token_data_t *data = createTokenDataVariable(ID);
+	token_data_t *data = createTokenDataVariable();
 
-	htab_add(top(parser->localSymStack), ID, data);
+	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 
-	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
-
-	printf("defvar LF@param%d\n", parser->onParam);							 // generate param as paramX
-	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam++); // assign argX to paramX
+	printf("defvar LF@param%d\n", parser->onParam);						   // generate param as paramX
+	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
+	fflush(stdout);
+	parser->onParam++;
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
 	getNextToken(parser);
@@ -272,13 +263,7 @@ int rStatements(Parser_t *parser)
 
 int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 {
-	if (htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL)
-	{
-		fprintf(stderr, "[ERROR] Semantic error, refrencing undefined variable.\n");
-		exit(ERR_SEM_UNDEFINED_VAR);
-	}
-
-	if (checkTokenType(parser->nextToken, TOK_ASSIGN))
+	if (checkTokenType(parser->nextToken, TOK_ASSIGN) == 0)
 	{
 		CALL_RULE(rAssignmentStatement);
 	}
@@ -296,7 +281,13 @@ int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	else if (checkTokenType(parser->nextToken, TOK_SEMICOLON))
-	{						  // "$foo;" is a valid statement, though it does nothing
+	{
+		// "$foo;" is a valid statement, though it does nothing
+		if (htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL)
+		{
+			fprintf(stderr, "[ERROR] Semantic error, refrencing undefined variable.\n");
+			exit(ERR_SEM_UNDEFINED_VAR);
+		}
 		getNextToken(parser); // skipping two tokens
 		getNextToken(parser);
 	}
@@ -310,16 +301,15 @@ int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 int rAssignmentStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE); // TODO: codegen
-	token_data_t *definedVar = NULL;
+	htab_pair_t *definedVar = NULL;
 
-	if ((top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable hasn't been declared yet
+	if ((definedVar = htab_find((top(parser->localSymStack)), parser->currentToken->attribute.strVal->str)) == NULL) // variable hasn't been declared yet
 	{
-		char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
-		definedVar = createTokenDataVariable(ID);
+		token_data_t *data = createTokenDataVariable();
 
-		htab_add(top(parser->localSymStack), ID, definedVar);
+		definedVar = htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 
-		printf("defvar LF@%s\n", definedVar->ID); // generate defvar code
+		printf("defvar LF@%s\n", definedVar->key); // generate defvar code
 	}
 
 	// TODO: set or change the value and type(?) of the declared variable (code generation)
@@ -331,7 +321,7 @@ int rAssignmentStatement(Parser_t *parser)
 	if (checkTokenType(parser->currentToken, TOK_FUNCTION))
 	{
 		CALL_RULE(rFunctionCallStatement);
-		printf("move LF@%s TF@%%retval\n", definedVar->ID); // move return value from func (now in TF) to var
+		printf("move LF@%s TF@%%retval\n", definedVar->key); // move return value from func (now in TF) to var
 	}
 	else
 	{
@@ -343,7 +333,7 @@ int rAssignmentStatement(Parser_t *parser)
 			return retVal;
 		}
 
-		printf("pops LF@%s\n", definedVar->ID); // pop stack into new value
+		printf("pops LF@%s\n", definedVar->key); // pop stack into new value
 
 		parser->nextToken->type = *ret;
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
@@ -408,7 +398,7 @@ int rFunctionCallStatement(Parser_t *parser)
 	}
 
 	printf("createframe\n");
-	token_data_t *calledFunction = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str)->data;
+	htab_pair_t *calledFunction = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str);
 
 	int ret = getNextToken(parser);
 	if (ret != SUCCESS)
@@ -421,7 +411,7 @@ int rFunctionCallStatement(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rArguments);
 
-	printf("call $%s\n", calledFunction->ID);
+	printf("call $%s\n", calledFunction->key);
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
@@ -458,6 +448,7 @@ int rArgument_n(Parser_t *parser)
 	}
 	else
 	{
+		fprintf(stderr, "[ERROR] Syntax error in rArgument_n\n");
 		return ERR_SYN_ANALYSIS;
 	}
 	return SUCCESS;
@@ -514,21 +505,27 @@ int rTerm(Parser_t *parser)
 			exit(ERR_SEM_UNDEFINED_VAR);
 		}
 		printf("defvar TF@%%%d\n", parser->onArg);
-		printf("move TF@%%%d LF@%s\n", parser->onArg++, parser->currentToken->attribute.strVal->str); // push var as argument %X
+		printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
+		fflush(stdout);
+		parser->onArg++;
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT)
 	{
 		// TODO: check for type matching in code gen
 		printf("defvar TF@%%%d\n", parser->onArg);
-		printf("move TF@%%%d int@%d\n", parser->onArg++, parser->currentToken->attribute.intVal); // TODO: no conversion necessary here?
+		printf("move TF@%%%d int@%d\n", parser->onArg, parser->currentToken->attribute.intVal); // TODO: no conversion necessary here?
+		fflush(stdout);
+		parser->onArg++;
 	}
 	else if (parser->currentToken->type == TOK_STRING_LIT)
 	{
 		// TODO: check for type matching in code gen
 		printf("defvar TF@%%%d\n", parser->onArg);
 
-		char *temp = convertStringToIFJ(parser->currentToken->attribute.strVal); // TODO: does this work?
-		printf("move TF@%%%d string@%s\n", parser->onArg++, temp);
+		char *temp = convertStringToIFJ(parser->currentToken->attribute.strVal->str); // TODO: does this work?
+		printf("move TF@%%%d string@%s\n", parser->onArg, temp);
+		fflush(stdout);
+		parser->onArg++;
 
 		free(temp);
 	}
@@ -536,18 +533,24 @@ int rTerm(Parser_t *parser)
 	{
 		// TODO: check for type matching in code gen
 		printf("defvar TF@%%%d\n", parser->onArg);
-		printf("move TF@%%%d float@%a\n", parser->onArg++, parser->currentToken->attribute.decVal); // TODO: does this work?
+		printf("move TF@%%%d float@%a\n", parser->onArg, parser->currentToken->attribute.decVal); // TODO: does this work?
+		fflush(stdout);
+		parser->onArg++;
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_NULL)
 	{
 		// TODO: check for type matching in code gen
 		printf("defvar TF@%%%d\n", parser->onArg);
-		printf("move TF@%%%d nil@nil\n", parser->onArg++);
+		printf("move TF@%%%d nil@nil\n", parser->onArg);
+		fflush(stdout);
+		parser->onArg++;
 	}
 	else
 	{
+		fprintf(stderr, "[ERROR] Syntax error in rTerm\n");
 		return ERR_SYN_ANALYSIS;
 	}
+	getNextToken(parser);
 	return SUCCESS;
 }
 

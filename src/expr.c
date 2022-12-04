@@ -217,7 +217,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 								printf("jump exprTrue\n");
 								printf("label convert_num\n");
 								printf("pushs LF@tmp%ld\n",nonTermCnt);
-								printf("call floatval\n");
+								printf("call $floatval\n");
 								printf("pops LF@tmp%ld\n",nonTermCnt);
 								printf("jumpifeq exprFalse LF@tmp%ld float@0x0p+0\n",nonTermCnt);
 								printf("jump exprTrue\n");
@@ -383,7 +383,7 @@ void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationIte
 		default:
 			break;
 	}
-	printf("call compute\n");
+	printf("call $compute\n");
 	printf("pops LF@tmp%ld\n",*nonTermCnt);
 
 }

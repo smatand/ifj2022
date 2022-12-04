@@ -13,7 +13,7 @@
 
 char *createTokenKey(string_t* ID);
 
-struct token_data *createTokenDataFunction(char *ID); // param_list must be created first
-struct token_data *createTokenDataVariable(char *ID);
+struct token_data *createTokenDataFunction(); // param_list must be created first
+struct token_data *createTokenDataVariable();
 
 #endif

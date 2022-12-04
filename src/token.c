@@ -15,7 +15,7 @@ char *createTokenKey(string_t* ID)
 	return newID;
 }
 
-token_data_t *createTokenDataFunction(char *ID)
+token_data_t *createTokenDataFunction()
 {
 	struct token_data *data = malloc(sizeof(struct token_data));
 	if (data == NULL)
@@ -24,12 +24,11 @@ token_data_t *createTokenDataFunction(char *ID)
 	}
 
 	data->type = TOKTYPE_FUNCTION;
-	data->ID = ID;
 
 	return data;
 }
 
-struct token_data *createTokenDataVariable(char *ID)
+struct token_data *createTokenDataVariable()
 {
 	struct token_data *data = malloc(sizeof(struct token_data));
 	if (data == NULL)
@@ -39,7 +38,5 @@ struct token_data *createTokenDataVariable(char *ID)
 	}
 
 	data->type = TOKTYPE_VARIABLE;
-	data->ID = ID;
-
 	return data;
 }

@@ -34,7 +34,7 @@ typedef enum
 /** @brief Structure of token data */
 typedef struct token_data
 {
-	const char *ID;
+	//const char *ID;
 	token_type_t type;
 } token_data_t;
 
