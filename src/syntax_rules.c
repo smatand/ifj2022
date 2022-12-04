@@ -301,7 +301,7 @@ int rAssignmentStatement(Parser_t *parser)
 
 		htab_add(top(parser->localSymStack), ID, definedVar);
 
-		printf("defvar LF@%s", definedVar->ID); // generate defvar code
+		printf("defvar LF@%s\n", definedVar->ID); // generate defvar code
 	}
 
 	// TODO: set or change the value and type(?) of the declared variable (code generation)
@@ -313,7 +313,7 @@ int rAssignmentStatement(Parser_t *parser)
 	if (checkTokenType(parser->currentToken, TOK_FUNCTION))
 	{
 		CALL_RULE(rFunctionCallStatement);
-		printf("move LF@%s TF@%%retval1", definedVar->ID); // move return value from func (now in TF) to var
+		printf("move LF@%s TF@%%retval1\n", definedVar->ID); // move return value from func (now in TF) to var
 	}
 	else
 	{
@@ -325,7 +325,7 @@ int rAssignmentStatement(Parser_t *parser)
 			return retVal;
 		}
 
-		printf("pops LF@%s", definedVar->ID); // pop stack into new value
+		printf("pops LF@%s\n", definedVar->ID); // pop stack into new value
 
 		parser->nextToken->type = *ret;
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
