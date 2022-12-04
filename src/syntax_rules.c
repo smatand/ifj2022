@@ -73,7 +73,7 @@ int rFunctionDefinition(Parser_t *parser)
 		return ERR_INTERNAL;
 	}
 
-	token_data_t *definedFunc = createTokenDataFunction(ID);
+	definedFunc = createTokenDataFunction(ID);
 	htab_add(parser->globalSymTable, ID, definedFunc);
 	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
 
