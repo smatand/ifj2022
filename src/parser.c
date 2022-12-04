@@ -49,6 +49,37 @@ Parser_t *initParser()
 
 	push_empty(parser->localSymStack); // TODO no effect, no body in function sym_table_stack.c
 
+	// built-in functions
+	token_data_t *floatval = createTokenDataFunction("floatval");
+	htab_add(parser->globalSymTable, "floatval", floatval);
+
+	token_data_t *intval = createTokenDataFunction("intval");
+	htab_add(parser->globalSymTable, "intval", intval);
+
+	token_data_t *strval = createTokenDataFunction("strval");
+	htab_add(parser->globalSymTable, "strval", strval);
+
+	token_data_t *reads = createTokenDataFunction("reads");
+	htab_add(parser->globalSymTable, "reads", reads);
+
+	token_data_t *readi = createTokenDataFunction("readi");
+	htab_add(parser->globalSymTable, "readi", readi);
+
+	token_data_t *readf = createTokenDataFunction("readf");
+	htab_add(parser->globalSymTable, "readf", readf);
+
+	token_data_t *write = createTokenDataFunction("write");
+	htab_add(parser->globalSymTable, "write", write);
+
+	token_data_t *substring = createTokenDataFunction("substring");
+	htab_add(parser->globalSymTable, "substring", substring);
+
+	token_data_t *ord = createTokenDataFunction("ord");
+	htab_add(parser->globalSymTable, "ord", ord);
+
+	token_data_t *chr = createTokenDataFunction("chr");
+	htab_add(parser->globalSymTable, "chr", chr);
+
 	parser->latestFuncDeclared = NULL;
 	parser->latestFuncCalled = NULL;
 	parser->latestVar = NULL;

@@ -12,6 +12,7 @@
 #include "error.h"
 #include "symtable.h"
 #include "sym_table_stack.h"
+#include "token.h"
 
 /** @brief Parser structure */
 typedef struct Parser
