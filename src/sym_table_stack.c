@@ -36,7 +36,7 @@ void push_empty(sym_stack_t *stack)
 	if (new == NULL)
 	{
 		fprintf(stderr, "[ERROR] Sym table stack, failure to allocate element in push function");
-		exit(ERR_INTERNAL);
+		//exit(ERR_INTERNAL);
 	}
 
 	new->table = htab_init(INITIAL_BUCKET_COUNT);

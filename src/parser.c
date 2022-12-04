@@ -135,7 +135,6 @@ int getNextToken(Parser_t *parser)
 
 	parser->currentToken = parser->nextToken;
 
-	// TODO check if no mem leak is here cause of not freeing the string inside token
 	freeToken(temp); // just the string freeing
 
 	parser->nextToken = temp;
@@ -143,6 +142,7 @@ int getNextToken(Parser_t *parser)
 	if ((ret = scanToken(parser->nextToken)) != SUCCESS)
 	{
 		fprintf(stderr, "SCANNER ERROR (getNextToken): Exit with error code %d", ret);
+		return ret;
 	}
 
 

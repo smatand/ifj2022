@@ -61,17 +61,39 @@ int rFunctionDefinition(Parser_t *parser)
 
 	if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) != NULL) // redefinition of a function
 	{
-		fprintf(stderr, "[ERROR] Semantic error, function redefinition.\n");
-		exit(ERR_SEM);
+		//fprintf(stderr, "[ERROR] Semantic error, function redefinition.\n");
+		return ERR_SEM;
 	}
+
 	char *ID = createTokenKey(parser->currentToken->attribute.strVal);
+	if (ID == NULL)
+	{
+		return ERR_INTERNAL;
+	}
+
 	token_data_t *data = createTokenDataFunction(ID);
+	if (data == NULL)
+	{
+		return ERR_INTERNAL;
+	}
 
 	parser->latestFuncDeclared = htab_add(parser->globalSymTable, ID, data);
+	if (parser->latestFuncDeclared == NULL)
+	{
+		return ERR_INTERNAL;
+	}
 
-	getNextToken(parser);
+	int ret = getNextToken(parser);
+	if (ret) 
+	{
+		return ret;
+	}
 
 	push_empty(parser->localSymStack); // push new sym_table
+	if (parser->localSymStack == NULL)
+	{
+		return ERR_INTERNAL;
+	}
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rParams); // params are added to the new symtable as variables here
@@ -157,11 +179,12 @@ int rType(Parser_t *parser)
 {
 	// the token in this position must either be type_id (checked by the scanner)
 	// or a keyword (which we have to check ourselves)
-	if (parser->currentToken->type == TOK_TYPE_ID || (parser->currentToken->type == TOK_KEYWORD &&
-													  (parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
-													   parser->currentToken->attribute.kwVal == KW_STRING)))
+	if (parser->currentToken->type == TOK_TYPE_ID || 
+		(parser->currentToken->type == TOK_KEYWORD &&
+				(parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
+				 parser->currentToken->attribute.kwVal == KW_STRING || parser->currentToken->attribute.kwVal == KW_VOID)))
 	{
-		return SUCCESS;
+		return getNextToken(parser);
 	}
 	else
 	{ // incorrect token, syn err
@@ -345,11 +368,14 @@ int rFunctionCallStatement(Parser_t *parser)
 
 	if ((parser->latestFuncCalled = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str)) == NULL)
 	{
-		fprintf(stderr, "[ERROR] Semantic error, calling undefined function.\n");
-		exit(ERR_SEM);
+        return ERR_SEM;
 	}
 
-	getNextToken(parser);
+	int ret = getNextToken(parser);
+	if (ret != SUCCESS)
+	{
+		return ret;
+	}
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rArguments);
@@ -469,7 +495,7 @@ int rProgramEnd(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_END_PROLOGUE || parser->currentToken->type == TOK_EOF)
 	{
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_END_PROLOGUE);
+		//CURRENT_TOKEN_TYPE_GETNEXT(TOK_END_PROLOGUE);
+		return SUCCESS;
 	}
-	return SUCCESS;
 }
