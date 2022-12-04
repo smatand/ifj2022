@@ -37,7 +37,7 @@ void gen_readf();
  * @param list to insert instruction of ifjcode22
  * @return ERR_INTERNAL in case of malloc failed
  */
-int gen_write(token_t * token, DLList_t * list);
+int gen_write(/*token_t * token, DLList_t * list*/);
 
 /** @brief function floatval(term) : ?float */
 void gen_floatval();
