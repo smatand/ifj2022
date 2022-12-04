@@ -292,13 +292,16 @@ int rVariableStatement(Parser_t *parser)
 int rAssignmentStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE); // TODO: codegen
+	token_data_t *definedVar = NULL;
 
 	if ((top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable hasn't been declared yet
 	{
 		char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
-		token_data_t *data = createTokenDataVariable(ID);
+		definedVar = createTokenDataVariable(ID);
 
-		htab_add(top(parser->localSymStack), ID, data);
+		htab_add(top(parser->localSymStack), ID, definedVar);
+
+		printf("defvar LF@%s", definedVar->ID); // generate defvar code
 	}
 
 	// TODO: set or change the value and type(?) of the declared variable (code generation)
@@ -310,6 +313,7 @@ int rAssignmentStatement(Parser_t *parser)
 	if (checkTokenType(parser->currentToken, TOK_FUNCTION))
 	{
 		CALL_RULE(rFunctionCallStatement);
+		printf("move LF@%s TF@%%retval1", definedVar->ID); // move return value from func (now in TF) to var
 	}
 	else
 	{
@@ -320,6 +324,9 @@ int rAssignmentStatement(Parser_t *parser)
 		{
 			return retVal;
 		}
+
+		printf("pops LF@%s", definedVar->ID); // pop stack into new value
+
 		parser->nextToken->type = *ret;
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
