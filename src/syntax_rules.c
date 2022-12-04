@@ -82,6 +82,7 @@ int rFunctionDefinition(Parser_t *parser)
 	{
 		return ERR_INTERNAL;
 	}
+	free(ID); // no more needed ig TODO
 
 	int ret = getNextToken(parser);
 	if (ret) 
@@ -145,6 +146,8 @@ int rParam(Parser_t *parser)
 	token_data_t *data = createTokenDataVariable(ID);
 
 	htab_add(top(parser->localSymStack), ID, data);
+
+	free(ID); // no more needed ig TODO
 
 	getNextToken(parser);
 	return SUCCESS;
