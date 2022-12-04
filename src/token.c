@@ -4,11 +4,11 @@
 
 char *createTokenKey(string_t* ID)
 {
-	char * newID = malloc((ID->realLen + TOKEN_KEY_SPECIFIER_SIZE + 1)); // copy the name of the function, and leave some space
+	char * newID = malloc((ID->realLen + 1)); // copy the name of the function, and leave some space
 	if (newID == NULL) {
 		return NULL;
 	}
-	//strncpy(&newID[TOKEN_KEY_SPECIFIER_SIZE], ID->str, ID->realLen + 1); // +1 to include the null terminator
+	
 	memcpy(newID, ID->str, ID->realLen);
 	newID[ID->realLen] = '\0';
 
