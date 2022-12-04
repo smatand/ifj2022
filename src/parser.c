@@ -53,9 +53,6 @@ Parser_t *initParser()
 	parser->latestFuncCalled = NULL;
 	parser->latestVar = NULL;
 
-	parser->firstPass = true;
-	parser->currentArgument = 0;
-
 	return parser;
 
 freeNextToken:

@@ -25,9 +25,6 @@ typedef struct Parser
 	htab_pair_t* latestFuncDeclared;
 	htab_pair_t* latestFuncCalled;
 	htab_pair_t* latestVar;
-
-	bool firstPass; // initialized to false
-	int currentArgument; // initialized to 0
 } Parser_t;
 
 /**

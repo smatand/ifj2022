@@ -11,7 +11,6 @@
 #include "sym_table_stack.h"
 #include "token.h"
 
-
 int rProgram(Parser_t *parser)
 {
 	CALL_RULE(rProlog);
@@ -60,24 +59,19 @@ int rFunctionDefinition(Parser_t *parser)
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
 	CURRENT_TOKEN_TYPE(TOK_FUNCTION);
 
-	if (parser->firstPass == true)
+	if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) != NULL) // redefinition of a function
 	{
-		if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) != NULL) // redefinition of a function
-		{
-			fprintf(stderr, "[ERROR] Semantic error, function redefinition.\n");
-			exit(ERR_SEM);
-		}
-		char *ID = createTokenKey(parser->currentToken->attribute.strVal);
-		token_data_t *data = createTokenDataFunction(ID);
-
-		parser->latestFuncDeclared = htab_add(parser->globalSymTable, ID, data);
+		fprintf(stderr, "[ERROR] Semantic error, function redefinition.\n");
+		exit(ERR_SEM);
 	}
+	char *ID = createTokenKey(parser->currentToken->attribute.strVal);
+	token_data_t *data = createTokenDataFunction(ID);
+
+	parser->latestFuncDeclared = htab_add(parser->globalSymTable, ID, data);
 
 	getNextToken(parser);
 
-	if (parser->firstPass == false) {
-		push_empty(parser->localSymStack); // push new sym_table
-    }
+	push_empty(parser->localSymStack); // push new sym_table
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rParams); // params are added to the new symtable as variables here
@@ -89,8 +83,7 @@ int rFunctionDefinition(Parser_t *parser)
 
 	CALL_RULE(rStatements);
 
-	if (parser->firstPass == false)
-		pop(parser->localSymStack); // pop new sym_table
+	pop(parser->localSymStack); // pop new sym_table
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 	return 0;
@@ -118,13 +111,10 @@ int rParam(Parser_t *parser)
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
 	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
-	if (parser->firstPass == false)
-	{
-		char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
-		token_data_t *data = createTokenDataVariable(ID);
+	char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
+	token_data_t *data = createTokenDataVariable(ID);
 
-		htab_add(top(parser->localSymStack), ID, data);
-	}
+	htab_add(top(parser->localSymStack), ID, data);
 
 	getNextToken(parser);
 	return SUCCESS;
@@ -154,13 +144,10 @@ int rParam_n(Parser_t *parser)
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
 	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
-	if (parser->firstPass == false)
-	{
-		char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
-		token_data_t *data = createTokenDataVariable(ID);
+	char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
+	token_data_t *data = createTokenDataVariable(ID);
 
-		htab_add(top(parser->localSymStack), ID, data);
-	}
+	htab_add(top(parser->localSymStack), ID, data);
 
 	getNextToken(parser);
 	return SUCCESS;
@@ -233,7 +220,7 @@ int rStatements(Parser_t *parser)
 
 int rVariableStatement(Parser_t *parser)
 {
-	if (parser->firstPass == false && htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL)
+	if (htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL)
 	{
 		fprintf(stderr, "[ERROR] Semantic error, refrencing undefined variable.\n");
 		exit(ERR_SEM_UNDEFINED_VAR);
@@ -246,7 +233,7 @@ int rVariableStatement(Parser_t *parser)
 	else if (checkForOperator(parser->nextToken) == 0)
 	{
 		int *ret;
-    
+
 		int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
 		if (retVal != SUCCESS)
 		{
@@ -272,7 +259,7 @@ int rAssignmentStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE); // TODO: codegen
 
-	if (parser->firstPass == false && (top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable hasn't been declared yet
+	if ((top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL) // variable hasn't been declared yet
 	{
 		char *ID = createTokenKey(parser->currentToken->attribute.strVal); // malloc is called here
 		token_data_t *data = createTokenDataVariable(ID);
@@ -310,7 +297,7 @@ int rConditionalStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_IF);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
-  
+
 	int *ret;
 
 	int retVal = exprParse(parser->currentToken, parser->nextToken, ret);
@@ -356,13 +343,10 @@ int rFunctionCallStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_TYPE(TOK_FUNCTION);
 
-	if (parser->firstPass == false)
+	if ((parser->latestFuncCalled = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str)) == NULL)
 	{
-		if ((parser->latestFuncCalled = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str)) == NULL)
-		{
-			fprintf(stderr, "[ERROR] Semantic error, calling undefined function.\n");
-			exit(ERR_SEM);
-		}
+		fprintf(stderr, "[ERROR] Semantic error, calling undefined function.\n");
+		exit(ERR_SEM);
 	}
 
 	getNextToken(parser);
