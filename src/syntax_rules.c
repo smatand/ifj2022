@@ -486,10 +486,9 @@ int rTerm(Parser_t *parser)
 
 int rProgramEnd(Parser_t *parser)
 {
-	if (parser->currentToken->type == TOK_END_PROLOGUE)
+	if (parser->currentToken->type == TOK_END_PROLOGUE || parser->currentToken->type == TOK_EOF)
 	{
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_END_PROLOGUE);
 	}
-	CURRENT_TOKEN_TYPE(TOK_EOF);
 	return SUCCESS;
 }
