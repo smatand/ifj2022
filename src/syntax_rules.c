@@ -77,7 +77,7 @@ int rFunctionDefinition(Parser_t *parser)
 	htab_add(parser->globalSymTable, ID, definedFunc);
 	free(ID); // no more needed ig TODO (because ID is copied in htab_add, don't worry about it)
 
-	printf("label %s\n", definedFunc->ID); // generate function label
+	printf("label $%s\n", definedFunc->ID); // generate function label
 	printf("pushframe\n"); // push temp frame containing arguments
 	printf("defvar LF@%%retval\n"); // generate return value as %retval, is used in rReturnStatement
 	printf("move LF@%%retval nil@nil\n"); // retval = null
@@ -409,10 +409,12 @@ int rFunctionCallStatement(Parser_t *parser)
 		return ret;
 	}
 
+	parser->onArg = 0;
+
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 	CALL_RULE(rArguments);
 
-	printf("jump %s\n", calledFunction->ID);
+	printf("call $%s\n", calledFunction->ID);
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
@@ -504,22 +506,36 @@ int rTerm(Parser_t *parser)
 			fprintf(stderr, "[ERROR] Semantic error, passing undeclared variable as argument.\n");
 			exit(ERR_SEM_UNDEFINED_VAR);
 		}
+		printf("defvar TF@%%%d\n", parser->onArg);
+		printf("move TF@%%%d LF@%s\n", parser->onArg++, parser->currentToken->attribute.strVal->str); // push var as argument %X
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT)
 	{
 		// TODO: check for type matching in code gen
+		printf("defvar TF@%%%d\n", parser->onArg);
+		printf("move TF@%%%d int@%d\n", parser->onArg++, parser->currentToken->attribute.intVal); // TODO: no conversion necessary here?
 	}
 	else if (parser->currentToken->type == TOK_STRING_LIT)
 	{
 		// TODO: check for type matching in code gen
+		printf("defvar TF@%%%d\n", parser->onArg);
+
+		char *temp = convertStringToIFJ(parser->currentToken->attribute.strVal); // TODO: does this work?
+		printf("move TF@%%%d string@%s\n", parser->onArg++, temp);
+
+		free(temp);
 	}
 	else if (parser->currentToken->type == TOK_DEC_LIT)
 	{
 		// TODO: check for type matching in code gen
+		printf("defvar TF@%%%d\n", parser->onArg);
+		printf("move TF@%%%d float@%a\n", parser->onArg++, parser->currentToken->attribute.decVal); // TODO: does this work?
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_NULL)
 	{
 		// TODO: check for type matching in code gen
+		printf("defvar TF@%%%d\n", parser->onArg);
+		printf("move TF@%%%d nil@nil\n", parser->onArg++);
 	}
 	else
 	{
