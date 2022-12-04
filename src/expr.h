@@ -73,8 +73,11 @@ precTokenType_t tokenTypeToeType(token_t *token);
  * @brief if reduce operation occurs, we use reducing rules to reduce the expression
  * 
  * @param stack pointer to stack
+ * @param nonTermCnt variable for generating indexed nonterms
+ * @param generateCode bool varible if we shoud generate code
+ * @return int 
  */
-int exprReduce(struct eStack *stack, size_t *nonTermCnt);
+int exprReduce(struct eStack *stack, size_t *nonTermCnt,bool generateCode);
 
 //used for debugging
 char *tokenTypeToStr(token_t *token);

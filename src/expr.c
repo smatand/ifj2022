@@ -15,37 +15,20 @@
 #include"error.h"
 #include"generator.h"
 
-//int main(){ 
-//	token_t *token = tokenInit();
-//	scanToken(token);
-//	int returnToken;
-//	int returnVal = exprParse(token,NULL,&returnToken);
-//	(void)returnToken;
-//	(void)returnVal;
-//
-//
-//}
+int main(){ 
+	token_t *token = tokenInit();
+	scanToken(token);
+	// token_t *token2 = tokenInit();
+	// scanToken(token2);
+	int returnToken;
+	int returnVal = exprParse(token,NULL,&returnToken);
+	(void)returnToken;
+	(void)returnVal;
+
+
+}
 
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
-	//printf(".IFJcode22\n");
-
-	puts("call $skipOperations");
-	//gen_checkType();
-	//gen_compute();
-	//gen_builtin_functions();
-	puts("label $skipOperations");
-	printf(
-			"createframe\n"
-			"pushframe\n"
-			"defvar LF@$var\n"
-			"move LF@$var int@3\n"
-			);
-	printf("\n####################\n");
-	printf("#### Expression ####\n");
-	printf("####################\n");
-	printf("createframe\n");
-	printf("pushframe\n");
-
 	int returnVal = SUCCESS;
 	size_t nonTermCnt = 0;
 	// bool generateCode = true;
@@ -76,8 +59,18 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 		return ERR_SYN_ANALYSIS;
 	}
 	bool secondTokenDelay = false;
+	bool generateCode = true;
 	if(secondToken != NULL){
+		generateCode = false;
 		secondTokenDelay = true; //expression isn't assigned to anything
+	}
+	if(generateCode){
+		genInit();
+		printf("\n####################\n");
+		printf("#### Expression ####\n");
+		printf("####################\n");
+		printf("createframe\n");
+		printf("pushframe\n");
 	}
 
 	bool continueParsing = true;	
@@ -93,8 +86,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	int stackTokenType;
 	int incomingTokenType;
 	char operation;
-	// (void) returnToken;
-	// returnToken = NULL;
+	(void) returnToken;
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
 	eItem_t *incomingTokenItem;
@@ -157,7 +149,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 						break;
 					case '>': //reduce
 						scanAnotherToken = false;
-						returnVal=exprReduce(stack, &nonTermCnt);
+						returnVal=exprReduce(stack, &nonTermCnt,generateCode);
 						if(returnVal != SUCCESS){
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
@@ -178,7 +170,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 						if(incomingTokenType == P_RIGHT_PAREN || incomingTokenType == P_SEMICOLON){
 							//we need to end expression with $E in stack
 							while(stack->head->next->type != DOLLAR){ 
-								returnVal=exprReduce(stack,&nonTermCnt);
+								returnVal=exprReduce(stack,&nonTermCnt,generateCode);
 								if(returnVal != SUCCESS){
 									freeItem(incomingTokenItem);
 									eStackEmptyAll(stack);
@@ -190,68 +182,72 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 							//free last token, ; OR ) and empty whole stack
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
-							printf("defvar LF@type_tmp%ld\n",nonTermCnt);
-							printf("defvar LF@exprResult\n");
-							printf("move LF@exprResult LF@tmp%ld\n",nonTermCnt);
-							printf("type LF@type_tmp%ld LF@tmp%ld\n",nonTermCnt,nonTermCnt);
+							
+							if(generateCode){
+								printf("defvar LF@type_tmp%ld\n",nonTermCnt);
+								printf("defvar LF@exprResult\n");
+								printf("move LF@exprResult LF@tmp%ld\n",nonTermCnt);
+								printf("type LF@type_tmp%ld LF@tmp%ld\n",nonTermCnt,nonTermCnt);
+							}
 
-							//doplnit ke je ) aby sa pretipovalo 0.0 na false a pod.
 							if(incomingTokenType == P_RIGHT_PAREN){
 								*returnToken = TOK_RIGHT_PAREN;
-								printf("jumpifeq exprSkip1 LF@type_tmp%ld string@bool\n",nonTermCnt);
-								// printf("write string@didnt_return_boolean\n");
+								//we have to return boolean
+								if(generateCode){
+									printf("jumpifeq exprSkip1 LF@type_tmp%ld string@bool\n",nonTermCnt);
+									printf("jumpifeq convert_num LF@type_tmp%ld string@int\n",nonTermCnt);
+									printf("jumpifeq convert_num LF@type_tmp%ld string@float\n",nonTermCnt);
+									printf("jumpifeq convert_string LF@type_tmp%ld string@float\n",nonTermCnt);
+									printf("jumpifeq exprFalse LF@type_tmp%ld string@nil\n",nonTermCnt);
 
-								// printf("exit int@7\n");
-								//not bool, need to convert
-								printf("jumpifeq convert_num LF@type_tmp%ld string@int\n",nonTermCnt);
-								printf("jumpifeq convert_num LF@type_tmp%ld string@float\n",nonTermCnt);
-								printf("jumpifeq convert_string LF@type_tmp%ld string@float\n",nonTermCnt);
-								printf("jumpifeq exprFalse LF@type_tmp%ld string@nil\n",nonTermCnt);
+									//if it wasn't already boolean we convert
+									printf("label convert_string\n");
+									printf("jumpifeq exprFalse LF@tmp%ld string@0\n",nonTermCnt);
+									printf("defvar LF@str_len\n");
+									printf("strlen LF@str_len LF@tmp%ld\n",nonTermCnt);
+									printf("jumpifeq exprFalse LF@str_len int@0\n");
+									printf("write LF@str_len\n");
+									printf("jump exprTrue\n");
+									printf("label convert_num\n");
+									printf("pushs LF@tmp%ld\n",nonTermCnt);
+									printf("call $floatval\n");
+									printf("pops LF@tmp%ld\n",nonTermCnt);
+									printf("jumpifeq exprFalse LF@tmp%ld float@0x0p+0\n",nonTermCnt);
+									printf("jump exprTrue\n");
 
-								printf("label convert_string\n");
-								printf("jumpifeq exprFalse LF@tmp%ld string@0\n",nonTermCnt);
-								printf("defvar LF@str_len\n");
-								printf("strlen LF@str_len LF@tmp%ld\n",nonTermCnt);
-								printf("jumpifeq exprFalse LF@str_len int@0\n");
-								printf("write LF@str_len\n");
-								printf("jump exprTrue\n");
-								printf("label convert_num\n");
-								printf("pushs LF@tmp%ld\n",nonTermCnt);
-								printf("call $floatval\n");
-								printf("pops LF@tmp%ld\n",nonTermCnt);
-								printf("jumpifeq exprFalse LF@tmp%ld float@0x0p+0\n",nonTermCnt);
-								printf("jump exprTrue\n");
+									printf("label exprSkip1\n");
+									printf("jumpifeq exprTrue LF@tmp%ld bool@true\n",nonTermCnt);
 
-								printf("label exprSkip1\n");
-								printf("jumpifeq exprTrue LF@tmp%ld bool@true\n",nonTermCnt);
+									printf("label exprFalse\n");
+									printf("write string@false\n");
+									printf("move LF@exprResult bool@false\n");
+									printf("jump exprEnd\n");
 
-								printf("label exprFalse\n");
-								printf("write string@false\n");
-								printf("move LF@exprResult bool@false\n");
-								printf("jump exprEnd\n");
-
-								printf("label exprTrue\n");
-								printf("move LF@exprResult bool@true\n");
-								printf("write string@true\n");
-								printf("jump exprEnd\n");
+									printf("label exprTrue\n");
+									printf("move LF@exprResult bool@true\n");
+									printf("write string@true\n");
+									printf("jump exprEnd\n");
+								}
 							}
 							else{
 								*returnToken = TOK_SEMICOLON;
-								printf("jumpifneq exprSkip9 LF@type_tmp%ld string@bool\n",nonTermCnt);
-								printf("write string@cannot_return_boolean\n");
-								printf("exit int@7\n");
-								printf("label exprSkip9\n");
-								printf("write LF@tmp%ld\n",nonTermCnt); // dbg
-								printf("move LF@exprResult LF@tmp%ld\n",nonTermCnt); // dbg
-								printf("jump exprEnd\n");
+								//we return anything but boolean
+								if(generateCode){
+									printf("jumpifneq exprSkip9 LF@type_tmp%ld string@bool\n",nonTermCnt);
+									printf("write string@cannot_return_boolean\n");
+									printf("exit int@7\n");
+									printf("label exprSkip9\n");
+									printf("write LF@tmp%ld\n",nonTermCnt); // dbg
+									printf("move LF@exprResult LF@tmp%ld\n",nonTermCnt); // dbg
+									printf("jump exprEnd\n");
+								}
 							}
-
-
-							printf("label exprEnd\n");
-							// printf("pushs LF@tmp%ld\n",nonTermCnt);
-							printf("pushs LF@exprResult\n");
-							printf("popframe\n");
-							printf("popframe\n");
+							if(generateCode){
+								printf("label exprEnd\n");
+								printf("pushs LF@exprResult\n");
+								printf("popframe\n");
+								printf("popframe\n");
+							}
 							return returnVal; 
 						}
 
@@ -327,14 +323,6 @@ void generateCode_defvar(eItem_t *item, size_t *nonTermCnt){
 	}
 }
 
-eItem_t *findClosestTerm(eStack_t *stack){
-    eItem_t *currItem = stack->head;
-    while(currItem->type == INDENT || currItem->type == NONTERM){
-        currItem = currItem->next;
-    }
-    return currItem;
-}
-
 void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationItem,size_t *nonTermCnt){
 	// token_t *token1 = item1->token;
 	// token_t *token2 = item2->token;
@@ -388,7 +376,7 @@ void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationIte
 
 }
 
-int exprReduce(eStack_t *stack,size_t *nonTermCnt){
+int exprReduce(eStack_t *stack,size_t *nonTermCnt, bool generateCode){
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;
 	switch(ruleType){
@@ -398,12 +386,14 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt){
 			eItem_t *currItemOperand = eStackPopItem(stack);	
 			eItem_t *currItem2 = eStackPopItem(stack);	
 
-			generateCode_operation(currItem,currItem2,currItemOperand,nonTermCnt);
+			if(generateCode){
+				generateCode_operation(currItem,currItem2,currItemOperand,nonTermCnt);
+			}
 
 			freeItem(currItem);
 			freeItem(currItemOperand);
 			freeItem(currItem2);
-			//indent
+			//free indent
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
@@ -412,16 +402,16 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt){
 			return SUCCESS;
 			break;
 		case RULE2: //E->(E)
-			//)
+			//free )
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-			//E
+			//free E
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-			//()
+			//free (
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-			//indent
+			//free indent
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
@@ -431,11 +421,15 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt){
 			break;
 		case RULE3: //E->i
 			(*nonTermCnt)++;
-			generateCode_defvar(currItem,nonTermCnt);
+			if(generateCode){
+				generateCode_defvar(currItem,nonTermCnt);
+			}
+
+			//free E
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
-			//indent
+			//free indent
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
 
@@ -443,6 +437,7 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt){
 			stack->head->id = *nonTermCnt;
 			return SUCCESS;
 			break;
+
 		case RULE_ERROR:
 			return ERR_SYN_ANALYSIS;
 			break;
@@ -607,6 +602,14 @@ eRules_t exprFindRule(eStack_t *stack){
 		}
 	}
 	return RULE_ERROR;
+}
+
+eItem_t *findClosestTerm(eStack_t *stack){
+    eItem_t *currItem = stack->head;
+    while(currItem->type == INDENT || currItem->type == NONTERM){
+        currItem = currItem->next;
+    }
+    return currItem;
 }
 
 precTokenType_t tokenTypeToeType(token_t *token){
