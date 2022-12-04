@@ -105,8 +105,8 @@ returnNull:
 
 void destroyParser(Parser_t *parser)
 {
-	//freeToken(parser->currentToken);
-	//freeToken(parser->nextToken);
+	freeToken(parser->currentToken);
+	freeToken(parser->nextToken);
 	free(parser->currentToken);
 	free(parser->nextToken);
 	htab_free(parser->globalSymTable);
