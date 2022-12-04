@@ -29,69 +29,56 @@ void freeToken(token_t *token)
     {
         stringDestroy(token->attribute.strVal); // if there is a string allocated in token, free it
     }
-    free(token); // todo maybe redo it due to loss of pointer to memory?
 }
 
 int checkKeyword(token_t *token, string_t *s)
 {
     if (!strcmp(s->str, "if"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_IF;
     }
     else if (!strcmp(s->str, "else"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_ELSE;
     }
     else if (!strcmp(s->str, "int"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_INT;
     }
     else if (!strcmp(s->str, "float"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FLOAT;
     }
     else if (!strcmp(s->str, "function"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FUNCTION;
     }
     else if (!strcmp(s->str, "null"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_NULL;
     }
     else if (!strcmp(s->str, "return"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_RETURN;
     }
     else if (!strcmp(s->str, "string"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_STRING;
     }
     else if (!strcmp(s->str, "void"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_VOID;
     }
     else if (!strcmp(s->str, "while"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_WHILE;
     }
     else if (!strcmp(s->str, "true"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_TRUE;
     }
     else if (!strcmp(s->str, "false"))
     {
-        stringDestroy(s); // no need for string when keyword is found
         token->attribute.kwVal = KW_FALSE;
     }
     else
@@ -99,6 +86,7 @@ int checkKeyword(token_t *token, string_t *s)
         return 0; // no keyword found, it is ID, need string
     }
 
+    stringDestroy(s);
     token->type = TOK_KEYWORD;
     return 1; // caller must take care of //()!
 }
@@ -133,7 +121,10 @@ double convertStringToDouble(string_t *s)
 
 int checkForMatch(FILE * fp, char * toMatch) {
     int len = strlen(toMatch);
-    char * loadedChars = calloc(len, 1); // 1 is sizeof(char)
+    char * loadedChars = calloc(len+1, 1); // 1 is sizeof(char)
+    if (loadedChars == NULL) {
+        return ERR_INTERNAL;
+    }
 
     int c = 0;
     for (int i = 0; i < len; i++) {
@@ -146,10 +137,14 @@ int checkForMatch(FILE * fp, char * toMatch) {
         }
     }
 
+    loadedChars[len] = '\0';
+
     if (strcmp(loadedChars, toMatch)) {
+        free(loadedChars);
         return ERR_LEX_ANALYSIS;
     } else {
         // match found
+        free(loadedChars);
         return 0;
     }
 
@@ -180,10 +175,14 @@ int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
 
         // specifically handling declare function, which is a part of prologue
         if (!strcmp(s->str, "declare")) {
-            if (checkForMatch(fp, "(strict_types=1)") == 0) {
+            int retVal = checkForMatch(fp, "(strict_types=1)");
+            if (retVal == 0) {
                 token->type = TOK_DECLARE_STRICT; // declare(strict_types=1) is found
                 stringDestroy(s);
                 return SUCCESS;
+            } else if (retVal) {
+                stringDestroy(s);
+                return retVal;
             }
         }
     }
@@ -819,14 +818,29 @@ int scanToken(token_t *token)
                 return ERR_INTERNAL;
             }
 
-            checkKeyword(token, str); // changes token->type
+            if (token->type != TOK_DECLARE_STRICT) {
+                checkKeyword(token, str); // changes token->type
+            }
 
             return SUCCESS;
         case S_QSTN_MARK:
             if (c == '>')
             {
-                token->type = TOK_END_PROLOGUE;
+                c = getc(fp); // after epilogue only newline+EOF or EOF can be present
+                if (c == '\n')
+                {
+                    c = getc(fp);
+                    if (c != EOF)
+                    {
+                        return ERR_LEX_ANALYSIS;
+                    }
+                } 
+                else if (c != EOF)
+                {
+                    return ERR_LEX_ANALYSIS;
+                }
 
+                token->type = TOK_END_PROLOGUE;
                 return SUCCESS;
             }
             else if ((c > 113 && c < 118) || (c > 101 && c < 104) || (c > 109 && c < 112) || (c == 105) || (c == 108) || (c == 97))
