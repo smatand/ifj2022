@@ -826,8 +826,21 @@ int scanToken(token_t *token)
         case S_QSTN_MARK:
             if (c == '>')
             {
-                token->type = TOK_END_PROLOGUE;
+                c = getc(fp); // after epilogue only newline+EOF or EOF can be present
+                if (c == '\n')
+                {
+                    c = getc(fp);
+                    if (c != EOF)
+                    {
+                        return ERR_LEX_ANALYSIS;
+                    }
+                } 
+                else if (c != EOF)
+                {
+                    return ERR_LEX_ANALYSIS;
+                }
 
+                token->type = TOK_END_PROLOGUE;
                 return SUCCESS;
             }
             else if ((c > 113 && c < 118) || (c > 101 && c < 104) || (c > 109 && c < 112) || (c == 105) || (c == 108) || (c == 97))
