@@ -101,6 +101,11 @@ int rFunctionDefinition(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
 
 	CALL_RULE(rType);
+	ret = getNextToken(parser);
+	if (ret) 
+	{
+		return ret;
+	}
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 
 	CALL_RULE(rStatements);
@@ -129,7 +134,10 @@ int rParam(Parser_t *parser)
 {
 	CALL_RULE(rType);
 
-	getNextToken(parser);
+	int ret = getNextToken(parser);
+	if (ret) {
+		return ret;
+	}
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
 	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
@@ -184,7 +192,7 @@ int rType(Parser_t *parser)
 				(parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
 				 parser->currentToken->attribute.kwVal == KW_STRING || parser->currentToken->attribute.kwVal == KW_VOID)))
 	{
-		return getNextToken(parser);
+		return SUCCESS;
 	}
 	else
 	{ // incorrect token, syn err
@@ -495,7 +503,6 @@ int rProgramEnd(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_END_PROLOGUE || parser->currentToken->type == TOK_EOF)
 	{
-		//CURRENT_TOKEN_TYPE_GETNEXT(TOK_END_PROLOGUE);
 		return SUCCESS;
 	}
 }
