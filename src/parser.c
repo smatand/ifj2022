@@ -71,6 +71,9 @@ Parser_t *initParser()
 	token_data_t *write = createTokenDataFunction("write");
 	htab_add(parser->globalSymTable, "write", write);
 
+	token_data_t *strlen = createTokenDataFunction("strlen");
+	htab_add(parser->globalSymTable, "strlen", strlen);
+
 	token_data_t *substring = createTokenDataFunction("substring");
 	htab_add(parser->globalSymTable, "substring", substring);
 
