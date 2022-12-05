@@ -1,7 +1,10 @@
 /**
+ * Project: Translator of language IFJ22
  * @file scanner.h
- * @author János László Vasík, Andrej Smatana
- * @brief Scanner header file
+ * @author János László Vasík - xvasik05
+ * @author Andrej Smatana - xsmata03
+ * 
+ * @brief Header file of scanner module
  */
 
 #ifndef SCANNER_H
@@ -38,8 +41,6 @@ typedef enum {
     TOK_FUNCTION,     // function
     TOK_TYPE_ID,        // ?int, ?float, ?string, stored in token->attribute.kwVal
     TOK_VARIABLE,       // variable
-
-
 
     // literals
     TOK_STRING_LIT,
@@ -118,9 +119,8 @@ typedef enum {
 
 /** 
  * @brief Allocate memory for token
- * @param token token to operate with
  * 
- * @return SUCCESS, otherwise ERR_INTERNAL
+ * @return pointer to allocated token on success, or NULL pointer
  */
 token_t * tokenInit();
 
@@ -131,16 +131,16 @@ token_t * tokenInit();
 void freeToken(token_t * token);
 
 /**
- * @brief Checks for keyword (TOK_KEYWORD), destroys string_t if it finds a valid keyword
+ * @brief Checks if keyword is in token, if yes, changes it's type. Also destroys string_t if it finds a valid keyword.
  * @param token token to operate with
- * @param s string to compare with
+ * @param s string to compare keywords to
  *
- * @return 0 in case of no keyword, otherwise 1 in case it is keyword
+ * @return 0 in case of no keyword, otherwise 1
  */
 int checkKeyword(token_t * token, string_t * s);
 
 /**
- * @brief Checks for operator in token
+ * @brief Checks if token contains an operator
  * @param token token to operate with
  * 
  * @return 0 if operator is found, otherwise 1
@@ -165,30 +165,30 @@ int convertStringToInt(char * s, int base);
 double convertStringToDouble(string_t * s);
 
 /**
- * @brief Compares first 3 characters of source to "php"
+ * @brief Compares a string to the string on input
  * @param fp pointer to input stream
  * @param toMatch string to match
  * 
- * @return 0, otherwise ERR_LEX_ANALYSIS
+ * @return 0 if match is found, otherwise ERR_LEX_ANALYSIS
  */
 int checkForMatch(FILE * fp, char * toMatch);
 
 /**
- * @brief Fills string with characters
- * @param s struct to operate with
- * @param token struct to operate with for declaring type, attributes
- * @param fp file to read characters from
+ * @brief Fills string with characters, and determines its type on request
+ * @param s string to operate with
+ * @param token token to operate with for declaring type, attributes
+ * @param fp pointer to input stream
  * @param varFlag flag to change type of token to variable (1) or function (0) ID, any other number doesn't change the type
  * 
- * @return SUCCESS, otherwise ERR_CODE
+ * @return SUCCESS, otherwise ERR_INTERNAL
  */
 int fillStr(string_t * s, token_t * token, FILE * fp, int varFlag);
 
 /**
  * @brief Scans token
- * @param token for return
+ * @param token token to write into
  * 
- * @return SUCCESS, otherwise ERR_CODE
+ * @return SUCCESS, otherwise ERR_INTERNAL or ERR_LEX_ANALYSIS
  */ 
 int scanToken(token_t * token);
 

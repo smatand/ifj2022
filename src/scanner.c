@@ -1,6 +1,8 @@
 /**
+ * Project: Translator of language IFJ22
  * @file scanner.c
- * @author János László Vasík, Andrej Smatana
+ * @author János László Vasík - xvasik05
+ * @author Andrej Smatana - xsmata03
  *
  * @brief Implementation of scanner module for IFJ22
  */
@@ -952,7 +954,7 @@ int scanToken(token_t *token)
             }
             else
             {
-                return ERR_LEX_ANALYSIS; // neither nested comment blocks should be there
+                return ERR_LEX_ANALYSIS;
             }
         }
     }
