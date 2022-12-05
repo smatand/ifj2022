@@ -1,6 +1,6 @@
 /**
+* Project: Translator of language IFJ22
 * @file error.h
-*
 * @author Andrej Smatana - xsmata03
 *
 * @brief Error code definitions
