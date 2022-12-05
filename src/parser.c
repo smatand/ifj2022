@@ -56,7 +56,10 @@ Parser_t *initParser()
 		goto freeDLList;
 	}
 
-	push_empty(parser->localSymStack);
+	if (push_empty(parser->localSymStack) != SUCCESS)
+	{
+		goto freeDLList;
+	}
 
 	// built-in functions
 	token_data_t *floatval = createTokenDataFunction("floatval");

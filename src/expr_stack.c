@@ -1,7 +1,9 @@
 /**
- * @file expr_stack.c 
- *
- * @brief Implementation of parser module for IFJ22
+ * Project: Translator of language IFJ22
+ * @file expr_stack.c
+ * @author Tomáš Frátrik - xfratr01
+ * 
+ * @brief Implementation of a stack for the precedence analyzer unit
  */
 
 #include"expr_stack.h"

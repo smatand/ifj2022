@@ -94,8 +94,8 @@ int rFunctionDefinition(Parser_t *parser)
 		return ret;
 	}
 
-	push_empty(parser->localSymStack); // push new sym_table
-	if (parser->localSymStack == NULL)
+	
+	if (push_empty(parser->localSymStack) != SUCCESS) // push new sym_table
 	{
 		return ERR_INTERNAL;
 	}
