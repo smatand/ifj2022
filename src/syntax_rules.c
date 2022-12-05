@@ -561,9 +561,9 @@ int rTerm(Parser_t *parser)
 
 		CODEGEN_INSERT_IN_DLL("pushs int@", str);
 
-		free(str);
 		fflush(stdout);
 		parser->onArg++;
+		free(str);
 	}
 	else if (parser->currentToken->type == TOK_STRING_LIT)
 	{
@@ -580,9 +580,9 @@ int rTerm(Parser_t *parser)
 
 		CODEGEN_INSERT_IN_DLL("pushs string@", str);
 
-		free(str);
 		fflush(stdout);
 		parser->onArg++;
+		free(str);
 	}
 	else if (parser->currentToken->type == TOK_DEC_LIT)
 	{
@@ -598,12 +598,14 @@ int rTerm(Parser_t *parser)
 		CODEGEN_INSERT_IN_DLL("pushs float@", str);
 		fflush(stdout);
 		parser->onArg++;
+		free(str);
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_NULL)
 	{
 		// TODO: check for type matching in code gen
-		printf("defvar TF@%%%d\n", parser->onArg);
-		printf("move TF@%%%d nil@nil\n", parser->onArg);
+		//printf("defvar TF@%%%d\n", parser->onArg);
+		//printf("move TF@%%%d nil@nil\n", parser->onArg);
+		printf("pushs nil@nil\n");
 		fflush(stdout);
 		parser->onArg++;
 	}
