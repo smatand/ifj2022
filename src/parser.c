@@ -125,14 +125,6 @@ void destroyParser(Parser_t *parser)
 	parser = NULL;
 }
 
-int parseSource(Parser_t *parser)
-{
-	int ret = SUCCESS;
-	ret = rProgram(parser);
-
-	return ret;
-}
-
 int getNextToken(Parser_t *parser)
 {
 	int ret = SUCCESS;

@@ -19,7 +19,7 @@ int main()
     }
 
     // calling syntax analysis
-    if((ret = parseSource(parser)) != SUCCESS)
+    if((ret = rProgram(parser)) != SUCCESS)
     {
         fprintf(stderr, "PARSER ERROR (main): Exit with error code %d", ret);
     }

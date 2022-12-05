@@ -68,14 +68,6 @@ int checkTokenType(token_t *token, tokenType_t type);
  */
 int checkTokenKeyword(token_t *token, keyword_t keyword);
 
-/**
- * @brief Parse the source code
- * @param parser struct to work with
- *
- * @return Error code
- */
-int parseSource(Parser_t *parser);
-
 //###############################~~~RULES~~~###############################
 
 // Rule #1 = <program>  ->  <prolog> <units> <program_end>
