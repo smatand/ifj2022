@@ -416,7 +416,7 @@ void gen_checkType(){
 			"jumpifneq error_sem7 LF@type_var2 string@string\n"
 			"gt LF@_bool LF@_var1 LF@_var2\n"
 			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
-			"gt LF@_bool LF@_var1 LF@_var2\n"
+			"gt LF@_bool LF@_var1 LF@_var2f\n"
 			"move LF@_var1 LF@_bool\n"
 			"move LF@_var2 LF@_bool\n"
 			"jump checkEnd\n"

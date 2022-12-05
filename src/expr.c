@@ -15,18 +15,19 @@
 #include"error.h"
 #include"generator.h"
 
-int main(){ 
-	token_t *token = tokenInit();
-	scanToken(token);
-	// token_t *token2 = tokenInit();
-	// scanToken(token2);
-	int returnToken;
-	int returnVal = exprParse(token,NULL,&returnToken);
-	(void)returnToken;
-	(void)returnVal;
-
-
-}
+// int main(){ 
+// 	// token_t *token2 = tokenInit();
+// 	// scanToken(token2);
+// 	int returnToken;
+// 	token_t *token = tokenInit();
+// 	scanToken(token);
+// 	int returnVal = exprParse(token,NULL,&returnToken);
+// 	// token = tokenInit();
+// 	// scanToken(token);
+// 	// returnVal = exprParse(token,NULL,&returnToken);
+// 	(void)returnToken;
+// 	(void)returnVal;
+// }
 
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	int returnVal = SUCCESS;
