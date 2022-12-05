@@ -1,6 +1,10 @@
 /**
+ * Project: Translator of language IFJ22
  * @file parser.c
- *
+ * @author Andrej Smatana - xsmata03
+ * @author János László Vasík - xvasik05
+ * @author Martin Maršalek - xmarsa15
+ * 
  * @brief Implementation of parser module for IFJ22
  */
 
@@ -52,8 +56,7 @@ Parser_t *initParser()
 		goto freeDLList;
 	}
 
-
-	push_empty(parser->localSymStack); // TODO no effect, no body in function sym_table_stack.c
+	push_empty(parser->localSymStack);
 
 	// built-in functions
 	token_data_t *floatval = createTokenDataFunction("floatval");
@@ -112,7 +115,7 @@ freeHtab:
 freeParser:
 	free(parser);
 returnNull:
-	return NULL; // ERR_INTERNAL
+	return NULL;
 }
 
 void destroyParser(Parser_t *parser)
@@ -131,16 +134,15 @@ void destroyParser(Parser_t *parser)
 
 int getNextToken(Parser_t *parser)
 {
+	// it is just reassigning the pointer, currToken = nextToken, 
+	// then putting the next incoming token into nextToken
 	int ret = SUCCESS;
-
-	// it is just reassigning the pointer, now currToken = nextToken
-	//parser->currentToken = parser->nextToken; 
 
 	token_t * temp = parser->currentToken;
 
 	parser->currentToken = parser->nextToken;
 
-	freeToken(temp); // just the string freeing
+	freeToken(temp);
 
 	parser->nextToken = temp;
 
@@ -149,7 +151,6 @@ int getNextToken(Parser_t *parser)
 		fprintf(stderr, "SCANNER ERROR (getNextToken): Exit with error code %d", ret);
 		return ret;
 	}
-
 
 	return ret;
 }
