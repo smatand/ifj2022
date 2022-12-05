@@ -824,6 +824,14 @@ void genTypeCheck(int count) {
     printf("pushs LF@_paramType%%%d\n", count);
     printf("jumpifneqs _TYPE_SEM_ERR\n");
 }
+
+void genFunctionAmountOfParamsCheck(int count) {
+	printf("defvar LF@%%_count_def_par # TOTO JE NOVE\n"); // TODO remove comment
+	printf("move LF@%%_count_def_par int@%d\n", count);
+	printf("pushs LF@%%_count_def_par\n");
+	printf("pushs LF@%%_countArgs\n");
+	printf("jumpifneqs _TYPE_SEM_ERR\n");
+}
     //switch(token->type) {
     //    case TOK_STRING_LIT: ;
     //        char * ptr = convertStringToIFJ(token->attribute.strVal->str); // dynamically allocated str

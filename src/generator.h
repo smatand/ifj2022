@@ -104,4 +104,6 @@ void genFunctionRetType(keyword_t kw);
 
 void genTypeCheck(int count);
 
+void genFunctionAmountOfParamsCheck(int count);
+
 #endif // GENERATOR_H
