@@ -1,6 +1,9 @@
 /**
+ * Project: Translator of language IFJ22
  * @file main.c
- * @author János László Vasík
+ * @author János László Vasík - xvasik05
+ * @author Martin Maršalek - xmarsa15
+ * @author Andrej Smatana - xsmata03
  *
  * @brief Main function of the compiler
 */

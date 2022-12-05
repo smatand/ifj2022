@@ -1,7 +1,6 @@
 /**
  * Project: Translator of language IFJ22
  * @file str.h
- * 
  * @author Andrej Smatana - xsmata03
  * @author János László Vasík - xvasik05
  * @author Tomáš Frátrik - xfratr01
