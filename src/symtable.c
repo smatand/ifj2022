@@ -1,10 +1,16 @@
+/**
+ * Project: Translator of language IFJ22
+ * @file symtable.cc
+ * @author Martin Maršalek - xmarsa15
+ * 
+ * @brief Implementation of symbol table module for IFJ22
+ */
+
 #include "symtable.h"
 
 size_t htab_hash_function(htab_key_t str)
-{
-	// TODO: Change this function maybe?
-	
-	uint32_t h = 0; // musí mít 32 bitů
+{	
+	uint32_t h = 0; // must have 32 bits
 	const unsigned char *p;
 	for (p = (const unsigned char *)str; *p != '\0'; p++)
 		h = 65599 * h + *p;
@@ -64,7 +70,7 @@ void htab_resize(htab_t *t, size_t newn)
 	htab_t *newT = htab_init(newn);
 	if (newT == NULL)
 	{
-		//htab_free(newT); // TODO: memory leak
+		htab_free(newT);
 		return;
 	}
 

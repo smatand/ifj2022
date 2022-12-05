@@ -1,5 +1,14 @@
-// hash_tab.h -- rozhraní knihovny htab (řešení IJC-DU2)
-// Licence: žádná (Public domain)
+/**
+ * Project: Translator of language IFJ22
+ * @file symtable.h
+ * @author Martin Maršalek - xmarsa15
+ * 
+ * @brief Header file of symbol table module for IFJ22
+ * 
+ * Used citations of code:
+ * 1.	hash_tab.h -- rozhraní knihovny htab (řešení IJC-DU2)
+ * 		license: none (Public domain)
+ */
 
 #ifndef SYMTABLE_H
 #define SYMTABLE_H
@@ -34,11 +43,8 @@ typedef enum
 /** @brief Structure of token data */
 typedef struct token_data
 {
-	//const char *ID;
 	token_type_t type;
 } token_data_t;
-
-//typedef struct token_data token_data_t;
 
 /** @brief Structure of a hash table item's content */
 typedef struct htab_pair
@@ -47,16 +53,12 @@ typedef struct htab_pair
 	token_data_t *data;
 } htab_pair_t;
 
-//typedef struct htab_pair htab_pair_t;
-
 /** @brief Structure of a hash table item */
 typedef struct htab_item
 {
 	htab_pair_t pair;
 	struct htab_item* next;
 } htab_item_t;
-
-//typedef struct htab_item htab_item_t;
 
 /** @brief Structure of hash table */
 typedef struct htab
@@ -83,25 +85,25 @@ size_t htab_hash_function(htab_key_t str);
 htab_t *htab_init(size_t n);
 
 /** 
- * @brief Returns the number of hash table items
+ * @brief Returns the number of items in hash table
  * @param t pointer to a hash table
  * 
- * @return SUCCESS, otherwise ERR_INTERNAL
+ * @return number of items
  */
 size_t htab_size(const htab_t *t);
 
 /** 
- * @brief Allocate memory for token
+ * @brief Returns the number of buckets in hash table
  * @param t pointer to a hash table
  * 
- * @return SUCCESS, otherwise ERR_INTERNAL
+ * @return the number of buckets
  */
 size_t htab_bucket_count(const htab_t *t);
 
 /** 
  * @brief Resize the hash table
  * @param t pointer to a hash table
- * @param newn number of buckets
+ * @param newn new number of buckets
  */
 void htab_resize(htab_t *t, size_t newn);
 
@@ -119,7 +121,6 @@ htab_pair_t *htab_find(htab_t *t, htab_key_t key);
  * @param t pointer to a hash table
  * @param key key of the new item
  * @param data data of the new item
- * @param type data type of the new item
  * 
  * @return pointer to the new hash table item, or NULL if an item with the key already exists
  */
@@ -130,10 +131,18 @@ htab_pair_t *htab_add(htab_t *t, htab_key_t key, token_data_t *data);
  * @param t pointer to a hash table
  * @param key key value of the desired item
  * 
- * @return pointer to hash table item, or NULL if not found
+ * @return true if an item is deleted, otherwise false
  */
 bool htab_erase(htab_t *t, htab_key_t key);
 
+
+/** 
+ * @brief Call function on all items in hash table
+ * @param t pointer to a hash table
+ * @param f pointer to function to be applied
+ * 
+ * @return true if an item is deleted, otherwise false
+ */
 void htab_for_each(const htab_t *t, void (*f)(htab_pair_t *data));
 
 /** 
