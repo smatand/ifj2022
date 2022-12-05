@@ -14,7 +14,7 @@
         }                                           \
                                                     \
         strPushBack(tmp, str1, strlen(str1));       \
-        strPushBack(tmp, str2, strlen(str2));       \
+        strPushBack(tmp, str2, 32);       \
                                                     \
         if (DLLInsertLast(parser->codeGen, tmp->str, tmp->realLen+1) != SUCCESS) \
             return ERR_INTERNAL;                    \
@@ -94,7 +94,7 @@ char * convertIntToIFJ(int x);
  * @param str C float
  * @return IFJcode22 string
 */
-char * convertFloatToIFJ(float x);
+char * convertFloatToIFJ(double x);
 
 void genToPush(char * toPush);
 
