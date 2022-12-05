@@ -1,7 +1,11 @@
 /**
+ * Project: Translator of language IFJ22
  * @file expr.c
- *
- * @brief Implementation of precedence alanysis for IFJ22
+ * @author Tomáš Frátrik - xfratr01
+ * @author Andrej Smatana - xsmata03
+ * @author Martin Maršalek - xmarsa15
+ * 
+ * @brief Implementation of precedence analyzer unit
  */
 
 #include <stdio.h>
@@ -753,7 +757,6 @@ precTokenType_t tokenTypeToeType(token_t *token)
 	}
 }
 
-// function used for debugging, function prints type of term
 char *tokenTypeToStr(token_t *token)
 {
 	tokenType_t type = token->type;
