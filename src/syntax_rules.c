@@ -152,8 +152,8 @@ int rParam(Parser_t *parser)
 
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 
-	printf("defvar LF@param%d\n", parser->onParam);						   // generate param as paramX
-	//printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
+	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
+	// printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
 	fflush(stdout);
 	parser->onParam++;
 
@@ -177,11 +177,13 @@ int rParams_n(Parser_t *parser)
 
 	genFunctionAmountOfParamsCheck(parser->onParam);
 
-	while (parser->onParam) {
+	while (parser->onParam)
+	{
 		printf("pops LF@param%d\n", --parser->onParam); // assign argX to paramX
-	} 
+	}
 
-	while (parser->onParamType) {
+	while (parser->onParamType)
+	{
 		genTypeCheck(--parser->onParamType);
 	}
 	return SUCCESS;
@@ -203,9 +205,9 @@ int rParam_n(Parser_t *parser)
 
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 
-	printf("defvar LF@param%d\n", parser->onParam);						   // generate param as paramX
-	//printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
-	//printf("pops LF@param%d\n", parser->onParam); // assign argX to paramX
+	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
+	// printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
+	// printf("pops LF@param%d\n", parser->onParam); // assign argX to paramX
 	fflush(stdout);
 	parser->onParam++;
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
@@ -218,17 +220,23 @@ int rType(Parser_t *parser)
 {
 	// the token in this position must either be type_id (checked by the scanner)
 	// or a keyword (which we have to check ourselves)
-	if (parser->currentToken->type == TOK_TYPE_ID) {
+	if (parser->currentToken->type == TOK_TYPE_ID)
+	{
 		;
-	} else if (parser->currentToken->type == TOK_KEYWORD) {
-		switch (parser->currentToken->attribute.kwVal) {
-			case KW_INT:
-			case KW_FLOAT:
-			case KW_STRING:
-			case KW_VOID:
-				break;
+	}
+	else if (parser->currentToken->type == TOK_KEYWORD)
+	{
+		switch (parser->currentToken->attribute.kwVal)
+		{
+		case KW_INT:
+		case KW_FLOAT:
+		case KW_STRING:
+		case KW_VOID:
+			break;
 		}
-	} else { // incorrect token, syn err
+	}
+	else
+	{ // incorrect token, syn err
 		return ERR_SYN_ANALYSIS;
 	}
 
@@ -379,8 +387,8 @@ int rConditionalStatement(Parser_t *parser)
 	}
 	parser->nextToken->type = ret;
 
-	printf("defvar LF@?if%d\n", parser->ifCounter); // helper variable for if condition
-	printf("pops LF@?if%d\n", parser->ifCounter); // pop expression result (bool) into helper variable
+	printf("defvar LF@?if%d\n", parser->ifCounter);										  // helper variable for if condition
+	printf("pops LF@?if%d\n", parser->ifCounter);										  // pop expression result (bool) into helper variable
 	printf("jumpifeq _if%d LF@?if%d bool@false\n", parser->ifCounter, parser->ifCounter); // skip code if expr result was false
 
 	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
@@ -405,6 +413,9 @@ int rWhileLoopStatement(Parser_t *parser)
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 
+	printf("defvar LF@?while%d\n", parser->whileCounter); // helper variable for if condition
+	printf("label _while_begin%d\n", parser->whileCounter); // label for jumping backwards TODO: does this work?
+
 	int ret;
 
 	int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
@@ -414,13 +425,21 @@ int rWhileLoopStatement(Parser_t *parser)
 	}
 	parser->nextToken->type = ret;
 
-
+	printf("pops LF@?while%d\n", parser->whileCounter);													  // pop expression result (bool) into helper variable
+	printf("jumpifeq _while_end%d LF@?while%d bool@false\n", parser->whileCounter, parser->whileCounter); // skip code if expr result was false
 
 	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
+
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
+
+	printf("jump _while_begin%d\n", parser->whileCounter); // label for jumping backwards
+	printf("label _while_end%d\n", parser->whileCounter); // label for skipping code
+	fflush(stdout);
+
+	parser->whileCounter++;
 	return SUCCESS;
 }
 
@@ -437,9 +456,9 @@ int rFunctionCallStatement(Parser_t *parser)
 
 	htab_pair_t *calledFunction = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str);
 
-	//if (!strcmp(calledFunction->key, "write")) {
+	// if (!strcmp(calledFunction->key, "write")) {
 	//	printf("write ");
-	//}
+	// }
 
 	int ret = getNextToken(parser);
 	if (ret != SUCCESS)
@@ -478,7 +497,7 @@ int rArguments(Parser_t *parser)
 		CALL_RULE(rArguments_n);
 	}
 
-	char * argCount = convertIntToIFJ(parser->onArg);
+	char *argCount = convertIntToIFJ(parser->onArg);
 	if (argCount == NULL)
 	{
 		return ERR_INTERNAL;
@@ -558,19 +577,20 @@ int rTerm(Parser_t *parser)
 			fprintf(stderr, "[ERROR] Semantic error, passing undeclared variable as argument.\n");
 			exit(ERR_SEM_UNDEFINED_VAR);
 		}
-		//printf("defvar TF@%%%d\n", parser->onArg);
-		//printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
-		//CODEGEN_INSERT_IN_DLL("defvar TF@%%%d", parser->onArg);
+		// printf("defvar TF@%%%d\n", parser->onArg);
+		// printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
+		// CODEGEN_INSERT_IN_DLL("defvar TF@%%%d", parser->onArg);
 		fflush(stdout);
 		parser->onArg++;
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT)
 	{
 		// TODO: check for type matching in code gen
-		//printf("defvar TF@%%%d\n", parser->onArg);
-		//printf("move TF@%%%d int@%d\n", parser->onArg, parser->currentToken->attribute.intVal); // TODO: no conversion necessary here?
-		char * str = convertIntToIFJ(parser->currentToken->attribute.intVal);
-		if (str==NULL) {
+		// printf("defvar TF@%%%d\n", parser->onArg);
+		// printf("move TF@%%%d int@%d\n", parser->onArg, parser->currentToken->attribute.intVal); // TODO: no conversion necessary here?
+		char *str = convertIntToIFJ(parser->currentToken->attribute.intVal);
+		if (str == NULL)
+		{
 			return ERR_INTERNAL;
 		}
 
@@ -584,14 +604,14 @@ int rTerm(Parser_t *parser)
 	{
 
 		// TODO: check for type matching in code gen
-		//printf("defvar TF@%%%d\n", parser->onArg);
+		// printf("defvar TF@%%%d\n", parser->onArg);
 
 		char *str = convertStringToIFJ(parser->currentToken->attribute.strVal->str); // TODO: does this work?
 		if (str == NULL)
 		{
 			return ERR_INTERNAL;
 		}
-		//printf("move TF@%%%d string@%s\n", parser->onArg, temp);
+		// printf("move TF@%%%d string@%s\n", parser->onArg, temp);
 
 		CODEGEN_INSERT_IN_DLL("pushs string@", str);
 
@@ -602,8 +622,8 @@ int rTerm(Parser_t *parser)
 	else if (parser->currentToken->type == TOK_DEC_LIT)
 	{
 		// TODO: check for type matching in code gen
-		//printf("defvar TF@%%%d\n", parser->onArg);
-		//printf("move TF@%%%d float@%a\n", parser->onArg, parser->currentToken->attribute.decVal); // TODO: does this work?
+		// printf("defvar TF@%%%d\n", parser->onArg);
+		// printf("move TF@%%%d float@%a\n", parser->onArg, parser->currentToken->attribute.decVal); // TODO: does this work?
 		char *str = convertFloatToIFJ(parser->currentToken->attribute.decVal);
 		if (str == NULL)
 		{
@@ -618,8 +638,8 @@ int rTerm(Parser_t *parser)
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_NULL)
 	{
 		// TODO: check for type matching in code gen
-		//printf("defvar TF@%%%d\n", parser->onArg);
-		//printf("move TF@%%%d nil@nil\n", parser->onArg);
+		// printf("defvar TF@%%%d\n", parser->onArg);
+		// printf("move TF@%%%d nil@nil\n", parser->onArg);
 		printf("pushs nil@nil\n");
 		fflush(stdout);
 		parser->onArg++;
