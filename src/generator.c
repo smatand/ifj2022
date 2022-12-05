@@ -788,7 +788,7 @@ void genFunctionParamType(keyword_t kw, int count) {
             printf("move LF@_paramType%%%d string@float\n", count);
             break;
         case KW_STRING:
-            printf("move LF@_paramType%%%d string@string", count);
+            printf("move LF@_paramType%%%d string@string\n", count);
             break;
         default: // todo
             fprintf(stderr, "Error: line %d", __LINE__);
