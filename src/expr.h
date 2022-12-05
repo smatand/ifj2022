@@ -1,8 +1,12 @@
 /**
-* @file expr.h
-*
-* @brief Implementation of parser module for IFJ22
-*/
+ * Project: Translator of language IFJ22
+ * @file expr.h
+ * @author Andrej Smatana - xsmata03
+ * @author Tomáš Frátrik - xfratr01
+ * 
+ * @brief Header file for expression analyzer unit
+ */
+
 #ifndef EXPR_H
 #define EXPR_H
 
