@@ -66,13 +66,16 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		fprintf(stderr, "expr,ERROR: internal Error \n");
 		return ERR_SYN_ANALYSIS;
 	}
+	
 	bool secondTokenDelay = false;
 	bool generateCode = true;
+
 	if (secondToken != NULL)
 	{
 		generateCode = false;
 		secondTokenDelay = true; // expression isn't assigned to anything
 	}
+
 	if (generateCode)
 	{
 		genInit();
@@ -327,6 +330,7 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 	token_t *token = item->token;
 	htab_pair_t *pair;
 	printf("defvar LF@tmp%ld\n", *nonTermCnt);
+	//generate definition code based on the type of token
 	switch (type)
 	{
 	case TOK_INT_LIT:
@@ -341,6 +345,7 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 		printf("move LF@tmp%ld LF@_tmp%ld \n", *nonTermCnt, *nonTermCnt);
 		break;
 	case TOK_VARIABLE:
+		//try to find variable in the table of symbols
 		pair = htab_find(parser->localSymStack->top->table, token->attribute.strVal->str);
 		if (pair == NULL)
 		{
@@ -373,16 +378,11 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 
 void generateCode_operation(eItem_t *item1, eItem_t *item2, eItem_t *operationItem, size_t *nonTermCnt)
 {
-	// token_t *token1 = item1->token;
-	// token_t *token2 = item2->token;
-	// token_t *tokenOperation = operation->token;
-	// A+B
-	// item1 = A
-	// item2 = B
 	int operation = operationItem->token->type;
 	printf("defvar LF@tmp%ld\n", *nonTermCnt);
 	printf("pushs LF@tmp%ld\n", item2->id);
 	printf("pushs LF@tmp%ld\n", item1->id);
+	//generate code -> operation based on the operation token
 	switch (operation)
 	{
 	case TOK_PLUS:
