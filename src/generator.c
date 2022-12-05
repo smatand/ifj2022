@@ -726,13 +726,14 @@ char * convertIntToIFJ(int x) {
     return ptr;
 }
 
-char * convertFloatToIFJ(float x) {
+char * convertFloatToIFJ(double x) {
     char * ptr = malloc(32);
     if (ptr == NULL) {
         exit(ERR_INTERNAL);
     }
 
-    snprintf(ptr, 32, "%a", x); // printing in hexadecimal format as required
+    snprintf(ptr, 32, "%a", x);
+    //sprintf(ptr, "%a", x); // printing in hexadecimal format as required
 
     return ptr;
 }
