@@ -125,7 +125,13 @@ typedef enum {
 token_t * tokenInit();
 
 /**
- * @brief Frees token
+ * @brief Frees allocated attributes of token
+ * @param token token to operate with
+ */
+void cleanToken(token_t * token);
+
+/**
+ * @brief Frees token and and any allocated attributes
  * @param token token to operate with
  */
 void freeToken(token_t * token);

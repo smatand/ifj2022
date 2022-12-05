@@ -106,10 +106,8 @@ freeDLList:
 	free(parser->codeGen);
 freeNextToken:
 	freeToken(parser->nextToken);
-    free(parser->nextToken);
 freeCurrentToken:
 	freeToken(parser->currentToken);
-    free(parser->currentToken);
 freeHtab:
 	htab_clear(parser->globalSymTable);
 freeParser:
@@ -122,8 +120,6 @@ void destroyParser(Parser_t *parser)
 {
 	freeToken(parser->currentToken);
 	freeToken(parser->nextToken);
-	free(parser->currentToken);
-	free(parser->nextToken);
 	htab_free(parser->globalSymTable);
 	empty_stack(parser->localSymStack);
 	DLLDispose(parser->codeGen);
@@ -142,7 +138,7 @@ int getNextToken(Parser_t *parser)
 
 	parser->currentToken = parser->nextToken;
 
-	freeToken(temp);
+	cleanToken(temp);
 
 	parser->nextToken = temp;
 

@@ -89,7 +89,7 @@ eItem_t *eStackPopItem(eStack_t *stack){
 void freeItem(eItem_t *item){
     if(item == NULL) return;
     if(item->token != NULL){
-        freeToken(item->token);
+        cleanToken(item->token);
     }
     free(item);
 }
@@ -97,7 +97,7 @@ void freeItem(eItem_t *item){
 void eStackDeleteFirst(eStack_t *stack){
     eItem_t *itemToDelete = eStackPopItem(stack);
     if(itemToDelete->token != NULL){
-        freeToken(itemToDelete->token);
+        cleanToken(itemToDelete->token);
     }
      free(itemToDelete);
 }

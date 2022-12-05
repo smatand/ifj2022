@@ -182,6 +182,5 @@ int main() {
     } while (token->type != TOK_EOF); // detecting the end
 
     freeToken(token);
-    free(token);
     return 0;
 }
