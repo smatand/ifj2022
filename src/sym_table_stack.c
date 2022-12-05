@@ -1,3 +1,12 @@
+/**
+ * Project: Translator of language IFJ22
+ * @file sym_table_stack.c
+ * @author Martin Maršalek - xmarsa15
+ * @author Andrej Smatana - xsmata03
+ * 
+ * @brief Implementation of stack of symbol tables 
+ */
+
 #include <stdlib.h>
 
 #include "sym_table_stack.h"
@@ -16,32 +25,34 @@ int init_stack(sym_stack_t **stack)
 	return SUCCESS;
 }
 
-void push_table(sym_stack_t *stack, htab_t *table)
+int push_table(sym_stack_t *stack, htab_t *table)
 {
 	sym_stack_element_t *new = malloc(sizeof(sym_stack_element_t));
 	if (new == NULL)
 	{
 		fprintf(stderr, "[ERROR] Sym table stack, failure to allocate element in push function");
-		exit(ERR_INTERNAL);
+		return ERR_INTERNAL;
 	}
 
 	new->table = table;
 	new->next = stack->top;
 	stack->top = new;
+	return SUCCESS;
 }
 
-void push_empty(sym_stack_t *stack)
+int push_empty(sym_stack_t *stack)
 {
 	sym_stack_element_t *new = malloc(sizeof(sym_stack_element_t));
 	if (new == NULL)
 	{
 		fprintf(stderr, "[ERROR] Sym table stack, failure to allocate element in push function");
-		//exit(ERR_INTERNAL);
+		return ERR_INTERNAL;
 	}
 
 	new->table = htab_init(INITIAL_BUCKET_COUNT);
 	new->next = stack->top;
 	stack->top = new;
+	return SUCCESS;
 }
 
 int pop(sym_stack_t *stack)
@@ -55,8 +66,7 @@ int pop(sym_stack_t *stack)
 	htab_free(tmp->table);
 	free(tmp);
 
-
-	return 0;
+	return SUCCESS;
 }
 
 htab_t *top(sym_stack_t *stack)
