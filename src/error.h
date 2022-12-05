@@ -1,3 +1,11 @@
+/**
+* @file error.h
+*
+* @author Andrej Smatana - xsmata03
+*
+* @brief Error code definitions
+*/
+
 #ifndef ERROR_H
 #define ERROR_H
 
