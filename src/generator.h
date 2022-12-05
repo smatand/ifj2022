@@ -5,7 +5,7 @@
 #include "dll.h"
 #include "str.h"
 
-#define CONCAT_STRINGS_DLL(str1, str2)              \
+#define CODEGEN_INSERT_IN_DLL(str1, str2)           \
     do {                                            \
         int ret = 0;                                \
         string_t * tmp = stringInit(&ret);          \
@@ -16,7 +16,8 @@
         strPushBack(tmp, str1, strlen(str1));       \
         strPushBack(tmp, str2, strlen(str2));       \
                                                     \
-        DLLInsertLast(list, tmp->str, tmp->realLen+1);\
+        if (DLLInsertLast(parser->codeGen, tmp->str, tmp->realLen+1) != SUCCESS) \
+            return ERR_INTERNAL;                    \
         stringDestroy(tmp);                         \
     } while (0)
 
@@ -37,7 +38,7 @@ void gen_readf();
  * @param list to insert instruction of ifjcode22
  * @return ERR_INTERNAL in case of malloc failed
  */
-int gen_write(/*token_t * token, DLList_t * list*/);
+void gen_write();
 
 /** @brief function floatval(term) : ?float */
 void gen_floatval();
@@ -94,5 +95,7 @@ char * convertIntToIFJ(int x);
  * @return IFJcode22 string
 */
 char * convertFloatToIFJ(float x);
+
+void genToPush(char * toPush);
 
 #endif // GENERATOR_H

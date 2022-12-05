@@ -31,21 +31,27 @@ Parser_t *initParser()
 	{
 		goto freeCurrentToken;
 	}
-
-	if ((scanToken(parser->currentToken)) != SUCCESS) // scan first token
+	parser->codeGen = malloc(sizeof(DLList_t));
+	if (parser->codeGen == NULL)
 	{
 		goto freeNextToken;
+	}
+	DLLInit(parser->codeGen);
+	if ((scanToken(parser->currentToken)) != SUCCESS) // scan first token
+	{
+		goto freeDLList;
 	}
 
 	if ((scanToken(parser->nextToken)) != SUCCESS) // scan second token
 	{
-		goto freeNextToken;
+		goto freeDLList;
 	}
 
 	if ((init_stack(&(parser->localSymStack))) != SUCCESS)
 	{
-		goto freeNextToken;
+		goto freeDLList;
 	}
+
 
 	push_empty(parser->localSymStack); // TODO no effect, no body in function sym_table_stack.c
 
@@ -88,6 +94,9 @@ Parser_t *initParser()
 
 	return parser;
 
+freeDLList:
+	DLLDispose(parser->codeGen);
+	free(parser->codeGen);
 freeNextToken:
 	freeToken(parser->nextToken);
     free(parser->nextToken);
@@ -110,6 +119,7 @@ void destroyParser(Parser_t *parser)
 	free(parser->nextToken);
 	htab_free(parser->globalSymTable);
 	empty_stack(parser->localSymStack);
+	DLLDispose(parser->codeGen);
 
 	free(parser);
 	parser = NULL;

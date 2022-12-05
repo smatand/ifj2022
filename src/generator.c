@@ -56,31 +56,27 @@ void gen_readf() {
             "return\n"
             );
 }
-
-int gen_write(/*token_t * token, DLList_t * list*/) {
+void gen_write() {
+    printf("jump $write_end\n");
     printf("label $write\n");
     printf("createframe\n");
     printf("pushframe\n");
-
     printf("defvar LF@_count\n");
     printf("defvar LF@_toPrint\n");
     printf("defvar LF@_tmp\n");
     printf("pops LF@_count\n");
-    
     printf("eq LF@_tmp LF@_count int@0\n");
-    printf("jumpifeq $write_end LF@_tmp bool@true\n");
-
+    printf("jumpifeq $write_ret LF@_tmp bool@true\n");
     printf("label $write_loop\n");
     printf("pops LF@_toPrint\n");
     printf("write LF@_toPrint\n");
     printf("sub LF@_count LF@_count int@1\n");
-    printf("jumpifeq $write_loop LF@_count int@0\n");
+    printf("jumpifneq $write_loop LF@_count int@0\n");
 
-    printf("label $write_end\n");
+    printf("label $write_ret\n");
     printf("popframe\n");
     printf("return\n");
-
-    return 0;
+    printf("label $write_end\n");
 }
 
 void gen_floatval() {
@@ -756,12 +752,10 @@ void genFunctionEnd(char * functionName) {
     , functionName);
 }
 
-void genFunctionParamDefault(char * paramName) {
-    printf(
-        "defvar LF@%s\n"
-        "move LF@%s nil@nil\n"
-    , paramName, paramName);
-}
+//int genToPush(char * toPush) {
+//    CONCAT_STRINGS_DLL(")
+//    
+//}
 
 void genFunctionParam(char * functionName, char * paramName) {
     static int paramCounter = 0;

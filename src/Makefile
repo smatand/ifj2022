@@ -23,10 +23,10 @@ scanner.o: scanner.c scanner.h str.h error.h
 str.o: str.c str.h error.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-parser.o: parser.c parser.h symtable.h scanner.h error.h sym_table_stack.h
+parser.o: parser.c parser.h symtable.h scanner.h error.h sym_table_stack.h generator.h dll.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-syntax_rules.o: syntax_rules.c parser.h parser_macros.h error.h sym_table_stack.h
+syntax_rules.o: syntax_rules.c parser.h parser_macros.h error.h sym_table_stack.h dll.h generator.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 token.o: token.c token.h symtable.h error.h str.h

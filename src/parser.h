@@ -23,6 +23,7 @@ typedef struct Parser
 	sym_stack_t *localSymStack;
 	token_t *currentToken;
 	token_t *nextToken;
+	DLList_t *codeGen;
 
 	int onParam;
 	int onArg;

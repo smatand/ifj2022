@@ -10,6 +10,8 @@
 #include "expr.h"
 #include "sym_table_stack.h"
 #include "token.h"
+#include "dll.h"
+#include "generator.h"
 
 int rProgram(Parser_t *parser)
 {
@@ -398,7 +400,12 @@ int rFunctionCallStatement(Parser_t *parser)
 	}
 
 	printf("createframe\n");
+
 	htab_pair_t *calledFunction = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str);
+
+	//if (!strcmp(calledFunction->key, "write")) {
+	//	printf("write ");
+	//}
 
 	int ret = getNextToken(parser);
 	if (ret != SUCCESS)
@@ -436,6 +443,17 @@ int rArguments(Parser_t *parser)
 		CALL_RULE(rTerm);
 		CALL_RULE(rArguments_n);
 	}
+
+	char * argCount = convertIntToIFJ(parser->onArg);
+	if (argCount == NULL)
+	{
+		return ERR_INTERNAL;
+	}
+	CODEGEN_INSERT_IN_DLL("pushs int@", argCount);
+
+	DLLPrintAll(parser->codeGen);
+
+	free(argCount);
 	return SUCCESS;
 }
 
@@ -465,6 +483,7 @@ int rArguments_n(Parser_t *parser)
 		CALL_RULE(rArgument_n);
 		CALL_RULE(rArguments_n);
 	}
+
 	return SUCCESS;
 }
 
@@ -512,13 +531,22 @@ int rTerm(Parser_t *parser)
 	else if (parser->currentToken->type == TOK_INT_LIT)
 	{
 		// TODO: check for type matching in code gen
-		printf("defvar TF@%%%d\n", parser->onArg);
-		printf("move TF@%%%d int@%d\n", parser->onArg, parser->currentToken->attribute.intVal); // TODO: no conversion necessary here?
+		//printf("defvar TF@%%%d\n", parser->onArg);
+		//printf("move TF@%%%d int@%d\n", parser->onArg, parser->currentToken->attribute.intVal); // TODO: no conversion necessary here?
+		char * str = convertIntToIFJ(parser->currentToken->attribute.intVal);
+		if (str==NULL) {
+			return ERR_INTERNAL;
+		}
+
+		CODEGEN_INSERT_IN_DLL("pushs int@", str);
+
+		free(str);
 		fflush(stdout);
 		parser->onArg++;
 	}
 	else if (parser->currentToken->type == TOK_STRING_LIT)
 	{
+
 		// TODO: check for type matching in code gen
 		printf("defvar TF@%%%d\n", parser->onArg);
 
