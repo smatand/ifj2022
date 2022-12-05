@@ -26,6 +26,7 @@ typedef struct Parser
 	DLList_t *codeGen;
 
 	int onParam;
+	int onParamType;
 	int onArg;
 } Parser_t;
 

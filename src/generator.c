@@ -638,7 +638,7 @@ void gen_compute(){
 void genInit() {
     printf(".IFJcode22\n");
 
-    printf("defvar GF@tmp1\n");
+    printf("defvar GF@typeCheck\n");
     printf("defvar GF@tmp2\n");
     printf("defvar GF@tmp3\n");
     printf("defvar GF@tmp4\n");
@@ -660,8 +660,9 @@ void genInit() {
 void genEnd()
 {
     printf("jump _END\n");
+    printf("label _TYPE_SEM_ERR\n");
+    printf("exit int@7\n");
     printf("label _NIL_SEM_ERR\n");
-
     printf("exit int@8\n");
     printf("label _END\n"); // the last line
 }
@@ -744,6 +745,8 @@ void genFunctionLabel(char * functionName) {
         "pushframe\n"
         "defvar LF@%%retval\n"
         "move LF@%%retval nil@nil\n"
+        "defvar LF@%%_countArgs\n"
+        "pops LF@%%_countArgs\n"
     , functionName, functionName);
 }
 
@@ -774,6 +777,53 @@ void genFunctionParam(char * functionName, char * paramName) {
         "move LF@%s LF@%s\n");
 }
 
+void genFunctionParamType(keyword_t kw, int count) {
+    printf("defvar LF@_paramType%%%d\n", count);
+
+    switch (kw) {
+        case KW_INT:
+            printf("move LF@_paramType%%%d string@int\n", count);
+            break;
+        case KW_FLOAT:
+            printf("move LF@_paramType%%%d string@float\n", count);
+            break;
+        case KW_STRING:
+            printf("move LF@_paramType%%%d string@string", count);
+            break;
+        default: // todo
+            fprintf(stderr, "Error: line %d", __LINE__);
+            break;
+    }
+}
+
+void genFunctionRetType(keyword_t kw) {
+    printf("defvar LF@_returnType\n");
+
+    switch (kw) {
+        case KW_INT:
+            printf("move LF@_returnType string@int\n");
+            break;
+        case KW_FLOAT:
+            printf("move LF@_returnType string@float\n");
+            break;
+        case KW_STRING:
+            printf("move LF@_returnType string@string\n");
+            break;
+        case KW_VOID:
+            printf("move LF@_returnType string@void\n");
+            break;
+        default: // todo
+            fprintf(stderr, "Error: line %d", __LINE__);
+            break;
+    }
+}
+
+void genTypeCheck(int count) {
+    printf("type GF@typeCheck LF@param%d\n", count);
+    printf("pushs GF@typeCheck\n");
+    printf("pushs LF@_paramType%%%d\n", count);
+    printf("jumpifneqs _TYPE_SEM_ERR\n");
+}
     //switch(token->type) {
     //    case TOK_STRING_LIT: ;
     //        char * ptr = convertStringToIFJ(token->attribute.strVal->str); // dynamically allocated str

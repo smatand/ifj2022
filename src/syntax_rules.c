@@ -101,6 +101,8 @@ int rFunctionDefinition(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COLON);
 
 	CALL_RULE(rType);
+	genFunctionRetType(parser->currentToken->attribute.kwVal);
+
 	ret = getNextToken(parser);
 	if (ret)
 	{
@@ -133,7 +135,10 @@ int rParams(Parser_t *parser)
 
 int rParam(Parser_t *parser)
 {
+	parser->onParamType = 0;
 	CALL_RULE(rType);
+	genFunctionParamType(parser->currentToken->attribute.kwVal, parser->onParamType);
+	parser->onParamType++;
 
 	int ret = getNextToken(parser);
 	if (ret)
@@ -171,6 +176,11 @@ int rParams_n(Parser_t *parser)
 	}
 	while (parser->onParam) {
 		printf("pops LF@param%d\n", --parser->onParam); // assign argX to paramX
+		//genTypeCheck(parser->onParam);
+	} 
+
+	while (parser->onParamType) {
+		genTypeCheck(--parser->onParamType);
 	}
 	return SUCCESS;
 }
@@ -180,6 +190,8 @@ int rParam_n(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
 
 	CALL_RULE(rType);
+	genFunctionParamType(parser->currentToken->attribute.kwVal, parser->onParamType);
+	parser->onParamType++;
 
 	getNextToken(parser);
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
@@ -204,17 +216,21 @@ int rType(Parser_t *parser)
 {
 	// the token in this position must either be type_id (checked by the scanner)
 	// or a keyword (which we have to check ourselves)
-	if (parser->currentToken->type == TOK_TYPE_ID ||
-		(parser->currentToken->type == TOK_KEYWORD &&
-		 (parser->currentToken->attribute.kwVal == KW_INT || parser->currentToken->attribute.kwVal == KW_FLOAT ||
-		  parser->currentToken->attribute.kwVal == KW_STRING || parser->currentToken->attribute.kwVal == KW_VOID)))
-	{
-		return SUCCESS;
-	}
-	else
-	{ // incorrect token, syn err
+	if (parser->currentToken->type == TOK_TYPE_ID) {
+		;
+	} else if (parser->currentToken->type == TOK_KEYWORD) {
+		switch (parser->currentToken->attribute.kwVal) {
+			case KW_INT:
+			case KW_FLOAT:
+			case KW_STRING:
+			case KW_VOID:
+				break;
+		}
+	} else { // incorrect token, syn err
 		return ERR_SYN_ANALYSIS;
 	}
+
+	return SUCCESS;
 }
 
 int rStatements(Parser_t *parser)

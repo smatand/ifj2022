@@ -41,5 +41,6 @@ jobs:
       run: |
         cd src
         make clean
+        rm -rf ../IFJ22tester/tests/Boolthen ../IFJ22tester/tests/Funexp ../IFJ22tester/tests/Strnum ../IFJ22tester/tests/Operators
         make student_test
     # parser tests

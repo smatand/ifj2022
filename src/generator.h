@@ -98,4 +98,10 @@ char * convertFloatToIFJ(float x);
 
 void genToPush(char * toPush);
 
+void genFunctionParamType(keyword_t kw, int count);
+
+void genFunctionRetType(keyword_t kw);
+
+void genTypeCheck(int count);
+
 #endif // GENERATOR_H
