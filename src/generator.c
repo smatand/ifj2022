@@ -661,7 +661,7 @@ void genEnd()
 {
     printf("jump _END\n");
     printf("label _TYPE_SEM_ERR\n");
-    printf("exit int@7\n");
+    printf("exit int@4\n");
     printf("label _NIL_SEM_ERR\n");
     printf("exit int@8\n");
     printf("label _END\n"); // the last line
