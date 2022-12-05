@@ -252,7 +252,7 @@ int rStatements(Parser_t *parser)
 	{
 		int ret;
 
-		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret);
+		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
 		if (retVal != SUCCESS)
 		{
 			return retVal;
@@ -294,7 +294,7 @@ int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 	{
 		int ret;
 
-		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret);
+		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
 		if (retVal != SUCCESS)
 		{
 			return retVal;
@@ -350,7 +350,7 @@ int rAssignmentStatement(Parser_t *parser)
 	{
 		int ret;
 
-		int retVal = exprParse(parser->currentToken, NULL, &ret);
+		int retVal = exprParse(parser->currentToken, NULL, &ret, parser);
 		if (retVal != SUCCESS)
 		{
 			return retVal;
@@ -372,7 +372,7 @@ int rConditionalStatement(Parser_t *parser)
 
 	int ret;
 
-	int retVal = exprParse(parser->currentToken, parser->nextToken, &ret);
+	int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
 	if (retVal != SUCCESS)
 	{
 		return retVal;
@@ -397,7 +397,7 @@ int rWhileLoopStatement(Parser_t *parser)
 
 	int ret;
 
-	int retVal = exprParse(parser->currentToken, parser->nextToken, &ret);
+	int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
 	if (retVal != SUCCESS)
 	{
 		return retVal;
@@ -521,7 +521,7 @@ int rReturnValue(Parser_t *parser)
 
 		int ret;
 
-		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret);
+		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
 		if (retVal != SUCCESS)
 		{
 			return retVal;

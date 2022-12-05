@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include "scanner.h"
+#include "parser.h"
 
 #define TABLE_SIZE 15 //size of precedence table
 
@@ -77,7 +78,7 @@ precTokenType_t tokenTypeToeType(token_t *token);
  * @param generateCode bool varible if we shoud generate code
  * @return int 
  */
-int exprReduce(struct eStack *stack, size_t *nonTermCnt,bool generateCode);
+int exprReduce(struct eStack *stack, size_t *nonTermCnt,bool generateCode, Parser_t *parser);
 
 //used for debugging
 char *tokenTypeToStr(token_t *token);
@@ -104,5 +105,5 @@ struct eItem *findClosestTerm(struct eStack *stack);
  * @param firstToken pointer to first token of expression
  * @return token_t* returning token which ended expression
  */
-int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken);
+int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parser_t *parser);
 #endif /* EXPR_H */ 

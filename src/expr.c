@@ -14,6 +14,7 @@
 #include"str.h"
 #include"error.h"
 #include"generator.h"
+#include"parser.h"
 
 // int main(){ 
 // 	// token_t *token2 = tokenInit();
@@ -27,9 +28,13 @@
 // 	// returnVal = exprParse(token,NULL,&returnToken);
 // 	(void)returnToken;
 // 	(void)returnVal;
+// 	if(returnVal != SUCCESS)
+// 	{
+// 		puts("error lmao");
+// 	}
 // }
 
-int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
+int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parser_t *parser){
 	int returnVal = SUCCESS;
 	size_t nonTermCnt = 0;
 	// bool generateCode = true;
@@ -65,7 +70,6 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 		generateCode = false;
 		secondTokenDelay = true; //expression isn't assigned to anything
 	}
-	generateCode = false;
 	if(generateCode){
 		genInit();
 		printf("\n####################\n");
@@ -151,7 +155,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 						break;
 					case '>': //reduce
 						scanAnotherToken = false;
-						returnVal=exprReduce(stack, &nonTermCnt,generateCode);
+						returnVal=exprReduce(stack, &nonTermCnt,generateCode,parser);
 						if(returnVal != SUCCESS){
 							freeItem(incomingTokenItem);
 							eStackEmptyAll(stack);
@@ -172,7 +176,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 						if(incomingTokenType == P_RIGHT_PAREN || incomingTokenType == P_SEMICOLON){
 							//we need to end expression with $E in stack
 							while(stack->head->next->type != DOLLAR){ 
-								returnVal=exprReduce(stack,&nonTermCnt,generateCode);
+								returnVal=exprReduce(stack,&nonTermCnt,generateCode,parser);
 								if(returnVal != SUCCESS){
 									freeItem(incomingTokenItem);
 									eStackEmptyAll(stack);
@@ -291,9 +295,10 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 }
 
 
-void generateCode_defvar(eItem_t *item, size_t *nonTermCnt){
+int generateCode_defvar(eItem_t *item, size_t *nonTermCnt,Parser_t *parser){
 	int type = item->token->type;
 	token_t *token = item->token;
+	htab_pair_t *pair;
 	printf("defvar LF@tmp%ld\n",*nonTermCnt);
 	switch(type){
 		case TOK_INT_LIT:
@@ -308,6 +313,12 @@ void generateCode_defvar(eItem_t *item, size_t *nonTermCnt){
 			printf("move LF@tmp%ld LF@_tmp%ld \n",*nonTermCnt,*nonTermCnt);
 			break;
 		case TOK_VARIABLE:
+			pair = htab_find(parser->localSymStack->top->table,token->attribute.strVal->str);
+			if(pair == NULL)
+			{
+				//free
+				return ERR_SEM_UNDEFINED_VAR;
+			}
 			printf("defvar LF@_tmp%ld\n",*nonTermCnt);
 			printf("popframe\n");
 			printf("pushs LF@%s\n",token->attribute.strVal->str);
@@ -319,10 +330,16 @@ void generateCode_defvar(eItem_t *item, size_t *nonTermCnt){
 			if(token->attribute.kwVal == KW_NULL){
 				printf("move LF@tmp%ld nil@nil\n",*nonTermCnt);
 			}
+			else
+			{
+				return ERR_SYN_ANALYSIS; //true false
+			}
 			break;
 		default:
+			return ERR_SYN_ANALYSIS;
 			break;			
 	}
+	return SUCCESS;
 }
 
 void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationItem,size_t *nonTermCnt){
@@ -378,7 +395,7 @@ void generateCode_operation(eItem_t *item1,eItem_t *item2, eItem_t *operationIte
 
 }
 
-int exprReduce(eStack_t *stack,size_t *nonTermCnt, bool generateCode){
+int exprReduce(eStack_t *stack,size_t *nonTermCnt, bool generateCode, Parser_t *parser){
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;
 	switch(ruleType){
@@ -423,8 +440,9 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt, bool generateCode){
 			break;
 		case RULE3: //E->i
 			(*nonTermCnt)++;
+			int ret;
 			if(generateCode){
-				generateCode_defvar(currItem,nonTermCnt);
+				ret = generateCode_defvar(currItem,nonTermCnt, parser);
 			}
 
 			//free E
@@ -434,7 +452,10 @@ int exprReduce(eStack_t *stack,size_t *nonTermCnt, bool generateCode){
 			//free indent
 			currItem = eStackPopItem(stack);	
 			freeItem(currItem);
-
+			if(ret != SUCCESS)
+			{
+				return ret;
+			}
 			eStackPushNonTerm(stack);
 			stack->head->id = *nonTermCnt;
 			return SUCCESS;
