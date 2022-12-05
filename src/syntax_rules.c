@@ -1,10 +1,15 @@
 /**
- * @file syntax_rules.h
- *
- * @brief Implementation of syntax rules for IFJ22
+ * Project: Translator of language IFJ22
+ * @file syntax_rules.c
+ * @author Martin Maršalek - xmarsa15
+ * @author Andrej Smatana - xsmata03
+ * @author János László Vasík - xvasik05
+ * 
+ * @brief Implementation syntax analysis unit
  */
 
 #include "parser.h"
+#include "syntax_rules.h"
 #include "parser_macros.h"
 #include "error.h"
 #include "expr.h"
@@ -147,7 +152,6 @@ int rParam(Parser_t *parser)
 	}
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
-	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
 	token_data_t *data = createTokenDataVariable();
 
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
@@ -167,7 +171,7 @@ int rParams_n(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_RIGHT_PAREN)
 	{	  // there are no more parameters, return
-		; // maybe export parameters at this point all ot once, or one by one on the places where i commented
+		;
 	}
 	else
 	{
@@ -200,7 +204,6 @@ int rParam_n(Parser_t *parser)
 	getNextToken(parser);
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
-	// checking whether the variable has been declared alreay is unnecessary, as a new symtable has just been created
 	token_data_t *data = createTokenDataVariable();
 
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
