@@ -63,7 +63,7 @@ void DLLPrintAll(DLList_t * list) {
     }
 }
 
-void DLLPrintALlReversed(DLList_t * list) {
+void DLLPrintAllReversed(DLList_t * list) {
     DLLElement_t * i = list->lastElem;
 
     while (i != NULL) {

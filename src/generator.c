@@ -651,7 +651,7 @@ void genInit() {
 	gen_compute();
     gen_builtin_functions();
 
-    printf("label _START\n");
+    printf("\nlabel _START\n");
     printf("createframe\n");
 
     // todo call to main function using dll algorithm (?)
@@ -737,19 +737,25 @@ char * convertFloatToIFJ(float x) {
     return ptr;
 }
 
-void genFunctionStart(char * functionName) {
+void genFunctionLabel(char * functionName) {
     printf(
-        "label \%%s\n"
+        "\njump $%s_end\n"
+        "label $%s\n"
         "pushframe\n"
-    , functionName);
+        "defvar LF@%%retval\n"
+        "move LF@%%retval nil@nil\n"
+    , functionName, functionName);
 }
 
 void genFunctionEnd(char * functionName) {
     printf(
-        "label \%%s_end"
+        "label $%s_ret\n"
+        "pushs LF@%%retval\n"
+        // todo check for retval with function type (exit 7 (type compatibility))
         "popframe\n"
         "return\n"
-    , functionName);
+        "label $%s_end\n\n"
+    , functionName, functionName);
 }
 
 //int genToPush(char * toPush) {

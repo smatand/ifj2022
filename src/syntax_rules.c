@@ -78,10 +78,7 @@ int rFunctionDefinition(Parser_t *parser)
 	token_data_t *data = createTokenDataFunction();
 	definedFunc = htab_add(parser->globalSymTable, parser->currentToken->attribute.strVal->str, data);
 
-	printf("label $%s\n", definedFunc->key); // generate function label
-	printf("pushframe\n");					 // push temp frame containing arguments
-	printf("defvar LF@%%retval\n");			 // generate return value as %retval, is used in rReturnStatement
-	printf("move LF@%%retval nil@nil\n");	 // retval = null
+	genFunctionLabel(definedFunc->key); // generate function label
 
 	// next codegen happens in param and param_n
 	parser->onParam = 0; // to keep track of the number of parameters, this is the only time onParam is used
@@ -113,6 +110,7 @@ int rFunctionDefinition(Parser_t *parser)
 
 	CALL_RULE(rStatements);
 
+	genFunctionEnd(definedFunc->key);
 	pop(parser->localSymStack); // pop new sym_table
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
@@ -150,9 +148,10 @@ int rParam(Parser_t *parser)
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 
 	printf("defvar LF@param%d\n", parser->onParam);						   // generate param as paramX
-	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
+	//printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
 	fflush(stdout);
 	parser->onParam++;
+
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
 	getNextToken(parser);
@@ -169,6 +168,9 @@ int rParams_n(Parser_t *parser)
 	{
 		CALL_RULE(rParam_n); // checking next parameter
 		CALL_RULE(rParams_n);
+	}
+	while (parser->onParam) {
+		printf("pops LF@param%d\n", --parser->onParam); // assign argX to paramX
 	}
 	return SUCCESS;
 }
@@ -188,7 +190,8 @@ int rParam_n(Parser_t *parser)
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 
 	printf("defvar LF@param%d\n", parser->onParam);						   // generate param as paramX
-	printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
+	//printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
+	//printf("pops LF@param%d\n", parser->onParam); // assign argX to paramX
 	fflush(stdout);
 	parser->onParam++;
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
@@ -449,9 +452,10 @@ int rArguments(Parser_t *parser)
 	{
 		return ERR_INTERNAL;
 	}
-	CODEGEN_INSERT_IN_DLL("pushs int@", argCount);
 
-	DLLPrintAll(parser->codeGen);
+	DLLPrintAllReversed(parser->codeGen);
+	printf("pushs int@%d\n", parser->onArg);
+	DLLDispose(parser->codeGen);
 
 	free(argCount);
 	return SUCCESS;
@@ -523,8 +527,9 @@ int rTerm(Parser_t *parser)
 			fprintf(stderr, "[ERROR] Semantic error, passing undeclared variable as argument.\n");
 			exit(ERR_SEM_UNDEFINED_VAR);
 		}
-		printf("defvar TF@%%%d\n", parser->onArg);
-		printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
+		//printf("defvar TF@%%%d\n", parser->onArg);
+		//printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
+		//CODEGEN_INSERT_IN_DLL("defvar TF@%%%d", parser->onArg);
 		fflush(stdout);
 		parser->onArg++;
 	}
@@ -548,20 +553,33 @@ int rTerm(Parser_t *parser)
 	{
 
 		// TODO: check for type matching in code gen
-		printf("defvar TF@%%%d\n", parser->onArg);
+		//printf("defvar TF@%%%d\n", parser->onArg);
 
-		char *temp = convertStringToIFJ(parser->currentToken->attribute.strVal->str); // TODO: does this work?
-		printf("move TF@%%%d string@%s\n", parser->onArg, temp);
+		char *str = convertStringToIFJ(parser->currentToken->attribute.strVal->str); // TODO: does this work?
+		if (str == NULL)
+		{
+			return ERR_INTERNAL;
+		}
+		//printf("move TF@%%%d string@%s\n", parser->onArg, temp);
+
+		CODEGEN_INSERT_IN_DLL("pushs string@", str);
+
+		free(str);
 		fflush(stdout);
 		parser->onArg++;
-
-		free(temp);
 	}
 	else if (parser->currentToken->type == TOK_DEC_LIT)
 	{
 		// TODO: check for type matching in code gen
-		printf("defvar TF@%%%d\n", parser->onArg);
-		printf("move TF@%%%d float@%a\n", parser->onArg, parser->currentToken->attribute.decVal); // TODO: does this work?
+		//printf("defvar TF@%%%d\n", parser->onArg);
+		//printf("move TF@%%%d float@%a\n", parser->onArg, parser->currentToken->attribute.decVal); // TODO: does this work?
+		char *str = convertFloatToIFJ(parser->currentToken->attribute.decVal);
+		if (str == NULL)
+		{
+			return ERR_INTERNAL;
+		}
+
+		CODEGEN_INSERT_IN_DLL("pushs float@", str);
 		fflush(stdout);
 		parser->onArg++;
 	}
