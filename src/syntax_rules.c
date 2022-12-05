@@ -378,6 +378,11 @@ int rConditionalStatement(Parser_t *parser)
 		return retVal;
 	}
 	parser->nextToken->type = ret;
+
+	printf("defvar LF@?if%d\n", parser->ifCounter); // helper variable for if condition
+	printf("pops LF@?if%d\n", parser->ifCounter); // pop expression result (bool) into helper variable
+	printf("jumpifeq _if%d LF@?if%d bool@false\n", parser->ifCounter, parser->ifCounter); // skip code if expr result was false
+
 	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
@@ -387,6 +392,11 @@ int rConditionalStatement(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
+
+	printf("label _if%d\n", parser->ifCounter); // label for skipping code
+	fflush(stdout);
+
+	parser->ifCounter++;
 	return SUCCESS;
 }
 
@@ -403,6 +413,9 @@ int rWhileLoopStatement(Parser_t *parser)
 		return retVal;
 	}
 	parser->nextToken->type = ret;
+
+
+
 	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
