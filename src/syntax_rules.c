@@ -387,9 +387,8 @@ int rConditionalStatement(Parser_t *parser)
 	}
 	parser->nextToken->type = ret;
 
-	printf("defvar LF@?if%d\n", parser->ifCounter);										  // helper variable for if condition
-	printf("pops LF@?if%d\n", parser->ifCounter);										  // pop expression result (bool) into helper variable
-	printf("jumpifeq _if%d LF@?if%d bool@false\n", parser->ifCounter, parser->ifCounter); // skip code if expr result was false
+	printf("pushs bool@false\n");					// helper variable for if condition
+	printf("jumpifeqs _if%d\n", parser->ifCounter); // skip code if expr result was false
 
 	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
@@ -413,7 +412,6 @@ int rWhileLoopStatement(Parser_t *parser)
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 
-	printf("defvar LF@?while%d\n", parser->whileCounter); // helper variable for if condition
 	printf("label _while_begin%d\n", parser->whileCounter); // label for jumping backwards TODO: does this work?
 
 	int ret;
@@ -425,8 +423,8 @@ int rWhileLoopStatement(Parser_t *parser)
 	}
 	parser->nextToken->type = ret;
 
-	printf("pops LF@?while%d\n", parser->whileCounter);													  // pop expression result (bool) into helper variable
-	printf("jumpifeq _while_end%d LF@?while%d bool@false\n", parser->whileCounter, parser->whileCounter); // skip code if expr result was false
+	printf("pushs bool@false\n");							  // helper variable for while condition
+	printf("jumpifeqs _while_end%d\n", parser->whileCounter); // skip code if expr result was false
 
 	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
@@ -436,7 +434,7 @@ int rWhileLoopStatement(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 
 	printf("jump _while_begin%d\n", parser->whileCounter); // label for jumping backwards
-	printf("label _while_end%d\n", parser->whileCounter); // label for skipping code
+	printf("label _while_end%d\n", parser->whileCounter);  // label for skipping code
 	fflush(stdout);
 
 	parser->whileCounter++;
