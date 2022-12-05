@@ -174,9 +174,11 @@ int rParams_n(Parser_t *parser)
 		CALL_RULE(rParam_n); // checking next parameter
 		CALL_RULE(rParams_n);
 	}
+
+	genFunctionAmountOfParamsCheck(parser->onParam);
+
 	while (parser->onParam) {
 		printf("pops LF@param%d\n", --parser->onParam); // assign argX to paramX
-		//genTypeCheck(parser->onParam);
 	} 
 
 	while (parser->onParamType) {
