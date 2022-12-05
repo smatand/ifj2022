@@ -90,7 +90,11 @@ Parser_t *initParser()
 	htab_add(parser->globalSymTable, "chr", chr);
 
 	parser->onParam = 0;
+	parser->onParamType = 0;
 	parser->onArg = 0;
+
+	parser->ifCounter = 0;
+	parser->whileCounter = 0;
 
 	return parser;
 

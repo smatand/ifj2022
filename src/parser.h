@@ -28,6 +28,9 @@ typedef struct Parser
 	int onParam;
 	int onParamType;
 	int onArg;
+
+	int ifCounter;
+	int whileCounter;
 } Parser_t;
 
 /**
