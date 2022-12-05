@@ -1,9 +1,20 @@
+/**
+ * Project: Translator of language IFJ22
+ * @file str.h
+ * 
+ * @author Andrej Smatana - xsmata03
+ * @author János László Vasík - xvasik05
+ * @author Tomáš Frátrik - xfratr01
+ * 
+ * @brief Header file of string data type
+ */
+
 #ifndef STR_H
 #define STR_H
 
 #include <stdio.h>
 
-/** @brief Structure for string properties */
+/** @brief Structure for a string and its properties */
 typedef struct {
     char * str;
     unsigned int realLen; // current length of the string
@@ -12,29 +23,31 @@ typedef struct {
 
 /**
  * @brief Allocates and initializes a string structure
- * @param string to operate with
+ * @param ret return value, either SUCCESS or ERR_INTERNAL
  * 
- * @return SUCCESS, otherwise ERR_INTERNAL
+ * @return allocated string struct, otherwise NULL
  */
 string_t * stringInit(int * ret);
 
 /**
  * @brief Destroys given string structure
+ * @param s string to operate with
  */
 void stringDestroy(string_t * s);
 
 /**
- * @brief Clears the string up to the 1st null character
+ * @brief Clears the string
+ * @param s string to operate with
  * 
  * Useful for clearing after converting to int/decimals
  */
 void stringClear(string_t * s);
 
 /**
- * @brief Looks ahead by one characters
+ * @brief Looks ahead by one character
  * @param fp file pointer
  * 
- * @return character
+ * @return next character on stdin
  */
 int lookAheadByOneChar(FILE * fp);
 
@@ -43,7 +56,7 @@ int lookAheadByOneChar(FILE * fp);
  * @param s struct to operate with
  * @param toSize new size
  * 
- * @return SUCCESS, otherwise ERR_CODE
+ * @return SUCCESS, otherwise ERR_INTERNAL
  */
 int stringResize(string_t * s, int toSize);
 

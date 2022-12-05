@@ -1,3 +1,13 @@
+/**
+ * Project: Translator of language IFJ22
+ * @file str.h
+ * 
+ * @author Andrej Smatana - xsmata03
+ * @author János László Vasík - xvasik05
+ * 
+ * @brief Implementation of string data type and other related functions
+ */
+
 #include "str.h"
 #include "error.h"
 
@@ -26,15 +36,11 @@ string_t * stringInit(int * ret) {
 
     s->allocatedSize = DEFAULT_LEN;
     s->realLen = 0;
-    s->str[s->realLen] = '\0';
 
     return s;
 }
 
 void stringDestroy(string_t * s) {
-    s->realLen = 0;
-    s->allocatedSize = 0;
-
     free(s->str);
     s->str = NULL;
     free(s);
@@ -50,7 +56,7 @@ int lookAheadByOneChar(FILE * fp) {
     int c = 0;
     c = getc(fp);
 
-    int ret = c; // EOF or any char
+    int ret = c;
     ungetc(c, fp);
 
     return ret;
