@@ -56,35 +56,27 @@ void gen_readf() {
             "return\n"
             );
 }
+void gen_write() {
+    printf("jump $write_end\n");
+    printf("label $write\n");
+    printf("createframe\n");
+    printf("pushframe\n");
+    printf("defvar LF@_count\n");
+    printf("defvar LF@_toPrint\n");
+    printf("defvar LF@_tmp\n");
+    printf("pops LF@_count\n");
+    printf("eq LF@_tmp LF@_count int@0\n");
+    printf("jumpifeq $write_ret LF@_tmp bool@true\n");
+    printf("label $write_loop\n");
+    printf("pops LF@_toPrint\n");
+    printf("write LF@_toPrint\n");
+    printf("sub LF@_count LF@_count int@1\n");
+    printf("jumpifneq $write_loop LF@_count int@0\n");
 
-int gen_write(token_t * token, DLList_t * list) {
-    switch(token->type) {
-        case TOK_STRING_LIT: ;
-            char * ptr = convertStringToIFJ(token->attribute.strVal->str); // dynamically allocated str
-            CONCAT_STRINGS_DLL("write string@", ptr);
-            free(ptr); 
-            break;
-        case TOK_INT_LIT: ;
-            char * ptr2 = convertIntToIFJ(token->attribute.intVal);
-            CONCAT_STRINGS_DLL("write int@", ptr2);
-            free(ptr2);
-            break;
-        case TOK_DEC_LIT: ;
-            char * ptr3 = convertFloatToIFJ(token->attribute.decVal);
-            CONCAT_STRINGS_DLL("write float@", ptr3);
-            free(ptr3);
-            break;
-        case TOK_KEYWORD:
-            if (token->attribute.kwVal == KW_NULL) {
-                DLLInsertLast(list, "write nil@nil", strlen("write nil@nil")+1);
-            } else if (token->attribute.kwVal == KW_TRUE) {
-                DLLInsertLast(list, "write bool@true", strlen("write bool@true")+1);
-            }
-            break;
-        default:
-            return ERR_SEM_PARAMS;
-    }
-    return ERR_SEM_PARAMS;
+    printf("label $write_ret\n");
+    printf("popframe\n");
+    printf("return\n");
+    printf("label $write_end\n");
 }
 
 void gen_floatval() {
@@ -308,6 +300,7 @@ void gen_chr() {
 }
 
 void gen_builtin_functions() {
+    gen_write();
     gen_reads();
     gen_readi();
     gen_readf();
@@ -645,7 +638,7 @@ void gen_compute(){
 void genInit() {
     printf(".IFJcode22\n");
 
-    printf("defvar GF@tmp1\n");
+    printf("defvar GF@typeCheck\n");
     printf("defvar GF@tmp2\n");
     printf("defvar GF@tmp3\n");
     printf("defvar GF@tmp4\n");
@@ -658,7 +651,7 @@ void genInit() {
 	gen_compute();
     gen_builtin_functions();
 
-    printf("label _START\n");
+    printf("\nlabel _START\n");
     printf("createframe\n");
 
     // todo call to main function using dll algorithm (?)
@@ -667,8 +660,9 @@ void genInit() {
 void genEnd()
 {
     printf("jump _END\n");
+    printf("label _TYPE_SEM_ERR\n");
+    printf("exit int@4\n");
     printf("label _NIL_SEM_ERR\n");
-
     printf("exit int@8\n");
     printf("label _END\n"); // the last line
 }
@@ -744,27 +738,33 @@ char * convertFloatToIFJ(float x) {
     return ptr;
 }
 
-void genFunctionStart(char * functionName) {
+void genFunctionLabel(char * functionName) {
     printf(
-        "label \%%s\n"
+        "\njump $%s_end\n"
+        "label $%s\n"
         "pushframe\n"
-    , functionName);
+        "defvar LF@%%retval\n"
+        "move LF@%%retval nil@nil\n"
+        "defvar LF@%%_countArgs\n"
+        "pops LF@%%_countArgs\n"
+    , functionName, functionName);
 }
 
 void genFunctionEnd(char * functionName) {
     printf(
-        "label \%%s_end"
+        "label $%s_ret\n"
+        "pushs LF@%%retval\n"
+        // todo check for retval with function type (exit 7 (type compatibility))
         "popframe\n"
         "return\n"
-    , functionName);
+        "label $%s_end\n\n"
+    , functionName, functionName);
 }
 
-void genFunctionParamDefault(char * paramName) {
-    printf(
-        "defvar LF@%s\n"
-        "move LF@%s nil@nil\n"
-    , paramName, paramName);
-}
+//int genToPush(char * toPush) {
+//    CONCAT_STRINGS_DLL(")
+//    
+//}
 
 void genFunctionParam(char * functionName, char * paramName) {
     static int paramCounter = 0;
@@ -776,3 +776,82 @@ void genFunctionParam(char * functionName, char * paramName) {
         "defvar LF@%s\n"
         "move LF@%s LF@%s\n");
 }
+
+void genFunctionParamType(keyword_t kw, int count) {
+    printf("defvar LF@_paramType%%%d\n", count);
+
+    switch (kw) {
+        case KW_INT:
+            printf("move LF@_paramType%%%d string@int\n", count);
+            break;
+        case KW_FLOAT:
+            printf("move LF@_paramType%%%d string@float\n", count);
+            break;
+        case KW_STRING:
+            printf("move LF@_paramType%%%d string@string\n", count);
+            break;
+        default: // todo
+            fprintf(stderr, "Error: line %d", __LINE__);
+            break;
+    }
+}
+
+void genFunctionRetType(keyword_t kw) {
+    printf("defvar LF@_returnType\n");
+
+    switch (kw) {
+        case KW_INT:
+            printf("move LF@_returnType string@int\n");
+            break;
+        case KW_FLOAT:
+            printf("move LF@_returnType string@float\n");
+            break;
+        case KW_STRING:
+            printf("move LF@_returnType string@string\n");
+            break;
+        case KW_VOID:
+            printf("move LF@_returnType string@void\n");
+            break;
+        default: // todo
+            fprintf(stderr, "Error: line %d", __LINE__);
+            break;
+    }
+}
+
+void genTypeCheck(int count) {
+    printf("type GF@typeCheck LF@param%d\n", count);
+    printf("pushs GF@typeCheck\n");
+    printf("pushs LF@_paramType%%%d\n", count);
+    printf("jumpifneqs _TYPE_SEM_ERR\n");
+}
+    //switch(token->type) {
+    //    case TOK_STRING_LIT: ;
+    //        char * ptr = convertStringToIFJ(token->attribute.strVal->str); // dynamically allocated str
+    //        //CONCAT_STRINGS_DLL("write string@", ptr);
+    //        printf("write string@%s", ptr);
+    //        free(ptr); 
+    //        break;
+    //    case TOK_INT_LIT: ;
+    //        char * ptr2 = convertIntToIFJ(token->attribute.intVal);
+    //        //CONCAT_STRINGS_DLL("write int@", ptr2);
+    //        printf("write int@%s", ptr2);
+    //        free(ptr2);
+    //        break;
+    //    case TOK_DEC_LIT: ;
+    //        char * ptr3 = convertFloatToIFJ(token->attribute.decVal);
+    //        //CONCAT_STRINGS_DLL("write float@", ptr3);
+    //        printf("write float@%s", ptr3);
+    //        free(ptr3);
+    //        break;
+    //    case TOK_KEYWORD:
+    //        if (token->attribute.kwVal == KW_NULL) {
+    //            //DLLInsertLast(list, "write nil@nil", strlen("write nil@nil")+1);
+    //            printf("write nil@nil");
+    //        } else if (token->attribute.kwVal == KW_TRUE) {
+    //            //DLLInsertLast(list, "write bool@true", strlen("write bool@true")+1);
+    //            printf("write bool@true");
+    //        }
+    //        break;
+    //    default:
+    //        return ERR_SEM_PARAMS;
+    //}

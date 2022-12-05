@@ -23,8 +23,10 @@ typedef struct Parser
 	sym_stack_t *localSymStack;
 	token_t *currentToken;
 	token_t *nextToken;
+	DLList_t *codeGen;
 
 	int onParam;
+	int onParamType;
 	int onArg;
 } Parser_t;
 
@@ -66,14 +68,6 @@ int checkTokenType(token_t *token, tokenType_t type);
  * @return 0 if keywords match, otherwise 1
  */
 int checkTokenKeyword(token_t *token, keyword_t keyword);
-
-/**
- * @brief Parse the source code
- * @param parser struct to work with
- *
- * @return Error code
- */
-int parseSource(Parser_t *parser);
 
 //###############################~~~RULES~~~###############################
 
