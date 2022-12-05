@@ -1,4 +1,13 @@
 /**
+ * Project: Translator of language IFJ22
+ * @file parser_macros.h
+ * @author János László Vasík - xvasik05
+ * @author Martin Maršalek - xmarsa15
+ * 
+ * @brief Macros for parser module
+ */
+
+/**
  * @brief Calls function and returns error code if it fails
  * @param ruleFunction Function to call
  * 
