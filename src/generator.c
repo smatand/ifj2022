@@ -414,10 +414,9 @@ void gen_checkType(){
 			"jump checkEnd\n"
 			"label rel1_firststring\n"
 			"jumpifneq error_sem7 LF@type_var2 string@string\n"
-			//is shows corret bool, only when they are swapped 
-			"gt LF@_bool LF@_var2 LF@_var1\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
 			"jumpifeq rel2_cmp LF@_jumprel2 bool@true\n #if it is also >= or <="
-			"gt LF@_bool LF@_var2 LF@_var1\n"
+			"gt LF@_bool LF@_var1 LF@_var2\n"
 			"move LF@_var1 LF@_bool\n"
 			"move LF@_var2 LF@_bool\n"
 			"jump checkEnd\n"

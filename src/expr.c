@@ -64,6 +64,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 		generateCode = false;
 		secondTokenDelay = true; //expression isn't assigned to anything
 	}
+	generateCode = false;
 	if(generateCode){
 		genInit();
 		printf("\n####################\n");
@@ -90,7 +91,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
 	eItem_t *incomingTokenItem;
-	// stackPrint(stack);
+	stackPrint(stack);
 
 	while(continueParsing){
 
@@ -176,7 +177,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 									eStackEmptyAll(stack);
 									return returnVal;
 								}
-								// stackPrint(stack);
+								stackPrint(stack);
 							}
 							continueParsing = false;
 							//free last token, ; OR ) and empty whole stack
@@ -266,7 +267,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken){
 						return ERR_SYN_ANALYSIS;
 				}
 
-		// stackPrint(stack);
+		stackPrint(stack);
 		if(scanAnotherToken){
 			if(secondTokenDelay == false){ 
 				incomingToken = tokenInit();
