@@ -198,4 +198,6 @@ int fillStr(string_t * s, token_t * token, FILE * fp, int varFlag);
  */ 
 int scanToken(token_t * token);
 
+token_t *copyToken(token_t *token);
+
 #endif // SCANNER_H
