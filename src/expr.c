@@ -52,8 +52,8 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 {
 	
 
-	firstToken = parser->currentToken;
-	secondToken = parser->nextToken;
+	firstToken = copyToken(parser->currentToken);
+	secondToken = copyToken(parser->nextToken);
 	int returnVal = SUCCESS;
 	size_t nonTermCnt = 0;
 	// bool generateCode = true;
@@ -223,7 +223,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						eStackEmptyAll(stack);
 						return returnVal;
 					}
-					stackPrint(stack);
+					// stackPrint(stack);
 				}
 				continueParsing = false;
 				// free last token, ; OR ) and empty whole stack

@@ -332,4 +332,164 @@ jump floatval_end
 label bool_to_float
 eq LF@_condition LF@_param bool@true
 jumpifneq bool_false_to_float LF@_condition bool@true
-move L
+move LF@_param float@0x1.0p+0
+jump floatval_end
+label bool_false_to_float
+move LF@_param float@0x0.0p+0
+jump floatval_end
+label int_to_float
+int2float LF@_param LF@_param
+label floatval_end
+pushs LF@_param
+popframe
+return
+label $intval
+createframe
+pushframe
+defvar LF@_param # also retval
+defvar LF@_type
+defvar LF@_condition
+pops LF@_param
+move LF@_condition bool@false
+type LF@_type LF@_param # int, bool, float, string or nil
+jumpifeq intval_end LF@_type string@int # no need to convert
+jumpifeq float_to_int LF@_type string@float
+jumpifeq bool_to_int LF@_type string@bool
+move LF@_param int@0
+jump intval_end 
+label bool_to_int
+eq LF@_condition LF@_param bool@true
+jumpifneq bool_false_to_int LF@_condition bool@true
+move LF@_param int@1
+jump intval_end
+label bool_false_to_int
+move LF@_param int@0
+jump intval_end
+label float_to_int
+float2int LF@_param LF@_param
+label intval_end
+pushs LF@_param
+popframe
+return
+label $strval
+createframe
+pushframe
+defvar LF@_retval
+defvar LF@_condition
+pops LF@_retval
+eq LF@_condition LF@_retval nil@nil
+jumpifeq strval_end LF@_condition bool@false
+move LF@_retval string@
+label strval_end
+pushs LF@_retval
+popframe
+return
+label $substring
+createframe
+pushframe
+defvar LF@_string
+defvar LF@_index_from
+defvar LF@_index_to
+defvar LF@_retval
+move LF@_retval string@
+defvar LF@_tmp
+defvar LF@_strlen
+pops LF@_index_to # $j
+pops LF@_index_from # $i
+pops LF@_string # $s
+# errors
+lt LF@_tmp LF@_index_from int@0 # $i < 0
+jumpifeq substring_return_null LF@_tmp bool@true
+lt LF@_tmp LF@_index_to int@0 # $j < 0
+jumpifeq substring_return_null LF@_tmp bool@true
+gt LF@_tmp LF@_index_from LF@_index_to # $i > $j
+jumpifeq substring_return_null LF@_tmp bool@true
+strlen LF@_strlen LF@_string
+gt LF@_tmp LF@_index_from LF@_strlen # $i > strlen($s)
+jumpifeq substring_return_null LF@_tmp bool@true
+jumpifeq substring_return_null LF@_index_from LF@_strlen
+gt LF@_tmp LF@_index_to LF@_strlen # $j > strlen($s)
+jumpifeq substring_return_null LF@_tmp bool@true
+jumpifeq substring_return_null LF@_index_to LF@_index_from
+# getchar <var> <symb1> <symb2>
+label substring_while
+getchar LF@_tmp LF@_string LF@_index_from
+concat LF@_retval LF@_retval LF@_tmp
+add LF@_index_from LF@_index_from int@1 # $i++
+jumpifneq substring_while LF@_index_from LF@_index_to
+jump substring_end
+label substring_return_null
+move LF@_retval nil@nil
+label substring_end
+pushs LF@_retval
+popframe
+return
+label $ord
+createframe
+pushframe
+defvar LF@_string
+defvar LF@_retval
+pops LF@_string
+jumpifeq ord_empty_string LF@_string string@
+stri2int LF@_retval LF@_string int@0
+jump ord_end
+label ord_empty_string
+move LF@_retval int@0
+label ord_end
+pushs LF@_retval
+popframe
+return
+label $chr
+createframe
+pushframe
+defvar LF@_int
+defvar LF@_retval
+pops LF@_int
+int2char LF@_retval LF@_int
+jump chr_end
+label chr_end
+pushs LF@_retval
+popframe
+return
+
+label _START
+createframe
+defvar LF@$a
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@4
+defvar LF@tmp2
+move LF@tmp2 int@4
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@add
+call $compute
+pops LF@tmp3
+defvar LF@type_tmp3
+defvar LF@exprResult
+move LF@exprResult LF@tmp3
+type LF@type_tmp3 LF@tmp3
+jumpifneq exprSkip9 LF@type_tmp3 string@bool
+write string@cannot_return_boolean
+exit int@7
+label exprSkip9
+write LF@tmp3
+move LF@exprResult LF@tmp3
+jump exprEnd
+label exprEnd
+pushs LF@exprResult
+popframe
+
+pops LF@$a
+jump _END
+label _TYPE_SEM_ERR
+exit int@4
+label _NIL_SEM_ERR
+exit int@8
+label _END
