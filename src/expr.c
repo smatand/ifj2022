@@ -7,7 +7,7 @@
  * 
  * @brief Implementation of precedence analyzer unit
  */
-
+//koment
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
