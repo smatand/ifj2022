@@ -13,51 +13,58 @@
 /********************************************************/
 
 void gen_reads() {
-    printf(
-            "label $reads\n" 
-            "createframe\n"
-            "pushframe\n" // save frame
+    printf("label $reads\n"); 
+    printf("createframe\n");
+    printf("pushframe\n"); // save frame
 
-            "defvar LF@_retval\n" // local variable
-            "read TF@_retval string \n"
-            "pushs TF@_retval\n"
+    //printf("defvar LF@_countArgs\n");
+    //printf("pops LF@_countArgs\n");
+    //printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
 
-            "popframe\n" // restore
-            "return\n"
-            );
+    printf("defvar LF@_retval\n"); // local variable
+    printf("read TF@_retval string\n");
+
+    // not needed to check for type as it is written in 2rd argument of READ
+    //printf("type GF@typeCheck TF@_retval\n");
+    //printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string\n");
+
+    printf("pushs TF@_retvall\n");
+    printf("popframe\n"); //restore
+    printf("return\n");
 }
 
 void gen_readi() {
-    printf(
-            "label $readi\n"
-            "createframe\n"
-            "pushframe\n"
+    printf("label $readi\n");
+    printf("createframe\n");
+    printf("pushframe\n");
 
-            "defvar LF@_retval\n"
-            "read LF@_retval int\n" 
-            "pushs LF@_retval\n"
+    printf("defvar LF@_retval\n");
+    printf("read LF@_retval int\n");
 
-            "popframe\n"
-            "return\n"
-            );
+    //printf("type GF@typeCheck TF@_retval\n");
+    //printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
+
+    printf("pushs LF@_retval\n");
+    printf("popframe\n");
+    printf("return\n");
 }
 
 void gen_readf() {
-    printf(
-            "label $readf\n"
-            "createframe\n"
-            "pushframe\n"
+    printf("label $readf\n");
+    printf("createframe\n");
+    printf("pushframe\n");
+    printf("defvar LF@_retval\n");
+    printf("read LF@_retval float\n");
 
-            "defvar LF@_retval\n"
-            "read LF@_retval float\n" 
-            "pushs LF@_retval\n"
+    //printf("type GF@typeCheck TF@_retval\n");
+    //printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
 
-            "popframe\n"
-            "return\n"
-            );
+    printf("pushs LF@_retval\n");
+    printf("popframe\n");
+    printf("return\n");
 }
 void gen_write() {
-    printf("jump $write_end\n");
+    //printf("jump $write_end\n");
     printf("label $write\n");
     printf("createframe\n");
     printf("pushframe\n");
@@ -76,227 +83,282 @@ void gen_write() {
     printf("label $write_ret\n");
     printf("popframe\n");
     printf("return\n");
-    printf("label $write_end\n");
+    //printf("label $write_end\n");
 }
 
 void gen_floatval() {
-    printf(
-            "label $floatval\n"
-            "createframe\n"
-            "pushframe\n"
-            "defvar LF@_param # also retval\n"
-            "defvar LF@_type\n"
-            "defvar LF@_condition\n"
-            "pops LF@_param\n"
-            
-            "move LF@_condition bool@false\n"
-            "type LF@_type LF@_param # int, bool, float, string or nil\n"
-            
-            "jumpifeq floatval_end LF@_type string@float # no need to convert\n"
-            
-            "jumpifeq int_to_float LF@_type string@int\n"
-            
-            "jumpifeq bool_to_float LF@_type string@bool\n"
+    printf("jump $floatval_end\n");
+    printf("label $floatval\n");
+    printf("createframe\n");
+    printf("pushframe\n");
 
-            // todo: strnum, strbool rozsirenia?
-            "move LF@_param float@0x0.0p+0\n" // nil to 0.0
-            "jump floatval_end\n"
+    printf("defvar LF@_countArgs\n");
+    printf("pops LF@_countArgs\n");
+    printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
 
-            "label bool_to_float\n"
-            "eq LF@_condition LF@_param bool@true\n"
-            "jumpifneq bool_false_to_float LF@_condition bool@true\n"
-            
-            "move LF@_param float@0x1.0p+0\n"
-            "jump floatval_end\n"
-            
-            "label bool_false_to_float\n"
-            "move LF@_param float@0x0.0p+0\n"
-            "jump floatval_end\n"
+    printf("defvar LF@_param # also retval\n");
+    printf("defvar LF@_type\n");
+    printf("defvar LF@_condition\n");
+    printf("pops LF@_param\n");
+        
+    printf("move LF@_condition bool@false\n");
+    printf("type LF@_type LF@_param # int, bool, float, string or nil\n");
+        
+    printf("jumpifeq $floatval_ret LF@_type string@float # no need to convert\n");
+        
+    printf("jumpifeq $floatval_int_to_float LF@_type string@int\n");
+        
+    printf("jumpifeq $floatval_bool_to_float LF@_type string@bool\n");
 
-            "label int_to_float\n"
-            "int2float LF@_param LF@_param\n"
+    printf("move LF@_param float@0x0.0p+0\n"); // nil to 0.0
+    printf("jump $floatval_ret\n");
 
-            "label floatval_end\n"
-            "pushs LF@_param\n"
-            "popframe\n"
-            "return\n"
-            );
+    printf("label $floatval_bool_to_float\n");
+    printf("eq LF@_condition LF@_param bool@true\n");
+    printf("jumpifneq $floatval_bool_false_to_float LF@_condition bool@true\n");
+        
+    printf("move LF@_param float@0x1.0p+0\n");
+    printf("jump $floatval_ret\n");
+        
+    printf("label $floatval_bool_false_to_float\n");
+    printf("move LF@_param float@0x0.0p+0\n");
+    printf("jump $floatval_ret\n");
+
+    printf("label $floatval_int_to_float\n");
+    printf("int2float LF@_param LF@_param\n");
+
+    printf("label $floatval_ret\n");
+    printf("pushs LF@_param\n");
+    printf("popframe\n");
+    printf("return\n");
+    printf("label $floatval_end\n");
 }
 
 void gen_intval() {
-    printf(
-        "label $intval\n"
-        "createframe\n"
-        "pushframe\n"
+    printf("label $intval\n");
+    printf("createframe\n");
+    printf("pushframe\n");
 
-        "defvar LF@_param # also retval\n"
-        "defvar LF@_type\n"
-        "defvar LF@_condition\n"
-        "pops LF@_param\n"
+    printf("defvar LF@_countArgs\n");
+    printf("pops LF@_countArgs\n");
+    printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
 
-        "move LF@_condition bool@false\n"
+    printf("defvar LF@_param # also retval\n");
+    printf("defvar LF@_type\n");
+    printf("defvar LF@_condition\n");
+    printf("pops LF@_param\n");
 
-        "type LF@_type LF@_param # int, bool, float, string or nil\n"
+    printf("move LF@_condition bool@false\n");
 
-        "jumpifeq intval_end LF@_type string@int # no need to convert\n"
+    printf("type LF@_type LF@_param # int, bool, float, string or nil\n");
 
-        "jumpifeq float_to_int LF@_type string@float\n"
+    printf("jumpifeq $intval_end LF@_type string@int # no need to convert\n");
 
-        "jumpifeq bool_to_int LF@_type string@bool\n"
+    printf("jumpifeq $intval_float_to_int LF@_type string@float\n");
 
-        "move LF@_param int@0\n"
-        "jump intval_end \n"
+    printf("jumpifeq $intval_bool_to_int LF@_type string@bool\n");
 
-        "label bool_to_int\n"
-        "eq LF@_condition LF@_param bool@true\n"
-        "jumpifneq bool_false_to_int LF@_condition bool@true\n"
+    printf("move LF@_param int@0\n");
+    printf("jump $intval_end \n");
 
-        "move LF@_param int@1\n"
-        "jump intval_end\n"
+    printf("label $intval_bool_to_int\n");
+    printf("eq LF@_condition LF@_param bool@true\n");
+    printf("jumpifneq $floatval_bool_false_to_int LF@_condition bool@true\n");
 
-        "label bool_false_to_int\n"
-        "move LF@_param int@0\n"
-        "jump intval_end\n"
+    printf("move LF@_param int@1\n");
+    printf("jump $intval_end\n");
 
-        "label float_to_int\n"
-        "float2int LF@_param LF@_param\n"
+    printf("label $floatval_bool_false_to_int\n");
+    printf("move LF@_param int@0\n");
+    printf("jump $intval_end\n");
 
-        "label intval_end\n"
-        "pushs LF@_param\n"
-        "popframe\n"
-        "return\n"
-    );
+    printf("label $intval_float_to_int\n");
+    printf("float2int LF@_param LF@_param\n");
+
+    printf("label $intval_end\n");
+    printf("pushs LF@_param\n");
+    printf("popframe\n");
+    printf("return\n");
 }
 
 void gen_strval() {
-    printf(
-        "label $strval\n"
-        "createframe\n"
-        "pushframe\n"
+        printf("label $strval\n");
+        printf("createframe\n");
+        printf("pushframe\n");
 
-        "defvar LF@_retval\n"
-        "defvar LF@_condition\n"
+        printf("defvar LF@_retval\n");
+        printf("defvar LF@_condition\n");
 
-        "pops LF@_retval\n"
+        printf("defvar LF@_countArgs\n");
+        printf("pops LF@_countArgs\n");
+        printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
 
-        "eq LF@_condition LF@_retval nil@nil\n"
-        "jumpifeq strval_end LF@_condition bool@false\n" // it's not a nil value
 
-        "move LF@_retval string@\n"
+        printf("pops LF@_retval\n");
+        printf("type GF@typeCheck LF@_retval\n");
+        printf("jumpifeq _TYPE_SEM_ERR GF@typeCheck string@int\n"); // strnum
+        printf("jumpifeq _TYPE_SEM_ERR GF@typeCheck string@float\n"); // strnum
 
-        "label strval_end\n"
-        "pushs LF@_retval\n"
-        "popframe\n"
-        "return\n"
-    );
+
+        printf("jumpifeq $strval_end GF@typeCheck string@string\n");
+
+        printf("move LF@_retval string@\n"); // it is null then
+
+        printf("label $strval_end\n");
+        printf("pushs LF@_retval\n");
+        printf("popframe\n");
+        printf("return\n");
 }
 
 void gen_strlen(/*string*/) {
+    printf("label $strlen\n");
+    printf("createframe\n");
+    printf("pushframe\n");
+
+    printf("defvar LF@_string\n");
+
+    printf("defvar LF@_countArgs\n");
+    printf("pops LF@_countArgs\n");
+    printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
+
+    printf("pops LF@_string\n");
+    printf("type GF@typeCheck LF@_string\n");
+    printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string\n");
+
+    printf("defvar LF@_retval\n");
+    printf("strlen LF@_retval LF@_string\n");
+
+    printf("label $strlen_end\n");
+    printf("pushs LF@_retval\n");
+    printf("popframe\n");
+    printf("return\n");
 }
 
 void gen_substring() {
-    printf(
-        "label $substring\n"
-        "createframe\n"
-        "pushframe\n"
+    printf("label $substring\n");
+    printf("createframe\n");
+    printf("pushframe\n");
 
-        "defvar LF@_string\n"
-        "defvar LF@_index_from\n"
-        "defvar LF@_index_to\n"
-        "defvar LF@_retval\n"
+    printf("defvar LF@_string\n");
+    printf("defvar LF@_index_from\n");
+    printf("defvar LF@_index_to\n");
+    printf("defvar LF@_retval\n");
 
-        "move LF@_retval string@\n"
+    printf("move LF@_retval string@\n");
 
-        "defvar LF@_tmp\n"
-        "defvar LF@_strlen\n"
+    printf("defvar LF@_tmp\n");
+    printf("defvar LF@_strlen\n");
 
-        "pops LF@_index_to # $j\n"
-        "pops LF@_index_from # $i\n"
-        "pops LF@_string # $s\n"
+    printf("defvar LF@_countArgs\n");
+    printf("pops LF@_countArgs\n");
+    printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@3\n");
 
-        "# errors\n"
-        "lt LF@_tmp LF@_index_from int@0 # $i < 0\n"
-        "jumpifeq substring_return_null LF@_tmp bool@true\n"
-        "lt LF@_tmp LF@_index_to int@0 # $j < 0\n"
-        "jumpifeq substring_return_null LF@_tmp bool@true\n"
-        "gt LF@_tmp LF@_index_from LF@_index_to # $i > $j\n"
-        "jumpifeq substring_return_null LF@_tmp bool@true\n"
+    printf("pops LF@_index_to # $j\n");
+    printf("type GF@typeCheck LF@_index_to\n");
+    printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
 
-        "strlen LF@_strlen LF@_string\n"
-        "gt LF@_tmp LF@_index_from LF@_strlen # $i > strlen($s)\n"
-        "jumpifeq substring_return_null LF@_tmp bool@true\n"
-        "jumpifeq substring_return_null LF@_index_from LF@_strlen\n"
-        "gt LF@_tmp LF@_index_to LF@_strlen # $j > strlen($s)\n"
-        "jumpifeq substring_return_null LF@_tmp bool@true\n"
-        "jumpifeq substring_return_null LF@_index_to LF@_index_from\n"
+    printf("pops LF@_index_from # $i\n");
+    printf("type GF@typeCheck LF@_index_from\n");
+    printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
+
+    printf("pops LF@_string # $s\n");
+    printf("type GF@typeCheck LF@_string\n");
+    printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
+
+    printf("# errors\n");
+    printf("lt LF@_tmp LF@_index_from int@0 # $i < 0\n");
+    printf("jumpifeq substring_return_null LF@_tmp bool@true\n");
+    printf("lt LF@_tmp LF@_index_to int@0 # $j < 0\n");
+    printf("jumpifeq substring_return_null LF@_tmp bool@true\n");
+    printf("gt LF@_tmp LF@_index_from LF@_index_to # $i > $j\n");
+    printf("jumpifeq substring_return_null LF@_tmp bool@true\n");
+
+    printf("strlen LF@_strlen LF@_string\n");
+    printf("gt LF@_tmp LF@_index_from LF@_strlen # $i > strlen($s)\n");
+    printf("jumpifeq substring_return_null LF@_tmp bool@true\n");
+    printf("jumpifeq substring_return_null LF@_index_from LF@_strlen\n");
+    printf("gt LF@_tmp LF@_index_to LF@_strlen # $j > strlen($s)\n");
+    printf("jumpifeq substring_return_null LF@_tmp bool@true\n");
+    printf("jumpifeq substring_return_null LF@_index_to LF@_index_from\n");
 
 
-        "# getchar <var> <symb1> <symb2>\n"
-        "label substring_while\n"
-        "getchar LF@_tmp LF@_string LF@_index_from\n"
+    printf("# getchar <var> <symb1> <symb2>\n");
+    printf("label substring_while\n");
+    printf("getchar LF@_tmp LF@_string LF@_index_from\n");
 
-        "concat LF@_retval LF@_retval LF@_tmp\n"
+    printf("concat LF@_retval LF@_retval LF@_tmp\n");
 
-        "add LF@_index_from LF@_index_from int@1 # $i++\n"
-        "jumpifneq substring_while LF@_index_from LF@_index_to\n"
+    printf("add LF@_index_from LF@_index_from int@1 # $i++\n");
+    printf("jumpifneq substring_while LF@_index_from LF@_index_to\n");
 
 
-        "jump substring_end\n"
+    printf("jump substring_end\n");
 
-        "label substring_return_null\n"
-        "move LF@_retval nil@nil\n"
+    printf("label substring_return_null\n");
+    printf("move LF@_retval nil@nil\n");
 
-        "label substring_end\n"
-        "pushs LF@_retval\n"
-        "popframe\n"
-        "return\n"
-    );
+    printf("label substring_end\n");
+    printf("pushs LF@_retval\n");
+    printf("popframe\n");
+    printf("return\n");
 }
 
 void gen_ord() {
-    printf(
-        "label $ord\n"
-        "createframe\n"
-        "pushframe\n"
+    printf("label $ord\n");
+    printf("createframe\n");
+    printf("pushframe\n");
 
-        "defvar LF@_string\n"
-        "defvar LF@_retval\n"
-        "pops LF@_string\n"
+    printf("defvar LF@_string\n");
+    printf("defvar LF@_retval\n");
 
-        "jumpifeq ord_empty_string LF@_string string@\n"
+    printf("defvar LF@_countArgs\n");
+    printf("pops LF@_countArgs\n");
+    printf("jumpifneq _TYPE_SEM_ER LF@_countArgs int@1\n");
 
-        "stri2int LF@_retval LF@_string int@0\n"
-        "jump ord_end\n"
+    printf("pops LF@_string\n");
 
+    printf("type GF@typeCheck LF@_string\n");
+    printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string\n");
 
-        "label ord_empty_string\n"
-        "move LF@_retval int@0\n"
+    printf("jumpifeq ord_empty_string LF@_string string@\n");
 
-        "label ord_end\n"
-        "pushs LF@_retval\n"
-        "popframe\n"
-        "return\n"
-        );
+    printf("stri2int LF@_retval LF@_string int@0\n");
+    printf("jump ord_end\n");
+
+    printf("label ord_empty_string\n");
+    printf("move LF@_retval int@0\n");
+
+    printf("label ord_end\n");
+    printf("pushs LF@_retval\n");
+    printf("popframe\n");
+    printf("return\n");
 }
 
 void gen_chr() {
-    printf(
-        "label $chr\n"
-        "createframe\n"
-        "pushframe\n"
+    printf("label $chr\n");
+    printf("createframe\n");
+    printf("pushframe\n");
 
-        "defvar LF@_int\n"
-        "defvar LF@_retval\n"
-        "pops LF@_int\n"
+    printf("defvar LF@_int\n");
+    printf("defvar LF@_retval\n");
 
-        "int2char LF@_retval LF@_int\n"
-        "jump chr_end\n"
+    printf("defvar LF@_countArgs\n");
+    printf("pops LF@_countArgs\n");
+    printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
 
-        "label chr_end\n"
-        "pushs LF@_retval\n"
-        "popframe\n"
-        "return\n"
-        );
+    printf("pops LF@_int\n");
+
+    printf("type GF@typeCheck LF@_int\n");
+    printf("pushs GF@typeCheck\n");
+    printf("pushs string@int\n");
+    printf("jumpifneqs _TYPE_SEM_ERR\n");
+
+    printf("int2char LF@_retval LF@_int\n");
+
+    printf("label chr_end\n");
+    printf("pushs LF@_retval\n");
+    printf("popframe\n");
+    printf("return\n");
 }
 
 void gen_builtin_functions() {
@@ -763,17 +825,6 @@ void genFunctionEnd(char * functionName) {
         "return\n"
         "label $%s_end #__ \n\n"
     , functionName, functionName);
-}
-
-void genFunctionParam(char * functionName, char * paramName) {
-    static int paramCounter = 0;
-
-    printf(
-        "defvar LF@%s # genFunctionparam()\n"
-        "move LF@%s LF@%s\n"
-
-        "defvar LF@%s\n"
-        "move LF@%s LF@%s # __\n");
 }
 
 void genFunctionParamType(keyword_t kw, int count) {
