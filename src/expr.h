@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include "scanner.h"
+#include"expr_stack.h"
 #include "parser.h"
 
 #define TABLE_SIZE 15 //size of precedence table
@@ -75,7 +76,8 @@ precTokenType_t tokenTypeToeType(token_t *token);
  * @param generateCode bool varible if we shoud generate code
  * @return int 
  */
-int exprReduce(struct eStack *stack, size_t *nonTermCnt,bool generateCode, Parser_t *parser);
+// int exprReduce(struct eStack *stack, size_t *nonTermCnt,bool generateCode, Parser_t *parser);
+int exprReduce(eStack_t *stack, size_t *nonTermCnt,bool generateCode, Parser_t *parser);
 
 /**
  * @brief Retuns type of terminal (debug function)
@@ -91,7 +93,7 @@ char *tokenTypeToStr(token_t *token);
  * 
  * @return returns which the rule that fits
  */
-eRules_t exprFindRule(struct eStack *stack);
+eRules_t exprFindRule(eStack_t *stack);
 
 /**
  * @brief Finds the closest term in the stack
@@ -99,7 +101,7 @@ eRules_t exprFindRule(struct eStack *stack);
  * 
  * @return pointer to found eItem (terminal)
  */
-struct eItem *findClosestTerm(struct eStack *stack);
+struct eItem *findClosestTerm(eStack_t *stack);
 
 /**
  * @brief Analyzes expressions by checking the incoming token and the content of the stack

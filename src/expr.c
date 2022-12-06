@@ -104,6 +104,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	int incomingTokenType;
 	char operation;
 	(void)returnToken;
+	(void)parser;
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
 	eItem_t *incomingTokenItem;
