@@ -304,7 +304,6 @@ int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 	else if (checkForOperator(parser->nextToken) == 0)
 	{
 		int ret;
-
 		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
 		if (retVal != SUCCESS)
 		{

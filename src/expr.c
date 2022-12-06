@@ -26,7 +26,10 @@
 // 	int returnToken;
 // 	token_t *token = tokenInit();
 // 	scanToken(token);
-// 	int returnVal = exprParse(token,NULL,&returnToken);
+// 	token_t *token2 = tokenInit();
+// 	scanToken(token2);
+// 	Parser_t *Parser = NULL;
+// 	int returnVal = exprParse(token,token2,&returnToken,Parser);
 // 	// token = tokenInit();
 // 	// scanToken(token);
 // 	// returnVal = exprParse(token,NULL,&returnToken);
@@ -34,7 +37,11 @@
 // 	(void)returnVal;
 // 	if(returnVal != SUCCESS)
 // 	{
-// 		puts("error lmao");
+// 		printf("ERROR: %d\n",returnVal);
+// 	}
+// 	else
+// 	{
+// 		puts("SUCCESS");
 // 	}
 // }
 
@@ -79,7 +86,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		generateCode = false;
 		secondTokenDelay = true; // expression isn't assigned to anything
 	}
-
+	// generateCode = false;
 	if (generateCode)
 	{
 		genInit();
@@ -333,7 +340,7 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 {
 	int type = item->token->type;
 	token_t *token = item->token;
-	htab_pair_t *pair;
+	// htab_pair_t *pair;
 	printf("defvar LF@tmp%ld\n", *nonTermCnt);
 	//generate definition code based on the type of token
 	switch (type)
@@ -351,12 +358,12 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 		break;
 	case TOK_VARIABLE:
 		//try to find variable in the table of symbols
-		pair = htab_find(parser->localSymStack->top->table, token->attribute.strVal->str);
-		if (pair == NULL)
-		{
-			// free
-			return ERR_SEM_UNDEFINED_VAR;
-		}
+		// pair = htab_find(parser->localSymStack->top->table, token->attribute.strVal->str);
+		// if (pair == NULL)
+		// {
+		// 	// free
+		// 	return ERR_SEM_UNDEFINED_VAR;
+		// }
 		printf("defvar LF@_tmp%ld\n", *nonTermCnt);
 		printf("popframe\n");
 		printf("pushs LF@%s\n", token->attribute.strVal->str);
@@ -442,7 +449,7 @@ int exprReduce(eStack_t *stack, size_t *nonTermCnt, bool generateCode, Parser_t 
 		eItem_t *currItemOperand = eStackPopItem(stack);
 		eItem_t *currItem2 = eStackPopItem(stack);
 
-		if (generateCode)
+		if(generateCode)
 		{
 			generateCode_operation(currItem, currItem2, currItemOperand, nonTermCnt);
 		}
@@ -491,10 +498,10 @@ int exprReduce(eStack_t *stack, size_t *nonTermCnt, bool generateCode, Parser_t 
 		// free indent
 		currItem = eStackPopItem(stack);
 		freeItem(currItem);
-		if (ret != SUCCESS)
-		{
-			return ret;
-		}
+		// if (ret != SUCCESS)
+		// {
+		// 	return ret;
+		// }
 		eStackPushNonTerm(stack);
 		stack->head->id = *nonTermCnt;
 		return SUCCESS;
