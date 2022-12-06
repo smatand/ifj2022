@@ -740,24 +740,28 @@ char * convertFloatToIFJ(double x) {
 
 void genFunctionLabel(char * functionName) {
     printf(
-        "\njump $%s_end\n"
+        "\njump $%s_end # genFunctionLabel() \n"
         "label $%s\n"
         "pushframe\n"
         "defvar LF@%%retval\n"
         "move LF@%%retval nil@nil\n"
         "defvar LF@%%_countArgs\n"
-        "pops LF@%%_countArgs\n"
+        "pops LF@%%_countArgs # __ \n"
     , functionName, functionName);
 }
 
 void genFunctionEnd(char * functionName) {
     printf(
-        "label $%s_ret\n"
+        "label $%s_ret # genFunctionEnd() \n"
+        "type GF@typeCheck LF@%%retval\n"
+        "pushs GF@typeCheck\n"
+        "pushs LF@_returnType\n"
+        "jumpifneqs _TYPE_SEM_ERR\n"
         "pushs LF@%%retval\n"
         // todo check for retval with function type (exit 7 (type compatibility))
         "popframe\n"
         "return\n"
-        "label $%s_end\n\n"
+        "label $%s_end #__ \n\n"
     , functionName, functionName);
 }
 
@@ -770,11 +774,11 @@ void genFunctionParam(char * functionName, char * paramName) {
     static int paramCounter = 0;
 
     printf(
-        "defvar LF@%s\n"
+        "defvar LF@%s # genFunctionparam()\n"
         "move LF@%s LF@%s\n"
 
         "defvar LF@%s\n"
-        "move LF@%s LF@%s\n");
+        "move LF@%s LF@%s # __\n");
 }
 
 void genFunctionParamType(keyword_t kw, int count) {
@@ -797,7 +801,7 @@ void genFunctionParamType(keyword_t kw, int count) {
 }
 
 void genFunctionRetType(keyword_t kw) {
-    printf("defvar LF@_returnType\n");
+    printf("defvar LF@_returnType #genFunctionRetType() \n");
 
     switch (kw) {
         case KW_INT:
@@ -819,47 +823,31 @@ void genFunctionRetType(keyword_t kw) {
 }
 
 void genTypeCheck(int count) {
-    printf("type GF@typeCheck LF@param%d\n", count);
+    printf("type GF@typeCheck LF@param%d #genTypeCheck()\n", count);
     printf("pushs GF@typeCheck\n");
     printf("pushs LF@_paramType%%%d\n", count);
-    printf("jumpifneqs _TYPE_SEM_ERR\n");
+    printf("jumpifneqs _TYPE_SEM_ERR #__\n");
 }
 
 void genFunctionAmountOfParamsCheck(int count) {
-	printf("defvar LF@%%_count_def_par # TOTO JE NOVE\n"); // TODO remove comment
+	printf("defvar LF@%%_count_def_par # genFunctionAmountOfParamsCheck()\n"); // TODO remove comment
 	printf("move LF@%%_count_def_par int@%d\n", count);
 	printf("pushs LF@%%_count_def_par\n");
 	printf("pushs LF@%%_countArgs\n");
-	printf("jumpifneqs _TYPE_SEM_ERR\n");
+	printf("jumpifneqs _TYPE_SEM_ERR #__\n");
 }
-    //switch(token->type) {
-    //    case TOK_STRING_LIT: ;
-    //        char * ptr = convertStringToIFJ(token->attribute.strVal->str); // dynamically allocated str
-    //        //CONCAT_STRINGS_DLL("write string@", ptr);
-    //        printf("write string@%s", ptr);
-    //        free(ptr); 
-    //        break;
-    //    case TOK_INT_LIT: ;
-    //        char * ptr2 = convertIntToIFJ(token->attribute.intVal);
-    //        //CONCAT_STRINGS_DLL("write int@", ptr2);
-    //        printf("write int@%s", ptr2);
-    //        free(ptr2);
-    //        break;
-    //    case TOK_DEC_LIT: ;
-    //        char * ptr3 = convertFloatToIFJ(token->attribute.decVal);
-    //        //CONCAT_STRINGS_DLL("write float@", ptr3);
-    //        printf("write float@%s", ptr3);
-    //        free(ptr3);
-    //        break;
-    //    case TOK_KEYWORD:
-    //        if (token->attribute.kwVal == KW_NULL) {
-    //            //DLLInsertLast(list, "write nil@nil", strlen("write nil@nil")+1);
-    //            printf("write nil@nil");
-    //        } else if (token->attribute.kwVal == KW_TRUE) {
-    //            //DLLInsertLast(list, "write bool@true", strlen("write bool@true")+1);
-    //            printf("write bool@true");
-    //        }
-    //        break;
-    //    default:
-    //        return ERR_SEM_PARAMS;
-    //}
+
+int genFunctionPushsVariable(struct Parser * parser) {
+    char * ptr = malloc(16);
+    if (ptr == NULL) {
+        return ERR_INTERNAL;
+    }
+
+    snprintf(ptr, 16, "LF@param%d", parser->onArg);   
+
+    CODEGEN_INSERT_IN_DLL("pushs ", ptr);
+
+    free(ptr);
+
+    return 0;
+}

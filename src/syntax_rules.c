@@ -578,8 +578,9 @@ int rTerm(Parser_t *parser)
 			fprintf(stderr, "[ERROR] Semantic error, passing undeclared variable as argument.\n");
 			exit(ERR_SEM_UNDEFINED_VAR);
 		}
-		// printf("defvar TF@%%%d\n", parser->onArg);
-		// printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
+		//printf("defvar TF@%%%d\n", parser->onArg);
+		//printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
+		//printf("pushs TF@%%%d\n", parser->onArg);
 		// CODEGEN_INSERT_IN_DLL("defvar TF@%%%d", parser->onArg);
 		fflush(stdout);
 		parser->onArg++;

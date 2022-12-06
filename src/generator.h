@@ -4,6 +4,7 @@
 #include "scanner.h"
 #include "dll.h"
 #include "str.h"
+#include "parser.h"
 
 #define CODEGEN_INSERT_IN_DLL(str1, str2)           \
     do {                                            \
@@ -105,5 +106,7 @@ void genFunctionRetType(keyword_t kw);
 void genTypeCheck(int count);
 
 void genFunctionAmountOfParamsCheck(int count);
+
+int genFunctionPushsVariable(struct Parser * parser);
 
 #endif // GENERATOR_H

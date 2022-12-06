@@ -38,7 +38,7 @@ symtable.o: symtable.c symtable.h
 sym_table_stack.o: sym_table_stack.c sym_table_stack.h symtable.h error.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-generator.o: generator.c generator.h dll.h error.h
+generator.o: generator.c generator.h dll.h error.h parser.h dll.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 expr.o: expr.c expr.h scanner.h str.h error.h expr_stack.h
