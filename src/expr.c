@@ -253,7 +253,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						printf("defvar LF@str_len\n");
 						printf("strlen LF@str_len LF@tmp%ld\n", nonTermCnt);
 						printf("jumpifeq exprFalse LF@str_len int@0\n");
-						printf("write LF@str_len\n"); //write
+						//printf("write LF@str_len\n"); //write
 						printf("jump exprTrue\n");
 						printf("label convert_num\n");
 						printf("pushs LF@tmp%ld\n", nonTermCnt);
@@ -266,13 +266,13 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						printf("jumpifeq exprTrue LF@tmp%ld bool@true\n", nonTermCnt);
 
 						printf("label exprFalse\n");
-						printf("write string@false\n"); //write
+						//printf("write string@false\n"); //write
 						printf("move LF@exprResult bool@false\n");
 						printf("jump exprEnd\n");
 
 						printf("label exprTrue\n");
 						printf("move LF@exprResult bool@true\n");
-						printf("write string@true\n"); //write
+						//printf("write string@true\n"); //write
 						printf("jump exprEnd\n");
 					}
 				}
@@ -283,10 +283,10 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 					if (generateCode)
 					{
 						printf("jumpifneq exprSkip9 LF@type_tmp%ld string@bool\n", nonTermCnt);
-						printf("write string@cannot_return_boolean\n");
+						//printf("write string@cannot_return_boolean\n");
 						printf("exit int@7\n");
 						printf("label exprSkip9\n");
-						printf("write LF@tmp%ld\n", nonTermCnt);			  // dbg
+						//printf("write LF@tmp%ld\n", nonTermCnt);			  // dbg
 						printf("move LF@exprResult LF@tmp%ld\n", nonTermCnt); // dbg
 						printf("jump exprEnd\n");
 					}
