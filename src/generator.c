@@ -765,11 +765,6 @@ void genFunctionEnd(char * functionName) {
     , functionName, functionName);
 }
 
-//int genToPush(char * toPush) {
-//    CONCAT_STRINGS_DLL(")
-//    
-//}
-
 void genFunctionParam(char * functionName, char * paramName) {
     static int paramCounter = 0;
 

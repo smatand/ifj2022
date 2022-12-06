@@ -148,12 +148,10 @@ int rParam(Parser_t *parser)
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 	functionAddParam(parser->definedFunc->data, parser->currentToken->attribute.strVal->str); // add param name to symtable
 
-	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
-	// printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
+	// [param_count-1] because inside functionAddParam() it is incremented already
+	printf("defvar LF@%%%s%%\n", parser->definedFunc->data[parser->definedFunc->data->param_count-1]);
 	fflush(stdout);
 	parser->onParam++;
-
-	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
 	CALL_FUN(getNextToken);
 	return SUCCESS;
@@ -165,6 +163,10 @@ int rParams_n(Parser_t *parser)
 	{	  // there are no more parameters, return
 		;
 		genFunctionAmountOfParamsCheck(parser->onParam);
+		while (parser->onParamType)
+		{
+			genTypeCheck(--parser->onParamType);
+		}
 	}
 	else
 	{
@@ -178,10 +180,8 @@ int rParams_n(Parser_t *parser)
 		printf("pops LF@param%d\n", --parser->onParam); // assign argX to paramX
 	}
 
-	while (parser->onParamType)
-	{
-		genTypeCheck(--parser->onParamType);
-	}
+
+
 	return SUCCESS;
 }
 
@@ -572,12 +572,25 @@ int rTerm(Parser_t *parser)
 		}
 
 		// todo here do some shitcodegen to generate params with
+		char * varName = malloc(parser->currentToken->attribute.strVal->realLen + 5); // 5 for %% %%
+		if (varName == NULL)
+		{
+			fprintf(stderr, "[ERROR] Memory allocation error.\n");
+			exit(ERR_INTERNAL);
+		}
+
+		snprintf(varName, parser->currentToken->attribute.strVal->realLen+5, "%%%s%%", parser->currentToken->attribute.strVal->str);
+		CODEGEN_INSERT_IN_DLL("pushs LF@", varName);
+
+
 
 		//printf("defvar TF@%%%d\n", parser->onArg);
 		//printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
 		//printf("pushs TF@%%%d\n", parser->onArg);
 		// CODEGEN_INSERT_IN_DLL("defvar TF@%%%d", parser->onArg);
+
 		fflush(stdout);
+		free(varName);
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT)
 	{
