@@ -11,6 +11,8 @@
 #include "error.h"
 #include "str.h"
 
+#define MAX_PARAM_COUNT 20
+
 char *createTokenKey(string_t* ID);
 
 struct token_data *createTokenDataFunction(); // param_list must be created first

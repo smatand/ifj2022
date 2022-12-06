@@ -20,10 +20,17 @@ token_data_t *createTokenDataFunction()
 	struct token_data *data = malloc(sizeof(struct token_data));
 	if (data == NULL)
 	{
-		return NULL;
+		exit(ERR_INTERNAL);
 	}
 
 	data->type = TOKTYPE_FUNCTION;
+
+	data->param_IDs = malloc(sizeof(char*) * MAX_PARAM_COUNT); // TODO: memory leak, uninitialized pointers
+	if (data->param_IDs == NULL)
+	{
+		free(data);
+		exit(ERR_INTERNAL);
+	}
 
 	return data;
 }
@@ -38,5 +45,6 @@ struct token_data *createTokenDataVariable()
 	}
 
 	data->type = TOKTYPE_VARIABLE;
+	data->param_IDs = NULL;
 	return data;
 }
