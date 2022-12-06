@@ -288,6 +288,10 @@ int rStatements(Parser_t *parser)
 		CALL_RULE(rReturnStatement);
 		CALL_RULE(rStatements);
 	}
+	else if (checkForOperator(parser->currentToken) == 0)
+	{ // no support for unary operators, SYN_ERR
+		return ERR_SYN_ANALYSIS;
+	}
 	else
 	{
 		; // epsilon transition
