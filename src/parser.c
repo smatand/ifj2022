@@ -102,6 +102,8 @@ Parser_t *initParser()
 	parser->ifCounter = 0;
 	parser->whileCounter = 0;
 
+	parser->definedFunc = NULL;
+
 	return parser;
 
 freeDLList:

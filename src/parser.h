@@ -34,6 +34,8 @@ typedef struct Parser
 
 	int ifCounter;
 	int whileCounter;
+
+	htab_pair_t *definedFunc;
 } Parser_t;
 
 /**

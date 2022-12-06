@@ -103,7 +103,9 @@ void genFunctionParamType(keyword_t kw, int count);
 
 void genFunctionRetType(keyword_t kw);
 
-void genTypeCheck(int count);
+void genTypeCheck(int count, char * varName);
+
+void genFunctionAmountOfGivenArgsCheck(int toCompareWith);
 
 void genFunctionAmountOfParamsCheck(int count);
 

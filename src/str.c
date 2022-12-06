@@ -40,10 +40,14 @@ string_t * stringInit(int * ret) {
 }
 
 void stringDestroy(string_t * s) {
-    free(s->str);
-    s->str = NULL;
-    free(s);
-    s = NULL;
+    if (s != NULL){
+        if (s->str != NULL){
+            free(s->str);
+            s->str = NULL;
+        }
+        free(s);
+        s = NULL;
+    }
 }
 
 void stringClear(string_t * s) {
