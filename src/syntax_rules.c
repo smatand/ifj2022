@@ -69,6 +69,7 @@ int rUnit(Parser_t *parser)
 
 int rFunctionDefinition(Parser_t *parser)
 {
+	int retVal = SUCCESS;
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
 	CURRENT_TOKEN_TYPE(TOK_FUNCTION);
 
@@ -88,12 +89,7 @@ int rFunctionDefinition(Parser_t *parser)
 	// next codegen happens in param and param_n
 	parser->onParam = 0; // to keep track of the number of parameters, this is the only time onParam is used
 
-	int ret = getNextToken(parser);
-	if (ret)
-	{
-		return ret;
-	}
-
+	CALL_FUN(getNextToken);
 	
 	if (push_empty(parser->localSymStack) != SUCCESS) // push new sym_table
 	{
@@ -108,11 +104,8 @@ int rFunctionDefinition(Parser_t *parser)
 	CALL_RULE(rType);
 	genFunctionRetType(parser->currentToken->attribute.kwVal);
 
-	ret = getNextToken(parser);
-	if (ret)
-	{
-		return ret;
-	}
+	CALL_FUN(getNextToken);
+
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 
 	CALL_RULE(rStatements);
@@ -140,16 +133,14 @@ int rParams(Parser_t *parser)
 
 int rParam(Parser_t *parser)
 {
+	int retVal;
 	parser->onParamType = 0;
 	CALL_RULE(rType);
 	genFunctionParamType(parser->currentToken->attribute.kwVal, parser->onParamType);
 	parser->onParamType++;
 
-	int ret = getNextToken(parser);
-	if (ret)
-	{
-		return ret;
-	}
+	CALL_FUN(getNextToken);
+
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
 	token_data_t *data = createTokenDataVariable();
@@ -164,7 +155,7 @@ int rParam(Parser_t *parser)
 
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
-	getNextToken(parser);
+	CALL_FUN(getNextToken);
 	return SUCCESS;
 }
 
@@ -196,13 +187,15 @@ int rParams_n(Parser_t *parser)
 
 int rParam_n(Parser_t *parser)
 {
+	int retVal = SUCCESS;
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
 
 	CALL_RULE(rType);
 	genFunctionParamType(parser->currentToken->attribute.kwVal, parser->onParamType);
 	parser->onParamType++;
 
-	getNextToken(parser);
+	CALL_FUN(getNextToken);
+
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 
 	token_data_t *data = createTokenDataVariable();
@@ -217,7 +210,7 @@ int rParam_n(Parser_t *parser)
 	parser->onParam++;
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
-	getNextToken(parser);
+	CALL_FUN(getNextToken);
 	return SUCCESS;
 }
 
@@ -250,6 +243,7 @@ int rType(Parser_t *parser)
 
 int rStatements(Parser_t *parser)
 {
+	int retVal = SUCCESS; // SUCCESS or ERR_*
 	if (parser->currentToken->type == TOK_FUNCTION)
 	{
 		CALL_RULE(rFunctionCallStatement); // we check whether the function is defined in rFunctionCallStatement
@@ -263,16 +257,15 @@ int rStatements(Parser_t *parser)
 	else if (parser->currentToken->type == TOK_INT_LIT || parser->currentToken->type == TOK_DEC_LIT ||
 			 parser->currentToken->type == TOK_STRING_LIT)
 	{
-		int ret;
+		int retToken; // last read non valid token in expression 
 
-		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
-		if (retVal != SUCCESS)
+		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 		{
 			return retVal;
 		}
-		parser->nextToken->type = ret;
-		getNextToken(parser);					   // ensuring continuity of tokens after returning from bottom up
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); // expressions in statements end with a semicolon
+		parser->nextToken->type = retToken;
+		CALL_FUN(getNextToken);			   			// ensuring continuity of tokens after returning from bottom up
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); 	// expressions in statements end with a semicolon
 		CALL_RULE(rStatements);
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_IF)
@@ -301,22 +294,23 @@ int rStatements(Parser_t *parser)
 	return SUCCESS;
 }
 
-int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
+int rVariableStatement(Parser_t *parser)
 {
+	int retVal = SUCCESS; // SUCCESS or ERR_*
 	if (checkTokenType(parser->nextToken, TOK_ASSIGN) == 0)
 	{
 		CALL_RULE(rAssignmentStatement);
 	}
 	else if (checkForOperator(parser->nextToken) == 0)
 	{
-		int ret;
-		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
-		if (retVal != SUCCESS)
+		int retToken; // last read non valid token in expression 
+		
+		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 		{
 			return retVal;
 		}
-		parser->nextToken->type = ret;
-		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
+		parser->nextToken->type = retToken;
+		CALL_FUN(getNextToken);		// ensuring continuity of tokens after bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	else if (checkTokenType(parser->nextToken, TOK_SEMICOLON) == 0)
@@ -327,8 +321,9 @@ int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 			fprintf(stderr, "[ERROR] Semantic error, refrencing undefined variable.\n");
 			exit(ERR_SEM_UNDEFINED_VAR);
 		}
-		getNextToken(parser); // skipping two tokens
-		getNextToken(parser);
+		// skipping two tokens
+		CALL_FUN(getNextToken);
+		CALL_FUN(getNextToken);
 	}
 	else
 	{
@@ -339,6 +334,8 @@ int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 
 int rAssignmentStatement(Parser_t *parser)
 {
+	int retVal = SUCCESS; // SUCCESS or ERR_*
+
 	CURRENT_TOKEN_TYPE(TOK_VARIABLE); // TODO: codegen
 	htab_pair_t *definedVar = NULL;
 
@@ -353,7 +350,7 @@ int rAssignmentStatement(Parser_t *parser)
 
 	// TODO: set or change the value and type(?) of the declared variable (code generation)
 
-	getNextToken(parser);
+	CALL_FUN(getNextToken);
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_ASSIGN);
 
@@ -364,18 +361,17 @@ int rAssignmentStatement(Parser_t *parser)
 	}
 	else
 	{
-		int ret;
+		int retToken; // last read non valid token in expression 
 
-		int retVal = exprParse(parser->currentToken, NULL, &ret, parser);
-		if (retVal != SUCCESS)
+		if ((retVal = exprParse(parser->currentToken, NULL, &retToken, parser)) != SUCCESS)
 		{
 			return retVal;
 		}
 
 		printf("pops LF@%s\n", definedVar->key); // pop stack into new value
 
-		parser->nextToken->type = ret;
-		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
+		parser->nextToken->type = retToken;
+		CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	return SUCCESS;
@@ -383,22 +379,23 @@ int rAssignmentStatement(Parser_t *parser)
 
 int rConditionalStatement(Parser_t *parser)
 {
+	int retVal = SUCCESS; // SUCCESS or ERR_*
+
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_IF);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 
-	int ret;
+	int retToken; // last read non valid token in expression 
 
-	int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
-	if (retVal != SUCCESS)
+	if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 	{
 		return retVal;
 	}
-	parser->nextToken->type = ret;
+	parser->nextToken->type = retToken;
 
 	printf("pushs bool@false\n");					// helper variable for if condition
 	printf("jumpifeqs _if%d\n", parser->ifCounter); // skip code if expr result was false
 
-	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
+	CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
@@ -417,24 +414,25 @@ int rConditionalStatement(Parser_t *parser)
 
 int rWhileLoopStatement(Parser_t *parser)
 {
+	int retVal = SUCCESS; // SUCCESS or ERR_*
+
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 
 	printf("label _while_begin%d\n", parser->whileCounter); // label for jumping backwards TODO: does this work?
 
-	int ret;
+	int retToken; // last read non valid token in expression 
 
-	int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
-	if (retVal != SUCCESS)
+	if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 	{
 		return retVal;
 	}
-	parser->nextToken->type = ret;
+	parser->nextToken->type = retToken;
 
 	printf("pushs bool@false\n");							  // helper variable for while condition
 	printf("jumpifeqs _while_end%d\n", parser->whileCounter); // skip code if expr result was false
 
-	getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
+	CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 
@@ -466,11 +464,7 @@ int rFunctionCallStatement(Parser_t *parser)
 	//	printf("write ");
 	// }
 
-	int ret = getNextToken(parser);
-	if (ret != SUCCESS)
-	{
-		return ret;
-	}
+	CALL_FUN(getNextToken);
 
 	parser->onArg = 0;
 
@@ -542,7 +536,8 @@ int rArguments_n(Parser_t *parser)
 
 int rReturnValue(Parser_t *parser)
 {
-	int retVal = SUCCESS;
+	int retVal = SUCCESS; // SUCCESS or ERR_*
+
 	if (parser->currentToken->type == TOK_SEMICOLON)
 	{
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); // TODO: missing return value -> check if void function?
@@ -550,18 +545,17 @@ int rReturnValue(Parser_t *parser)
 	else
 	{
 
-		int ret;
+		int retToken; // last read non valid token in expression 
 
-		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
-		if (retVal != SUCCESS)
+		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 		{
 			return retVal;
 		}
 
 		printf("pops LF@%%retval\n"); // TODO: check some stuff here maybe (void?, return type?), maybe in assignment instead?
 
-		parser->nextToken->type = ret;
-		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
+		parser->nextToken->type = retToken;
+		CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	return retVal;
@@ -644,8 +638,10 @@ int rTerm(Parser_t *parser)
 		fprintf(stderr, "[ERROR] Syntax error in rTerm\n");
 		return ERR_SYN_ANALYSIS;
 	}
+
 	parser->onArg++;
-	getNextToken(parser);
+	CALL_FUN(getNextToken);
+	
 	return SUCCESS;
 }
 
