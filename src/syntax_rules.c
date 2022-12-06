@@ -634,12 +634,8 @@ int rTerm(Parser_t *parser)
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_NULL)
 	{
-		// TODO: check for type matching in code gen
-		// printf("defvar TF@%%%d\n", parser->onArg);
-		// printf("move TF@%%%d nil@nil\n", parser->onArg);
 		printf("pushs nil@nil\n");
 		fflush(stdout);
-		parser->onArg++;
 	}
 	else
 	{
