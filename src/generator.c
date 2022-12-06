@@ -817,10 +817,10 @@ void genFunctionRetType(keyword_t kw) {
     }
 }
 
-void genTypeCheck(int count) {
-    printf("type GF@typeCheck LF@param%d #genTypeCheck()\n", count);
+void genTypeCheck(int count, char * varName) {
+    printf("type GF@typeCheck LF@%%%s%% #genTypeCheck()\n", varName);
     printf("pushs GF@typeCheck\n");
-    printf("pushs LF@_paramType%%%d\n", count);
+    printf("pushs LF@_paramType%%%d\n", count-1);
     printf("jumpifneqs _TYPE_SEM_ERR #__\n");
 }
 
