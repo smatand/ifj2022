@@ -373,7 +373,7 @@ int rAssignmentStatement(Parser_t *parser)
 	if (checkTokenType(parser->currentToken, TOK_FUNCTION)==0)
 	{
 		CALL_RULE(rFunctionCallStatement);
-		printf("move LF@%s TF@%%retval\n", definedVar->key); // move return value from func (now in TF) to var
+		printf("pops LF@%%%s%%\n", definedVar->key); // move return value from func (now in TF) to var
 	}
 	else
 	{
@@ -384,7 +384,7 @@ int rAssignmentStatement(Parser_t *parser)
 			return retVal;
 		}
 
-		printf("pops LF@%s\n", definedVar->key); // pop stack into new value
+		printf("pops LF@%%%s%%\n", definedVar->key); // pop stack into new value
 
 		//parser->nextToken->type = retToken; // THIS CAUSED A STACK OVERFLOW, WHY WAS THIS HERE?
 		//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up (THIS CAUSED A STACK OVERFLOW)
