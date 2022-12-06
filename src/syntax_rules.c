@@ -296,6 +296,10 @@ int rStatements(Parser_t *parser)
 		CALL_RULE(rReturnStatement);
 		CALL_RULE(rStatements);
 	}
+	else if (checkForOperator(parser->currentToken) == NULL)
+	{ // unary operators are not allowed in IFJ22
+		return ERR_SYN_ANALYSIS;
+	}
 	else
 	{
 		; // epsilon transition
