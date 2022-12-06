@@ -108,7 +108,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
 	eItem_t *incomingTokenItem;
-	stackPrint(stack);
+	// stackPrint(stack);
 
 	while (continueParsing)
 	{
@@ -209,7 +209,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						eStackEmptyAll(stack);
 						return returnVal;
 					}
-					stackPrint(stack);
+					// stackPrint(stack);
 				}
 				continueParsing = false;
 				// free last token, ; OR ) and empty whole stack
@@ -242,7 +242,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						printf("defvar LF@str_len\n");
 						printf("strlen LF@str_len LF@tmp%ld\n", nonTermCnt);
 						printf("jumpifeq exprFalse LF@str_len int@0\n");
-						printf("write LF@str_len\n");
+						// printf("write LF@str_len\n");
 						printf("jump exprTrue\n");
 						printf("label convert_num\n");
 						printf("pushs LF@tmp%ld\n", nonTermCnt);
@@ -255,13 +255,13 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						printf("jumpifeq exprTrue LF@tmp%ld bool@true\n", nonTermCnt);
 
 						printf("label exprFalse\n");
-						printf("write string@false\n");
+						// printf("write string@false\n");
 						printf("move LF@exprResult bool@false\n");
 						printf("jump exprEnd\n");
 
 						printf("label exprTrue\n");
 						printf("move LF@exprResult bool@true\n");
-						printf("write string@true\n");
+						// printf("write string@true\n");
 						printf("jump exprEnd\n");
 					}
 				}
@@ -275,7 +275,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						printf("write string@cannot_return_boolean\n");
 						printf("exit int@7\n");
 						printf("label exprSkip9\n");
-						printf("write LF@tmp%ld\n", nonTermCnt);			  // dbg
+						// printf("write LF@tmp%ld\n", nonTermCnt);			  // dbg
 						printf("move LF@exprResult LF@tmp%ld\n", nonTermCnt); // dbg
 						printf("jump exprEnd\n");
 					}
@@ -306,7 +306,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 			return ERR_SYN_ANALYSIS;
 		}
 
-		stackPrint(stack);
+		// stackPrint(stack);
 		if (scanAnotherToken)
 		{
 			if (secondTokenDelay == false)
