@@ -9,7 +9,21 @@
 
 /**
  * @brief Calls function and returns error code if it fails
- * @param ruleFunction Function to call
+ * @param function Function to call
+ * 
+ * @return caught error code, otherwise nothing
+*/
+#define CALL_FUN(function)                \
+	do                                    \
+	{                                     \
+		int ret = function(parser);       \
+		if (ret != SUCCESS)               \
+			return ret;                	  \
+	} while (0)
+
+/**
+ * @brief Calls rule and returns error code if it fails
+ * @param ruleFunction rule to call
  * 
  * @return caught error code, otherwise nothing
 */
