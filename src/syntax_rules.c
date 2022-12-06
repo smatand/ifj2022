@@ -172,6 +172,7 @@ int rParams_n(Parser_t *parser)
 	if (parser->currentToken->type == TOK_RIGHT_PAREN)
 	{	  // there are no more parameters, return
 		;
+		genFunctionAmountOfParamsCheck(parser->onParam);
 	}
 	else
 	{
@@ -179,7 +180,6 @@ int rParams_n(Parser_t *parser)
 		CALL_RULE(rParams_n);
 	}
 
-	genFunctionAmountOfParamsCheck(parser->onParam);
 
 	while (parser->onParam)
 	{
