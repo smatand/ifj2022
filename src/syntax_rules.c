@@ -501,17 +501,10 @@ int rArguments(Parser_t *parser)
 		CALL_RULE(rArguments_n);
 	}
 
-	char *argCount = convertIntToIFJ(parser->onArg);
-	if (argCount == NULL)
-	{
-		return ERR_INTERNAL;
-	}
+	DLLPrintAllReversed(parser->codeGen); // prints given arguments
+	printf("pushs int@%d\n", parser->onArg); // prints count of arguments
+	DLLDispose(parser->codeGen); 
 
-	DLLPrintAllReversed(parser->codeGen);
-	printf("pushs int@%d\n", parser->onArg);
-	DLLDispose(parser->codeGen);
-
-	free(argCount);
 	return SUCCESS;
 }
 
@@ -581,12 +574,14 @@ int rTerm(Parser_t *parser)
 			fprintf(stderr, "[ERROR] Semantic error, passing undeclared variable as argument.\n");
 			exit(ERR_SEM_UNDEFINED_VAR);
 		}
+
+		// todo here do some shitcodegen to generate params with
+
 		//printf("defvar TF@%%%d\n", parser->onArg);
 		//printf("move TF@%%%d LF@%s\n", parser->onArg, parser->currentToken->attribute.strVal->str); // push var as argument %X
 		//printf("pushs TF@%%%d\n", parser->onArg);
 		// CODEGEN_INSERT_IN_DLL("defvar TF@%%%d", parser->onArg);
 		fflush(stdout);
-		parser->onArg++;
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT)
 	{
@@ -602,7 +597,6 @@ int rTerm(Parser_t *parser)
 		CODEGEN_INSERT_IN_DLL("pushs int@", str);
 
 		fflush(stdout);
-		parser->onArg++;
 		free(str);
 	}
 	else if (parser->currentToken->type == TOK_STRING_LIT)
@@ -621,7 +615,6 @@ int rTerm(Parser_t *parser)
 		CODEGEN_INSERT_IN_DLL("pushs string@", str);
 
 		fflush(stdout);
-		parser->onArg++;
 		free(str);
 	}
 	else if (parser->currentToken->type == TOK_DEC_LIT)
@@ -637,7 +630,6 @@ int rTerm(Parser_t *parser)
 
 		CODEGEN_INSERT_IN_DLL("pushs float@", str);
 		fflush(stdout);
-		parser->onArg++;
 		free(str);
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_NULL)
@@ -654,6 +646,7 @@ int rTerm(Parser_t *parser)
 		fprintf(stderr, "[ERROR] Syntax error in rTerm\n");
 		return ERR_SYN_ANALYSIS;
 	}
+	parser->onArg++;
 	getNextToken(parser);
 	return SUCCESS;
 }
