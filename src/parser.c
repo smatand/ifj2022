@@ -150,7 +150,6 @@ int getNextToken(Parser_t *parser)
 		fprintf(stderr, "SCANNER ERROR (getNextToken): Exit with error code %d", ret);
 		return ret;
 	}
-
 	return ret;
 }
 

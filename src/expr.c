@@ -86,10 +86,9 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		generateCode = false;
 		secondTokenDelay = true; // expression isn't assigned to anything
 	}
-	// generateCode = false;
+	generateCode = true;
 	if (generateCode)
 	{
-		genInit();
 		printf("\n####################\n");
 		printf("#### Expression ####\n");
 		printf("####################\n");
