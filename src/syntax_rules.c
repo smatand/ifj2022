@@ -325,8 +325,8 @@ int rVariableStatement(Parser_t *parser)
 		{
 			return retVal;
 		}
-		parser->nextToken->type = retToken;
-		CALL_FUN(getNextToken);		// ensuring continuity of tokens after bottom up
+		//parser->nextToken->type = retToken;
+		//CALL_FUN(getNextToken);		// ensuring continuity of tokens after bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	else if (checkTokenType(parser->nextToken, TOK_SEMICOLON) == 0)
@@ -406,12 +406,12 @@ int rConditionalStatement(Parser_t *parser)
 	{
 		return retVal;
 	}
-	parser->nextToken->type = retToken;
+	//parser->nextToken->type = retToken;
 
 	printf("pushs bool@false\n");					// helper variable for if condition
 	printf("jumpifeqs _if%d\n", parser->ifCounter); // skip code if expr result was false
 
-	CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
+	//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
@@ -443,12 +443,12 @@ int rWhileLoopStatement(Parser_t *parser)
 	{
 		return retVal;
 	}
-	parser->nextToken->type = retToken;
+	//parser->nextToken->type = retToken;
 
 	printf("pushs bool@false\n");							  // helper variable for while condition
 	printf("jumpifeqs _while_end%d\n", parser->whileCounter); // skip code if expr result was false
 
-	CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
+	//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 
@@ -570,8 +570,8 @@ int rReturnValue(Parser_t *parser)
 
 		printf("pops LF@%%retval\n"); // TODO: check some stuff here maybe (void?, return type?), maybe in assignment instead?
 
-		parser->nextToken->type = retToken;
-		CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
+		//parser->nextToken->type = retToken;
+		//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	return retVal;
