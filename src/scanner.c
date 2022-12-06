@@ -187,9 +187,11 @@ int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
             if (retVal == 0) {
                 token->type = TOK_DECLARE_STRICT; // declare(strict_types=1) is found
                 stringDestroy(s);
+                s = NULL;
                 return SUCCESS;
             } else if (retVal) {
                 stringDestroy(s);
+                s = NULL;
                 return retVal;
             }
         }
@@ -607,6 +609,7 @@ int scanToken(token_t *token)
                     char *tmp = "\"\"";
                     if (strPushBack(str, tmp, 2) != SUCCESS)
                     {
+                        str = NULL;
                         return ERR_INTERNAL;
                     }
                 }
@@ -620,11 +623,13 @@ int scanToken(token_t *token)
             else if (c == '$')
             { // dollar sign is not allowed without a backslash before it
                 stringDestroy(str); // free the memory if encountered a lexical error
+                token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
             }
             else if (c == EOF)
             {
                 stringDestroy(str); // free the memory if encountered a lexical error
+                token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
             }
             else
@@ -697,6 +702,7 @@ int scanToken(token_t *token)
             else if (c == EOF)
             {
                 stringDestroy(str); // free the memory if encountered a lexical error
+                token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
             }
             if (strPushBack(str, escpStr, 2) != SUCCESS)
@@ -738,6 +744,7 @@ int scanToken(token_t *token)
                 else if (temp == EOF)
                 { // error caused by EOF
                     stringDestroy(str); // free the memory if encountered a lexical error
+                    token->attribute.strVal = NULL;
                     return ERR_LEX_ANALYSIS;
                 }
                 else
@@ -753,6 +760,7 @@ int scanToken(token_t *token)
             else if (c == EOF)
             { // error caused by EOF
                 stringDestroy(str); // free the memory if encountered a lexical error
+                token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
             }
             else
@@ -797,6 +805,7 @@ int scanToken(token_t *token)
                 else if (temp == EOF)
                 { // error caused by EOF
                     stringDestroy(str); // free the memory if encountered a lexical error
+                    token->attribute.strVal = NULL;
                     return ERR_LEX_ANALYSIS;
                 }
                 else
@@ -812,6 +821,7 @@ int scanToken(token_t *token)
             else if (c == EOF)
             { // error caused by EOF
                 stringDestroy(str); // free the memory if encountered a lexical error
+                token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
             }
             else
@@ -884,6 +894,7 @@ int scanToken(token_t *token)
             {
                 // it doesn't match any keyword, throw err_lex
                 stringDestroy(str); // free the memory if encountered a lexical error
+                token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
             }
             else if (token->attribute.kwVal == KW_STRING || token->attribute.kwVal == KW_INT || token->attribute.kwVal == KW_FLOAT)
@@ -912,6 +923,7 @@ int scanToken(token_t *token)
             else
             { // not allowed char in variable name
                 stringDestroy(str); // free the memory if encountered a lexical error
+                token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
             }
         case S_SLASH:
