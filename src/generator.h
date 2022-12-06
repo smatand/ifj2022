@@ -105,6 +105,8 @@ void genFunctionRetType(keyword_t kw);
 
 void genTypeCheck(int count, char * varName);
 
+void genFunctionAmountOfGivenArgsCheck(int toCompareWith);
+
 void genFunctionAmountOfParamsCheck(int count);
 
 int genFunctionPushsVariable(struct Parser * parser);

@@ -149,9 +149,13 @@ int rParam(Parser_t *parser)
 	functionAddParam(parser->definedFunc->data, parser->currentToken->attribute.strVal->str); // add param name to symtable
 
 	// [param_count-1] because inside functionAddParam() it is incremented already
+    printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
 	printf("defvar LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count-1]);
+	genFunctionAmountOfGivenArgsCheck(0);
 	printf("pops LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count-1]);
 	genTypeCheck(parser->onParamType, parser->currentToken->attribute.strVal->str);
+    printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
+	//genFunctionAmountOfGivenArgsCheck(parser->onParam, 0);
 	fflush(stdout);
 	parser->onParam++;
 
@@ -164,11 +168,12 @@ int rParams_n(Parser_t *parser)
 	if (parser->currentToken->type == TOK_RIGHT_PAREN)
 	{	  // there are no more parameters, return
 		;
-		genFunctionAmountOfParamsCheck(parser->onParam);
+		//genFunctionAmountOfParamsCheck(parser->onParam);
 		//while (parser->onParamType)
 		//{
 		//	genTypeCheck(--parser->onParamType);
 		//}
+		//genFunctionAmountOfGivenArgsCheck(0);
 	}
 	else
 	{
@@ -206,12 +211,14 @@ int rParam_n(Parser_t *parser)
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 	functionAddParam(parser->definedFunc->data, parser->currentToken->attribute.strVal->str); // add param name to symtable
 
-	//printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
+    printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
 	printf("defvar LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count-1]);
+	genFunctionAmountOfGivenArgsCheck(0);
 	printf("pops LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count-1]);
+
 	genTypeCheck(parser->onParamType, parser->currentToken->attribute.strVal->str);
-	// printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
-	// printf("pops LF@param%d\n", parser->onParam); // assign argX to paramX
+	//genFunctionAmountOfGivenArgsCheck(0);
+
 	fflush(stdout);
 	parser->onParam++;
 	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?

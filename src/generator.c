@@ -809,7 +809,7 @@ void genFunctionRetType(keyword_t kw) {
             printf("move LF@_returnType string@string\n");
             break;
         case KW_VOID:
-            printf("move LF@_returnType string@void\n");
+            printf("move LF@_returnType string@nil\n");
             break;
         default: // todo
             fprintf(stderr, "Error: line %d", __LINE__);
@@ -822,15 +822,23 @@ void genTypeCheck(int count, char * varName) {
     printf("pushs GF@typeCheck\n");
     printf("pushs LF@_paramType%%%d\n", count-1);
     printf("jumpifneqs _TYPE_SEM_ERR #__\n");
+    //printf("lt GF@tmp2 LF@%%_countArgs int@0\n");
+    //printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
 }
 
-void genFunctionAmountOfParamsCheck(int count) {
-	printf("defvar LF@%%_count_def_par # genFunctionAmountOfParamsCheck()\n"); // TODO remove comment
-	printf("move LF@%%_count_def_par int@%d\n", count);
-	printf("pushs LF@%%_count_def_par\n");
-	printf("pushs LF@%%_countArgs\n");
-	printf("jumpifneqs _TYPE_SEM_ERR #__\n");
+void genFunctionAmountOfGivenArgsCheck(int toCompareWith) {
+    printf("pushs LF@%%_countArgs\n");
+    printf("pushs int@%d\n", toCompareWith);
+    printf("jumpifeqs _TYPE_SEM_ERR #__\n");
 }
+
+//void genFunctionAmountOfParamsCheck(int count) {
+//	printf("defvar LF@%%_count_def_par # genFunctionAmountOfParamsCheck()\n"); // TODO remove comment
+//	printf("move LF@%%_count_def_par int@%d\n", count);
+//	printf("pushs LF@%%_count_def_par\n");
+//	printf("pushs LF@%%_countArgs\n");
+//	printf("jumpifneqs _TYPE_SEM_ERR #__\n");
+//}
 
 int genFunctionPushsVariable(struct Parser * parser) {
     char * ptr = malloc(16);
