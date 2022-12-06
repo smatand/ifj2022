@@ -462,34 +462,49 @@ defvar LF@$a
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@4
+move LF@tmp1 int@5
 defvar LF@tmp2
-move LF@tmp2 int@4
+move LF@tmp2 int@1
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@add
+pushs string@greater
 call $compute
 pops LF@tmp3
 defvar LF@type_tmp3
 defvar LF@exprResult
 move LF@exprResult LF@tmp3
 type LF@type_tmp3 LF@tmp3
-jumpifneq exprSkip9 LF@type_tmp3 string@bool
-write string@cannot_return_boolean
-exit int@7
-label exprSkip9
-write LF@tmp3
-move LF@exprResult LF@tmp3
+jumpifeq exprSkip1 LF@type_tmp3 string@bool
+jumpifeq convert_num LF@type_tmp3 string@int
+jumpifeq convert_num LF@type_tmp3 string@float
+jumpifeq convert_string LF@type_tmp3 string@float
+jumpifeq exprFalse LF@type_tmp3 string@nil
+label convert_string
+jumpifeq exprFalse LF@tmp3 string@0
+defvar LF@str_len
+strlen LF@str_len LF@tmp3
+jumpifeq exprFalse LF@str_len int@0
+write LF@str_len
+jump exprTrue
+label convert_num
+pushs LF@tmp3
+call $floatval
+pops LF@tmp3
+jumpifeq exprFalse LF@tmp3 float@0x0p+0
+jump exprTrue
+label exprSkip1
+jumpifeq exprTrue LF@tmp3 bool@true
+label exprFalse
+write string@false
+move LF@exprResult bool@false
+jump exprEnd
+label exprTrue
+move LF@exprResult bool@true
+write string@true
 jump exprEnd
 label exprEnd
 pushs LF@exprResult
 popframe
 
 pops LF@$a
-jump _END
-label _TYPE_SEM_ERR
-exit int@4
-label _NIL_SEM_ERR
-exit int@8
-label _END

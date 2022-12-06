@@ -51,9 +51,6 @@
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parser_t *parser)
 {
 	
-
-	firstToken = copyToken(parser->currentToken);
-	secondToken = copyToken(parser->nextToken);
 	int returnVal = SUCCESS;
 	size_t nonTermCnt = 0;
 	// bool generateCode = true;
@@ -118,7 +115,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	char operation;
 	(void)returnToken;
 	(void)parser;
-	token_t *incomingToken = firstToken;
+	token_t *incomingToken = copyToken(parser->currentToken);
 	eItem_t *closestTerm = NULL;
 	eItem_t *incomingTokenItem;
 	// stackPrint(stack);
@@ -334,10 +331,9 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 			// is thrown away
 			// else
 			// {
-			// 	incomingToken = secondToken;
+			// 	// getNextToken(parser);
+			// 	incomingToken = copyToken(parser->nextToken);
 			// 	secondTokenDelay = false;
-			// 	getNextToken(parser);
-			// 	incomingToken = copyToken(parser->currentToken);
 			// }
 		}
 	}

@@ -1,4 +1,5 @@
 <?php
 declare(strict_types=1);
-$a = 4+4;
+$a = 4+1;
+$b =2+3+4+ $a +1;
 ?>
