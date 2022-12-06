@@ -352,7 +352,7 @@ int rAssignmentStatement(Parser_t *parser)
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_ASSIGN);
 
-	if (checkTokenType(parser->currentToken, TOK_FUNCTION))
+	if (checkTokenType(parser->currentToken, TOK_FUNCTION) == 0)
 	{
 		CALL_RULE(rFunctionCallStatement);
 		printf("move LF@%s TF@%%retval\n", definedVar->key); // move return value from func (now in TF) to var
