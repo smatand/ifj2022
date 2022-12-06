@@ -20,6 +20,9 @@
 #include "generator.h"
 #include "parser.h"
 
+
+
+
 // int main(){
 // 	// token_t *token2 = tokenInit();
 // 	// scanToken(token2);
@@ -29,6 +32,9 @@
 // 	token_t *token2 = tokenInit();
 // 	scanToken(token2);
 // 	Parser_t *Parser = NULL;
+// 	// Parser_t *Parser = initParser();
+// 	// Parser->currentToken = token;
+// 	// Parser->nextToken = token2;
 // 	int returnVal = exprParse(token,token2,&returnToken,Parser);
 // 	// token = tokenInit();
 // 	// scanToken(token);
@@ -44,6 +50,7 @@
 // 		puts("SUCCESS");
 // 	}
 // }
+
 
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parser_t *parser)
 {
@@ -80,13 +87,15 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	
 	bool secondTokenDelay = false;
 	bool generateCode = true;
+	// generateCode = false;
 
-	if (secondToken != NULL)
-	{
-		generateCode = false;
-		secondTokenDelay = true; // expression isn't assigned to anything
-	}
-	generateCode = true;
+	// if (secondToken != NULL)
+	// {
+	// 	generateCode = false;
+	// 	secondTokenDelay = true; // expression isn't assigned to anything
+	// }
+
+
 	if (generateCode)
 	{
 		printf("\n####################\n");
@@ -104,7 +113,6 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	eStack_t *stack = &estack;
 	eStackInit(stack);
 	eStackPushDollar(stack);
-
 	// initialize
 	int stackTokenType;
 	int incomingTokenType;
@@ -114,7 +122,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	token_t *incomingToken = firstToken;
 	eItem_t *closestTerm = NULL;
 	eItem_t *incomingTokenItem;
-	// stackPrint(stack);
+	stackPrint(stack);
 
 	while (continueParsing)
 	{
@@ -145,7 +153,8 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		}
 		else
 		{
-			stackTokenType = tokenTypeToeType(closestTerm->token);
+			// stackTokenType = tokenTypeToeType(closestTerm->token);
+			stackTokenType = closestTerm->precType;
 			if (stackTokenType == P_ERROR)
 			{
 				freeItem(incomingTokenItem);
@@ -162,12 +171,16 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		else
 		{
 			// find operation in precedence table
+			// printf("porovnavam: zasobnik: %d, incoming %d\n",stackTokenType,incomingTokenType);
 			operation = precedenceTable[stackTokenType][incomingTokenType];
 		}
+
+		
 		switch (operation)
 		{
 		case '<': // shift with indent
 			returnVal = eStackPushIndent(stack);
+
 			if (returnVal != SUCCESS)
 			{
 				freeItem(incomingTokenItem);
@@ -215,11 +228,10 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						eStackEmptyAll(stack);
 						return returnVal;
 					}
-					// stackPrint(stack);
+					stackPrint(stack);
 				}
 				continueParsing = false;
-				// free last token, ; OR ) and empty whole stack
-				freeItem(incomingTokenItem);
+				// freeItem(incomingTokenItem);
 				eStackEmptyAll(stack);
 
 				if (generateCode)
@@ -248,7 +260,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						printf("defvar LF@str_len\n");
 						printf("strlen LF@str_len LF@tmp%ld\n", nonTermCnt);
 						printf("jumpifeq exprFalse LF@str_len int@0\n");
-						// printf("write LF@str_len\n");
+						printf("write LF@str_len\n"); //write
 						printf("jump exprTrue\n");
 						printf("label convert_num\n");
 						printf("pushs LF@tmp%ld\n", nonTermCnt);
@@ -261,13 +273,13 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						printf("jumpifeq exprTrue LF@tmp%ld bool@true\n", nonTermCnt);
 
 						printf("label exprFalse\n");
-						// printf("write string@false\n");
+						printf("write string@false\n"); //write
 						printf("move LF@exprResult bool@false\n");
 						printf("jump exprEnd\n");
 
 						printf("label exprTrue\n");
 						printf("move LF@exprResult bool@true\n");
-						// printf("write string@true\n");
+						printf("write string@true\n"); //write
 						printf("jump exprEnd\n");
 					}
 				}
@@ -281,7 +293,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						printf("write string@cannot_return_boolean\n");
 						printf("exit int@7\n");
 						printf("label exprSkip9\n");
-						// printf("write LF@tmp%ld\n", nonTermCnt);			  // dbg
+						printf("write LF@tmp%ld\n", nonTermCnt);			  // dbg
 						printf("move LF@exprResult LF@tmp%ld\n", nonTermCnt); // dbg
 						printf("jump exprEnd\n");
 					}
@@ -291,7 +303,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 					printf("label exprEnd\n");
 					printf("pushs LF@exprResult\n");
 					printf("popframe\n");
-					printf("popframe\n");
+					printf("\n");
 				}
 				return returnVal;
 			}
@@ -300,11 +312,10 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 			{
 				freeItem(incomingTokenItem);
 				eStackEmptyAll(stack);
-				fprintf(stderr, "ERROR: wrong type of token in expression2");
+				fprintf(stderr, "(!) ERROR: wrong type of token in expression2");
 				return ERR_SYN_ANALYSIS;
 			}
 			break;
-
 		default:
 			freeItem(incomingTokenItem);
 			eStackEmptyAll(stack);
@@ -312,33 +323,36 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 			return ERR_SYN_ANALYSIS;
 		}
 
-		// stackPrint(stack);
+		stackPrint(stack);
 		if (scanAnotherToken)
 		{
-			if (secondTokenDelay == false)
-			{
-				incomingToken = tokenInit();
-				scanToken(incomingToken);
-			}
-			// this happens only if expression is not assigned to anything
-			// this expression is processed if there are no errors, but its result
-			// is thrown away
-			else
-			{
-				incomingToken = secondToken;
-				secondTokenDelay = false;
-			}
+				getNextToken(parser);
+				incomingToken = parser->currentToken;
+				
+				// if(secondTokenDelay == false){
+
+				// 	incomingToken = tokenInit();
+				// 	scanToken(incomingToken);
+				// 	printf("Prichadza token %d\n", incomingToken->type);
+				// }
+				// else{
+				// 	incomingToken = secondToken;
+				// 	secondTokenDelay = false;
+				// }
+
+				
 		}
+
 	}
-	printf("popframe\n");
 	eStackEmptyAll(stack);
 	return SUCCESS;
 }
-
 int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 {
-	int type = item->token->type;
-	token_t *token = item->token;
+	// int type = item->token->type;
+	int type = item->tokenType;
+	// token_t *token = item->token;
+	token_t *token = parser->currentToken;
 	// htab_pair_t *pair;
 	printf("defvar LF@tmp%ld\n", *nonTermCnt);
 	//generate definition code based on the type of token
@@ -346,14 +360,17 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 	{
 	case TOK_INT_LIT:
 		printf("move LF@tmp%ld int@%s\n", *nonTermCnt, convertIntToIFJ(token->attribute.intVal));
+		return SUCCESS;
 		break;
 	case TOK_DEC_LIT:
 		printf("move LF@tmp%ld float@%s\n", *nonTermCnt, convertFloatToIFJ(token->attribute.decVal));
+		return SUCCESS;
 		break;
 	case TOK_STRING_LIT:
 		printf("defvar LF@_tmp%ld\n", *nonTermCnt);
 		printf("move LF@_tmp%ld string@%s\n", *nonTermCnt, convertStringToIFJ(token->attribute.strVal->str));
 		printf("move LF@tmp%ld LF@_tmp%ld \n", *nonTermCnt, *nonTermCnt);
+		return SUCCESS;
 		break;
 	case TOK_VARIABLE:
 		//try to find variable in the table of symbols
@@ -361,6 +378,7 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 		// if (pair == NULL)
 		// {
 		// 	// free
+		// 	fprintf(stderr,"PARSER ERROR (EXPRESSION) couldn't find variable: %s\n",token->attribute.strVal->str);
 		// 	return ERR_SEM_UNDEFINED_VAR;
 		// }
 		printf("defvar LF@_tmp%ld\n", *nonTermCnt);
@@ -369,15 +387,12 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 		printf("pushframe\n");
 		printf("pops LF@_tmp%ld \n", *nonTermCnt);
 		printf("move LF@tmp%ld LF@_tmp%ld \n", *nonTermCnt, *nonTermCnt);
+		return SUCCESS;
 		break;
 	case TOK_KEYWORD:
 		if (token->attribute.kwVal == KW_NULL)
 		{
 			printf("move LF@tmp%ld nil@nil\n", *nonTermCnt);
-		}
-		else
-		{
-			return ERR_SYN_ANALYSIS; // true false
 		}
 		break;
 	default:
@@ -484,7 +499,7 @@ int exprReduce(eStack_t *stack, size_t *nonTermCnt, bool generateCode, Parser_t 
 		break;
 	case RULE3: // E->i
 		(*nonTermCnt)++;
-		int ret;
+		int ret = SUCCESS;
 		if (generateCode)
 		{
 			ret = generateCode_defvar(currItem, nonTermCnt, parser);
@@ -497,13 +512,9 @@ int exprReduce(eStack_t *stack, size_t *nonTermCnt, bool generateCode, Parser_t 
 		// free indent
 		currItem = eStackPopItem(stack);
 		freeItem(currItem);
-		// if (ret != SUCCESS)
-		// {
-		// 	return ret;
-		// }
 		eStackPushNonTerm(stack);
 		stack->head->id = *nonTermCnt;
-		return SUCCESS;
+		return ret;
 		break;
 
 	case RULE_ERROR:
@@ -532,7 +543,8 @@ eRules_t exprFindRule(eStack_t *stack)
 			// then it can only be rule E->i or E->(E)
 			if (currItem->type == TERM)
 			{ // todo: handle if null
-				tokenType = tokenTypeToeType(currItem->token);
+				// tokenType = tokenTypeToeType(currItem->token);
+				tokenType = currItem->precType;
 				if (tokenType == P_ERROR)
 				{
 					currState = RULESTATES_ERROR;
@@ -574,7 +586,8 @@ eRules_t exprFindRule(eStack_t *stack)
 		 */
 		case RULE1_EXPECTED1:
 			currItem = currItem->next;
-			tokenType = tokenTypeToeType(currItem->token);
+			// tokenType = tokenTypeToeType(currItem->token);
+			tokenType = currItem->precType;
 			if (tokenType == P_ERROR)
 			{
 				currState = RULESTATES_ERROR;
@@ -638,7 +651,8 @@ eRules_t exprFindRule(eStack_t *stack)
 		// expecting: )
 		case RULE2_EXPECTED2:
 			currItem = currItem->next;
-			tokenType = tokenTypeToeType(currItem->token);
+			// tokenType = tokenTypeToeType(currItem->token);
+			tokenType = currItem->precType;
 			if (tokenType == P_ERROR)
 			{
 				currState = RULESTATES_ERROR;
@@ -714,8 +728,8 @@ precTokenType_t tokenTypeToeType(token_t *token)
 		keyword_t keyword = token->attribute.kwVal;
 		switch (keyword)
 		{
-		case KW_TRUE:
-		case KW_FALSE:
+		// case KW_TRUE:
+		// case KW_FALSE:
 		case KW_NULL:
 			return P_ID;
 		default:
@@ -759,27 +773,14 @@ precTokenType_t tokenTypeToeType(token_t *token)
 	case TOK_VARIABLE:
 		return P_ID;
 	default:
-		fprintf(stderr, "ERROR: wrong type of token in expression 8");
+		fprintf(stderr, "ERROR: wrong type of token in expression 8\n");
+		fprintf(stderr, "token = %d",type);
 		return P_ERROR;
 	}
 }
 
-char *tokenTypeToStr(token_t *token)
+char *tokenTypeToStr(tokenType_t type)
 {
-	tokenType_t type = token->type;
-	if (type == TOK_KEYWORD)
-	{
-		keyword_t keyword = token->attribute.kwVal;
-		switch (keyword)
-		{
-		case KW_TRUE:
-		case KW_FALSE:
-		case KW_NULL:
-			return "i";
-		default:
-			return "error";
-		}
-	}
 	switch (type)
 	{
 	case TOK_STAR:
@@ -814,6 +815,7 @@ char *tokenTypeToStr(token_t *token)
 	case TOK_INT_LIT:
 	case TOK_DEC_LIT:
 	case TOK_VARIABLE:
+	case TOK_KEYWORD:
 		return "i";
 	default:
 		return "<tokenTypeToStr error>";

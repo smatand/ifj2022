@@ -455,32 +455,13 @@ return
 label _START
 createframe
 defvar LF@$a
-move LF@$a TF@%retval
 
 ####################
 #### Expression ####
 ####################
 createframe
 pushframe
-defvar LF@tmp1
-move LF@tmp1 int@4
-defvar LF@type_tmp1
-defvar LF@exprResult
-move LF@exprResult LF@tmp1
-type LF@type_tmp1 LF@tmp1
-jumpifneq exprSkip9 LF@type_tmp1 string@bool
-write string@cannot_return_boolean
-exit int@7
-label exprSkip9
-move LF@exprResult LF@tmp1
-jump exprEnd
-label exprEnd
-pushs LF@exprResult
-popframe
-popframe
-jump _END
-label _TYPE_SEM_ERR
-exit int@4
-label _NIL_SEM_ERR
-exit int@8
-label _END
+$
+porovnavam: zasobnik: 14, incoming 13
+$<i
+porovnavam: zasobnik: 13, incoming 13
