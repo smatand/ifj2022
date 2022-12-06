@@ -18,4 +18,6 @@ char *createTokenKey(string_t* ID);
 struct token_data *createTokenDataFunction(); // param_list must be created first
 struct token_data *createTokenDataVariable();
 
+void functionAddParam(token_data_t *funcData, char *paramID);
+
 #endif

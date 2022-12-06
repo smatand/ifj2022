@@ -45,6 +45,7 @@ typedef struct token_data
 {
 	token_type_t type;
 	char **param_IDs; // array of strings
+	int param_count;
 } token_data_t;
 
 /** @brief Structure of a hash table item's content */

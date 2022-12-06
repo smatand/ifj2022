@@ -2,13 +2,14 @@
 
 #include "token.h"
 
-char *createTokenKey(string_t* ID)
+char *createTokenKey(string_t *ID)
 {
-	char * newID = malloc((ID->realLen + 1)); // copy the name of the function, and leave some space
-	if (newID == NULL) {
+	char *newID = malloc((ID->realLen + 1)); // copy the name of the function, and leave some space
+	if (newID == NULL)
+	{
 		return NULL;
 	}
-	
+
 	memcpy(newID, ID->str, ID->realLen);
 	newID[ID->realLen] = '\0';
 
@@ -24,12 +25,17 @@ token_data_t *createTokenDataFunction()
 	}
 
 	data->type = TOKTYPE_FUNCTION;
+	data->param_count = 0;
 
-	data->param_IDs = malloc(sizeof(char*) * MAX_PARAM_COUNT); // TODO: memory leak, uninitialized pointers
+	data->param_IDs = malloc(sizeof(char *) * MAX_PARAM_COUNT); // TODO: memory leak
 	if (data->param_IDs == NULL)
 	{
 		free(data);
 		exit(ERR_INTERNAL);
+	}
+	for (int i = 0; i < MAX_PARAM_COUNT; i++)
+	{
+		data->param_IDs = NULL; // set all the pointers to NULL
 	}
 
 	return data;
@@ -46,5 +52,25 @@ struct token_data *createTokenDataVariable()
 
 	data->type = TOKTYPE_VARIABLE;
 	data->param_IDs = NULL;
+	data->param_count = -1;
 	return data;
+}
+
+void functionAddParam(token_data_t *funcData, char *paramID)
+{
+	if (funcData->param_count < MAX_PARAM_COUNT)
+	{
+		int length = strlen(paramID);
+		char *newID = malloc((sizeof(char) * (length + 1))); // copy the name of the function, and leave some space
+		if (newID == NULL)
+		{
+			return NULL;
+		}
+
+		memcpy(newID, paramID, length);
+		newID[length + 1] = '\0';
+
+		funcData->param_IDs[funcData->param_count] = newID;
+		funcData->param_count++;
+	}
 }

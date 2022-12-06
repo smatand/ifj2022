@@ -72,7 +72,7 @@ int rFunctionDefinition(Parser_t *parser)
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
 	CURRENT_TOKEN_TYPE(TOK_FUNCTION);
 
-	htab_pair_t *definedFunc = NULL;
+	parser->definedFunc = NULL;
 
 	if (htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str) != NULL) // redefinition of a function
 	{
@@ -81,9 +81,9 @@ int rFunctionDefinition(Parser_t *parser)
 	}
 
 	token_data_t *data = createTokenDataFunction();
-	definedFunc = htab_add(parser->globalSymTable, parser->currentToken->attribute.strVal->str, data);
+	parser->definedFunc = htab_add(parser->globalSymTable, parser->currentToken->attribute.strVal->str, data);
 
-	genFunctionLabel(definedFunc->key); // generate function label
+	genFunctionLabel(parser->definedFunc->key); // generate function label
 
 	// next codegen happens in param and param_n
 	parser->onParam = 0; // to keep track of the number of parameters, this is the only time onParam is used
@@ -117,7 +117,7 @@ int rFunctionDefinition(Parser_t *parser)
 
 	CALL_RULE(rStatements);
 
-	genFunctionEnd(definedFunc->key);
+	genFunctionEnd(parser->definedFunc->key);
 	pop(parser->localSymStack); // pop new sym_table
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
@@ -155,6 +155,7 @@ int rParam(Parser_t *parser)
 	token_data_t *data = createTokenDataVariable();
 
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
+	functionAddParam(parser->definedFunc->data, parser->currentToken->attribute.strVal->str); // add param name to symtable
 
 	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
 	// printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
@@ -207,6 +208,7 @@ int rParam_n(Parser_t *parser)
 	token_data_t *data = createTokenDataVariable();
 
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
+	functionAddParam(parser->definedFunc->data, parser->currentToken->attribute.strVal->str); // add param name to symtable
 
 	printf("defvar LF@param%d\n", parser->onParam); // generate param as paramX
 	// printf("move LF@param%d LF@%%%d\n", parser->onParam, parser->onParam); // assign argX to paramX
