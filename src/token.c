@@ -62,7 +62,7 @@ void functionAddParam(token_data_t *funcData, char *paramID)
 	if (funcData->param_count < MAX_PARAM_COUNT)
 	{
 		int length = strlen(paramID);
-		char *newID = malloc(sizeof(char) * (length + 1)); // copy the name of the function, and leave some space
+		char *newID = malloc(length + 1); // copy the name of the function, and leave some space
 		if (newID == NULL)
 		{
 			fprintf(stderr, "[ERROR] Internal error.\n");
@@ -70,7 +70,7 @@ void functionAddParam(token_data_t *funcData, char *paramID)
 		}
 
 		memcpy(newID, paramID, length);
-		newID[length + 1] = '\0';
+		newID[length] = '\0';
 
 		funcData->param_IDs[funcData->param_count] = newID;
 		funcData->param_count++;

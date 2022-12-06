@@ -29,7 +29,10 @@ void cleanToken(token_t *token)
 {
     if(token->type == TOK_FUNCTION || token->type == TOK_VARIABLE || token->type == TOK_STRING_LIT)
     {
-        stringDestroy(token->attribute.strVal); // if there is a string allocated in token, free it
+        if (token->attribute.strVal != NULL){
+            stringDestroy(token->attribute.strVal); // if there is a string allocated in token, free it
+            token->attribute.strVal = NULL;
+        }
     }
 }
 
@@ -37,6 +40,7 @@ void freeToken(token_t *token)
 {
     cleanToken(token);
     free(token);
+    token = NULL;
 }
 
 int checkKeyword(token_t *token, string_t *s)

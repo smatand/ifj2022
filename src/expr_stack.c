@@ -94,6 +94,7 @@ void freeItem(eItem_t *item){
         cleanToken(item->token);
     }
     free(item);
+    item = NULL;
 }
 
 void eStackDeleteFirst(eStack_t *stack){
