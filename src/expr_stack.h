@@ -11,7 +11,6 @@
 //test
 #include <stdbool.h>
 #include"scanner.h"
-// #include"expr.h"
 
 /** @brief identify item type in stack */
 typedef enum eType{
@@ -23,8 +22,6 @@ typedef enum eType{
 
 /** @brief single item in stack*/
 typedef struct eItem{
-	int precType;
-	tokenType_t tokenType;
 	eType_t type;
 	token_t *token;
 	struct eItem *next;

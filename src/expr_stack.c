@@ -32,16 +32,8 @@ eItem_t *eItemInit(token_t *token, int itemType){
     if(item == NULL){
         return item;
     }
-    if(itemType == TERM){
-        item->precType =  tokenTypeToeType(token);
-        if(item->precType == P_ERROR){
-            fprintf(stderr,"Wrong type if token in eItem Init \n");
-        }
-    }
-    // item->token = token;
+    item->token = token;
     item->type = itemType;
-    if(token != NULL)
-        item->tokenType = token->type;
     item->next = NULL;
     item->id = 0;
     return item;
@@ -98,21 +90,25 @@ eItem_t *eStackPopItem(eStack_t *stack){
 
 void freeItem(eItem_t *item){
     if(item == NULL) return;
-    // if(item->token != NULL){
-    //     cleanToken(item->token);
-    // }
+    if(item->token != NULL){
+        freeToken(item->token);
+    }
     free(item);
-    item = NULL;
 }
 
 void eStackDeleteFirst(eStack_t *stack){
     eItem_t *itemToDelete = eStackPopItem(stack);
-    // if(itemToDelete->token != NULL){
-    //     cleanToken(itemToDelete->token);
-    // }
+    if(itemToDelete->token != NULL){
+        freeToken(itemToDelete->token);
+    }
      free(itemToDelete);
 }
 
+void eStackShift(eStack_t *stack, eItem_t *item){
+    eStackPushIndent(stack);
+    eItem_t *newItem = eItemInit(item->token,TERM);
+    eStackPushItem(stack,newItem);
+}
 
 void eStackPrintItem(eItem_t *item){
     // printf("Item:\n");
@@ -122,7 +118,7 @@ void eStackPrintItem(eItem_t *item){
     }
     switch(item->type){
         case TERM: 
-            printf("%s",tokenTypeToStr(item->tokenType));
+            printf("%s",tokenTypeToStr(item->token));
             break;
         case NONTERM: 
             // printf("E"); break;    

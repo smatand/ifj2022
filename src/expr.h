@@ -85,8 +85,7 @@ int exprReduce(eStack_t *stack, size_t *nonTermCnt,bool generateCode, Parser_t *
  * 
  * @return type of terminal
  */
-// char *tokenTypeToStr(token_t *token);
-char *tokenTypeToStr(tokenType_t type);
+char *tokenTypeToStr(token_t *token);
 
 /**
  * @brief Finds the relevant rule

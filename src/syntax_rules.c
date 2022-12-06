@@ -312,16 +312,9 @@ int rVariableStatement(Parser_t *parser)
 	}
 	else if (checkForOperator(parser->nextToken) == 0)
 	{
-<<<<<<< HEAD
-		int ret;
-
-		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
-		if (retVal != SUCCESS)
-=======
 		int retToken; // last read non valid token in expression 
 		
 		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
->>>>>>> fae275caa1bf847c6361a579a28054be5241c87c
 		{
 			return retVal;
 		}
@@ -377,16 +370,9 @@ int rAssignmentStatement(Parser_t *parser)
 	}
 	else
 	{
-<<<<<<< HEAD
-		int ret;
-		
-		int retVal = exprParse(parser->currentToken, parser->nextToken, &ret, parser);
-		if (retVal != SUCCESS)
-=======
 		int retToken; // last read non valid token in expression 
 
 		if ((retVal = exprParse(parser->currentToken, NULL, &retToken, parser)) != SUCCESS)
->>>>>>> fae275caa1bf847c6361a579a28054be5241c87c
 		{
 			return retVal;
 		}
