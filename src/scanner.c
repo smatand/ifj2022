@@ -27,9 +27,10 @@ token_t *tokenInit()
 
 void cleanToken(token_t *token)
 {
-    if(token->type == TOK_FUNCTION || token->type == TOK_VARIABLE || token->type == TOK_STRING_LIT)
+    if (token->type == TOK_FUNCTION || token->type == TOK_VARIABLE || token->type == TOK_STRING_LIT)
     {
-        if (token->attribute.strVal != NULL){
+        if (token->attribute.strVal != NULL)
+        {
             stringDestroy(token->attribute.strVal); // if there is a string allocated in token, free it
             token->attribute.strVal = NULL;
         }
@@ -103,10 +104,10 @@ int checkKeyword(token_t *token, string_t *s)
     return 1; // caller must take care of //()!
 }
 
-int checkForOperator(token_t * token)
+int checkForOperator(token_t *token)
 {
-    if(token->type == TOK_DOT || token->type == TOK_MINUS || token->type == TOK_PLUS ||
-        token->type == TOK_SLASH || token->type == TOK_STAR )
+    if (token->type == TOK_DOT || token->type == TOK_MINUS || token->type == TOK_PLUS ||
+        token->type == TOK_SLASH || token->type == TOK_STAR)
     {
         return 0;
     }
@@ -131,35 +132,43 @@ double convertStringToDouble(string_t *s)
     return res;
 }
 
-int checkForMatch(FILE * fp, char * toMatch) {
+int checkForMatch(FILE *fp, char *toMatch)
+{
     int len = strlen(toMatch);
-    char * loadedChars = calloc(len+1, 1); // 1 is sizeof(char)
-    if (loadedChars == NULL) {
+    char *loadedChars = calloc(len + 1, 1); // 1 is sizeof(char)
+    if (loadedChars == NULL)
+    {
         return ERR_INTERNAL;
     }
 
     int c = 0;
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++)
+    {
         c = getc(fp);
 
-        if (c != EOF) {
+        if (c != EOF)
+        {
             loadedChars[i] = c;
-        } else {
+        }
+        else
+        {
             return ERR_LEX_ANALYSIS;
         }
     }
 
     loadedChars[len] = '\0';
 
-    if (strcmp(loadedChars, toMatch)) {
+    if (strcmp(loadedChars, toMatch))
+    {
         free(loadedChars);
         return ERR_LEX_ANALYSIS;
-    } else {
+    }
+    else
+    {
         // match found
         free(loadedChars);
         return 0;
     }
-
 }
 
 int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
@@ -177,7 +186,7 @@ int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
 
     ungetc(c, fp);
 
-    if (varFlag == 1) 
+    if (varFlag == 1)
     {
         token->type = TOK_VARIABLE;
     }
@@ -186,14 +195,18 @@ int fillStr(string_t *s, token_t *token, FILE *fp, int varFlag)
         token->type = TOK_FUNCTION;
 
         // specifically handling declare function, which is a part of prologue
-        if (!strcmp(s->str, "declare")) {
+        if (!strcmp(s->str, "declare"))
+        {
             int retVal = checkForMatch(fp, "(strict_types=1)");
-            if (retVal == 0) {
+            if (retVal == 0)
+            {
                 token->type = TOK_DECLARE_STRICT; // declare(strict_types=1) is found
                 stringDestroy(s);
                 s = NULL;
                 return SUCCESS;
-            } else if (retVal) {
+            }
+            else if (retVal)
+            {
                 stringDestroy(s);
                 s = NULL;
                 return retVal;
@@ -426,7 +439,7 @@ int scanToken(token_t *token)
             else
             {
                 token->type = TOK_ASSIGN; // S_ASSIGN
-                ungetc(c, fp); // return the char to the stream (c != '=') 
+                ungetc(c, fp);            // return the char to the stream (c != '=')
 
                 return SUCCESS;
             }
@@ -522,7 +535,7 @@ int scanToken(token_t *token)
             }
             else
             {
-                stringDestroy(str); // free the memory after encountering lexical error
+                stringDestroy(str);      // free the memory after encountering lexical error
                 return ERR_LEX_ANALYSIS; // S_ERROR, missing number or +-
             }
         case S_MID_EXP:
@@ -537,7 +550,7 @@ int scanToken(token_t *token)
             }
             else
             {
-                stringDestroy(str); // free the memory after encountering lexical error
+                stringDestroy(str);      // free the memory after encountering lexical error
                 return ERR_LEX_ANALYSIS; // S_ERROR, missing number
             }
             break;
@@ -551,11 +564,11 @@ int scanToken(token_t *token)
             }
             else
             {
-                double res = convertStringToDouble(str); 
+                double res = convertStringToDouble(str);
                 token->type = TOK_DEC_LIT;
                 token->attribute.decVal = res;
 
-                ungetc(c, fp); // return the char to the stream and end scanning
+                ungetc(c, fp);      // return the char to the stream and end scanning
                 stringDestroy(str); // free the memory after the token is created
                 return SUCCESS;
             }
@@ -625,7 +638,7 @@ int scanToken(token_t *token)
                 fsmState = S_STRT_ESCP_SQNC;
             }
             else if (c == '$')
-            { // dollar sign is not allowed without a backslash before it
+            {                       // dollar sign is not allowed without a backslash before it
                 stringDestroy(str); // free the memory if encountered a lexical error
                 token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
@@ -746,7 +759,7 @@ int scanToken(token_t *token)
                     }
                 }
                 else if (temp == EOF)
-                { // error caused by EOF
+                {                       // error caused by EOF
                     stringDestroy(str); // free the memory if encountered a lexical error
                     token->attribute.strVal = NULL;
                     return ERR_LEX_ANALYSIS;
@@ -762,7 +775,7 @@ int scanToken(token_t *token)
                 }
             }
             else if (c == EOF)
-            { // error caused by EOF
+            {                       // error caused by EOF
                 stringDestroy(str); // free the memory if encountered a lexical error
                 token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
@@ -807,7 +820,7 @@ int scanToken(token_t *token)
                     }
                 }
                 else if (temp == EOF)
-                { // error caused by EOF
+                {                       // error caused by EOF
                     stringDestroy(str); // free the memory if encountered a lexical error
                     token->attribute.strVal = NULL;
                     return ERR_LEX_ANALYSIS;
@@ -823,7 +836,7 @@ int scanToken(token_t *token)
                 }
             }
             else if (c == EOF)
-            { // error caused by EOF
+            {                       // error caused by EOF
                 stringDestroy(str); // free the memory if encountered a lexical error
                 token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
@@ -844,7 +857,8 @@ int scanToken(token_t *token)
                 return ERR_INTERNAL;
             }
 
-            if (token->type != TOK_DECLARE_STRICT) {
+            if (token->type != TOK_DECLARE_STRICT)
+            {
                 checkKeyword(token, str); // changes token->type
             }
 
@@ -860,7 +874,7 @@ int scanToken(token_t *token)
                     {
                         return ERR_LEX_ANALYSIS;
                     }
-                } 
+                }
                 else if (c != EOF)
                 {
                     return ERR_LEX_ANALYSIS;
@@ -882,14 +896,14 @@ int scanToken(token_t *token)
                 break;
             }
             else
-            { // encountered not allowed char in TOK_TYPE_ID
+            {                            // encountered not allowed char in TOK_TYPE_ID
                 return ERR_LEX_ANALYSIS; // string not allocated yet, so no need to free it
             }
         case S_TYPE_ID:
             // need to check for 'string', 'int' or 'float'
             ungetc(c, fp);
 
-            if(fillStr(str, token, fp, 2) == ERR_INTERNAL)
+            if (fillStr(str, token, fp, 2) == ERR_INTERNAL)
             {
                 return ERR_INTERNAL;
             }
@@ -925,7 +939,7 @@ int scanToken(token_t *token)
                 return SUCCESS;
             }
             else
-            { // not allowed char in variable name
+            {                       // not allowed char in variable name
                 stringDestroy(str); // free the memory if encountered a lexical error
                 token->attribute.strVal = NULL;
                 return ERR_LEX_ANALYSIS;
@@ -986,4 +1000,57 @@ int scanToken(token_t *token)
     }
 
     return SUCCESS;
+}
+
+token_t *copyToken(token_t *token)
+{
+    token_t *copy = malloc(sizeof(token_t));
+    if (copy == NULL)
+    {
+        exit(ERR_INTERNAL);
+    }
+
+    copy->type = token->type;
+
+    switch (copy->type)
+    {
+    case TOK_STRING_LIT:
+    case TOK_VARIABLE:
+    case TOK_FUNCTION:
+        int length = strlen(token->attribute.strVal->str);
+
+        copy->attribute.strVal = malloc(sizeof(string_t));
+        if (copy->attribute.strVal == NULL)
+        {
+            free(copy);
+            exit(ERR_INTERNAL);
+        }
+
+        copy->attribute.strVal->allocatedSize = token->attribute.strVal->allocatedSize;
+        copy->attribute.strVal->realLen = token->attribute.strVal->realLen;
+        copy->attribute.strVal->str = malloc(length + 1);
+        if (copy->attribute.strVal->str == NULL)
+        {
+            free(copy->attribute.strVal);
+            free(copy);
+            exit(ERR_INTERNAL);
+        }
+
+        memcpy(copy->attribute.strVal->str, token->attribute.strVal->str, length);
+        copy->attribute.strVal->str[length] = '\0';
+        break;
+    case TOK_INT_LIT:
+        copy->attribute.intVal = token->attribute.intVal;
+        break;
+    case TOK_DEC_LIT:
+        copy->attribute.decVal = token->attribute.decVal;
+        break;
+    case TOK_KEYWORD:
+        copy->attribute.kwVal = token->attribute.kwVal;
+        break;
+    default:
+        break;
+    }
+
+    return copy;
 }
