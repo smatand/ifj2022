@@ -42,6 +42,7 @@ int rProlog(Parser_t *parser)
 
 int rUnits(Parser_t *parser)
 {
+	//printf("###################### rUnits\n");
 	if (parser->currentToken->type == TOK_EOF || parser->currentToken->type == TOK_END_PROLOGUE)
 	{ // got to the end, return SUCCESS
 		;
@@ -56,6 +57,7 @@ int rUnits(Parser_t *parser)
 
 int rUnit(Parser_t *parser)
 {
+	//printf("###################### rUnit\n");
 	if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_FUNCTION)
 	{
 		CALL_RULE(rFunctionDefinition);
@@ -256,6 +258,7 @@ int rType(Parser_t *parser)
 
 int rStatements(Parser_t *parser)
 {
+	
 	int retVal = SUCCESS; // SUCCESS or ERR_*
 	if (parser->currentToken->type == TOK_FUNCTION)
 	{
@@ -383,8 +386,8 @@ int rAssignmentStatement(Parser_t *parser)
 
 		printf("pops LF@%s\n", definedVar->key); // pop stack into new value
 
-		parser->nextToken->type = retToken;
-		CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
+		//parser->nextToken->type = retToken; // THIS CAUSED A STACK OVERFLOW, WHY WAS THIS HERE?
+		//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up (THIS CAUSED A STACK OVERFLOW)
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	return SUCCESS;
