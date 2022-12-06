@@ -361,7 +361,7 @@ int rAssignmentStatement(Parser_t *parser)
 
 		definedVar = htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 
-		printf("defvar LF@%s\n", definedVar->key); // generate defvar code
+		printf("defvar LF@%%%s%%\n", definedVar->key); // generate defvar code
 	}
 
 	// TODO: set or change the value and type(?) of the declared variable (code generation)

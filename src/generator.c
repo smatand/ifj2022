@@ -313,7 +313,7 @@ void gen_ord() {
 
     printf("defvar LF@_countArgs\n");
     printf("pops LF@_countArgs\n");
-    printf("jumpifneq _TYPE_SEM_ER LF@_countArgs int@1\n");
+    printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
 
     printf("pops LF@_string\n");
 
