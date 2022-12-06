@@ -386,6 +386,10 @@ int scanToken(token_t *token)
 
                 return SUCCESS;
             }
+            else
+            { // anything not supported as a first char of token causes an error
+                return ERR_LEX_ANALYSIS;
+            }
             break;
         case S_STRT_NEG_COMP:
             if (c == '=')
