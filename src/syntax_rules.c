@@ -57,7 +57,6 @@ int rUnits(Parser_t *parser)
 
 int rUnit(Parser_t *parser)
 {
-	//printf("###################### rUnit\n");
 	if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_FUNCTION)
 	{
 		CALL_RULE(rFunctionDefinition);
