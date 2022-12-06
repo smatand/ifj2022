@@ -172,6 +172,7 @@ int rParams_n(Parser_t *parser)
 	if (parser->currentToken->type == TOK_RIGHT_PAREN)
 	{	  // there are no more parameters, return
 		;
+		genFunctionAmountOfParamsCheck(parser->onParam);
 	}
 	else
 	{
@@ -179,7 +180,6 @@ int rParams_n(Parser_t *parser)
 		CALL_RULE(rParams_n);
 	}
 
-	genFunctionAmountOfParamsCheck(parser->onParam);
 
 	while (parser->onParam)
 	{
@@ -314,7 +314,7 @@ int rVariableStatement(Parser_t *parser) // this shouldn't generate any code
 		getNextToken(parser); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
-	else if (checkTokenType(parser->nextToken, TOK_SEMICOLON))
+	else if (checkTokenType(parser->nextToken, TOK_SEMICOLON) == 0)
 	{
 		// "$foo;" is a valid statement, though it does nothing
 		if (htab_find(top(parser->localSymStack), parser->currentToken->attribute.strVal->str) == NULL)
