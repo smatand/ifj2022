@@ -71,7 +71,7 @@ student_test: ifj22
 	git submodule update --remote --merge
 	cd ../IFJ22_Tester && python3 test.py ../src/ifj22 ../interpret/ic22int
 
-expr: expr.o expr_stack.o scanner.o str.o generator.o dll.o token.o symtable.o sym_table_stack.o
+expr: expr.o expr_stack.o scanner.o str.o generator.o dll.o parser.o token.o symtable.o sym_table_stack.o
 	$(CC) -o $@ $^
 
 clean:

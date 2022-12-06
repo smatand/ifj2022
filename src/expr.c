@@ -23,36 +23,37 @@
 
 
 
-int main(){
-	// token_t *token2 = tokenInit();
-	// scanToken(token2);
-	int returnToken;
-	token_t *token = tokenInit();
-	scanToken(token);
-	token_t *token2 = tokenInit();
-	scanToken(token2);
-	Parser_t *Parser = NULL;
-	int returnVal = exprParse(token,token2,&returnToken,Parser);
-	// token = tokenInit();
-	// scanToken(token);
-	// returnVal = exprParse(token,NULL,&returnToken);
-	(void)returnToken;
-	(void)returnVal;
-	if(returnVal != SUCCESS)
-	{
-		printf("ERROR: %d\n",returnVal);
-	}
-	else
-	{
-		puts("SUCCESS");
-	}
-}
+// int main(){
+// 	// token_t *token2 = tokenInit();
+// 	// scanToken(token2);
+// 	int returnToken;
+// 	token_t *token = tokenInit();
+// 	scanToken(token);
+// 	token_t *token2 = tokenInit();
+// 	scanToken(token2);
+// 	Parser_t *Parser = NULL;
+// 	int returnVal = exprParse(token,token2,&returnToken,Parser);
+// 	// token = tokenInit();
+// 	// scanToken(token);
+// 	// returnVal = exprParse(token,NULL,&returnToken);
+// 	(void)returnToken;
+// 	(void)returnVal;
+// 	if(returnVal != SUCCESS)
+// 	{
+// 		printf("ERROR: %d\n",returnVal);
+// 	}
+// 	else
+// 	{
+// 		puts("SUCCESS");
+// 	}
+// }
 
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parser_t *parser)
 {
+	
 
-	// firstToken = parser->currentToken;
-	// secondToken = parser->nextToken;
+	firstToken = parser->currentToken;
+	secondToken = parser->nextToken;
 	int returnVal = SUCCESS;
 	size_t nonTermCnt = 0;
 	// bool generateCode = true;
@@ -321,38 +322,23 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		// stackPrint(stack);
 		if (scanAnotherToken)
 		{
-			if (secondTokenDelay == false)
-			{
-				// getNextToken(parser);
-				incomingToken = tokenInit();
-				scanToken(incomingToken);
-
-				// *incomingToken = *parser->currentToken;
-
-
-				// getNextToken(parser);
+			// if (secondTokenDelay == false)
+			// {
 				// incomingToken = tokenInit();
-				// incomingToken->type = parser->currentToken->type;
-				// incomingToken->attribute.intVal = parser->currentToken->attribute.intVal;
-				// incomingToken->attribute.decVal = parser->currentToken->attribute.decVal;
-				// incomingToken->attribute.kwVal = parser->currentToken->attribute.kwVal;
-				// if(parser->currentToken->attribute.strVal != NULL){
-				// 	int ret;
-				// 	string_t *string = stringInit(&ret);
-				// 	stringResize(string,parser->currentToken->attribute.strVal->allocatedSize); 
-				// 	incomingToken->attribute.strVal = parser->currentToken->attribute.strVal;
-				
+				getNextToken(parser);
+				incomingToken = copyToken(parser->currentToken);
 
-
-			}
+			// }
 			// this happens only if expression is not assigned to anything
 			// this expression is processed if there are no errors, but its result
 			// is thrown away
-			else
-			{
-				incomingToken = secondToken;
-				secondTokenDelay = false;
-			}
+			// else
+			// {
+			// 	incomingToken = secondToken;
+			// 	secondTokenDelay = false;
+			// 	getNextToken(parser);
+			// 	incomingToken = copyToken(parser->currentToken);
+			// }
 		}
 	}
 	// printf("popframe\n");

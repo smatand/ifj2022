@@ -1004,12 +1004,12 @@ int scanToken(token_t *token)
 
 token_t *copyToken(token_t *token)
 {
+    int length;
     token_t *copy = malloc(sizeof(token_t));
     if (copy == NULL)
     {
         exit(ERR_INTERNAL);
     }
-
     copy->type = token->type;
 
     switch (copy->type)
@@ -1017,7 +1017,7 @@ token_t *copyToken(token_t *token)
     case TOK_STRING_LIT:
     case TOK_VARIABLE:
     case TOK_FUNCTION:
-        int length = strlen(token->attribute.strVal->str);
+        length = strlen(token->attribute.strVal->str);
 
         copy->attribute.strVal = malloc(sizeof(string_t));
         if (copy->attribute.strVal == NULL)
