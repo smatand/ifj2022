@@ -69,7 +69,7 @@ scan_test: scan_test.o scanner.o str.o
 	#../tests/scanner_test.sh
 student_test: ifj22
 	git submodule update --remote --merge
-	cd ../IFJ22_Tester && python3 ./test.py ../src/ifj22 ../interpret/ic22int
+	cd ../IFJ22_Tester && python3 test.py ../src/ifj22 ../interpret/ic22int
 
 expr: expr.o expr_stack.o scanner.o str.o generator.o dll.o
 	$(CC) -o $@ $^
