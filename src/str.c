@@ -91,12 +91,16 @@ int charPushBack(string_t * s, int c) {
 }
 
 int strPushBack(string_t * s, char * source, int len) {
-    for (int i = 0; i < len; i++){
-        // charPushBack checks for full memory internally
-        if (charPushBack(s, source[i]) != SUCCESS) {
-            return ERR_INTERNAL;
-        }
+    s->str = realloc(s->str, s->allocatedSize + len);
+    s->realLen += len;
+    s->allocatedSize += len;
+
+    if (s->str == NULL) {
+        stringDestroy(s);
+        return ERR_INTERNAL;
     }
+
+    strcat(s->str, source);
 
     return SUCCESS;
 }
