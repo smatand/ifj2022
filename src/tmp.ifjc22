@@ -597,8 +597,199 @@ return
 
 label _START
 createframe
-defvar LF@%$a%
+defvar LF@%$max%
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+pushs LF@tmp1
+call exprSemicolon
+popframe
+
+pops LF@%$max%
+defvar LF@%$in%
 createframe
 pushs int@0
-call $reads
-pops LF@%$a%
+call $readi
+pops LF@%$in%
+label _while_begin0
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+popframe
+pushs LF@%$in%
+pushframe
+pops LF@_tmp1 
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+move LF@tmp2 nil@nil
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@ncompare
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _while_end0
+defvar LF@%$sum%
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+pushs LF@tmp1
+call exprSemicolon
+popframe
+
+pops LF@%$sum%
+label _while_begin1
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+popframe
+pushs LF@%$in%
+pushframe
+pops LF@_tmp1 
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+move LF@tmp2 nil@nil
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@ncompare
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _while_end1
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+popframe
+pushs LF@%$sum%
+pushframe
+pops LF@_tmp1 
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+popframe
+pushs LF@%$in%
+pushframe
+pops LF@_tmp2 
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@add
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprSemicolon
+popframe
+
+pops LF@%$sum%
+createframe
+pushs int@0
+call $readi
+pops LF@%$in%
+jump _while_begin1
+label _while_end1
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+popframe
+pushs LF@%$sum%
+pushframe
+pops LF@_tmp1 
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+popframe
+pushs LF@%$max%
+pushframe
+pops LF@_tmp2 
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@greater
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if0
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+popframe
+pushs LF@%$sum%
+pushframe
+pops LF@_tmp1 
+move LF@tmp1 LF@_tmp1 
+pushs LF@tmp1
+call exprSemicolon
+popframe
+
+pops LF@%$max%
+jump _if1
+label _if0
+label _if1
+createframe
+pushs int@0
+call $readi
+pops LF@%$in%
+jump _while_begin0
+label _while_end0
+createframe
+pushs string@\010
+pushs LF@%$max%
+pushs int@2
+call $write
+jump _END
+label _TYPE_SEM_ERR
+exit int@4
+label _NIL_SEM_ERR
+exit int@8
+label _END

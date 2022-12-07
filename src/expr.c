@@ -1,5 +1,5 @@
 /**
- * Project: Translator of language IFJ22
+ * Project: IFJ22 language Compiler
  * @file expr.c
  * @author Tomáš Frátrik - xfratr01
  * @author Andrej Smatana - xsmata03
@@ -90,11 +90,11 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	token_t *incomingToken = copyToken(parser->currentToken);
 	eItem_t *closestTerm = NULL;
 	eItem_t *incomingTokenItem;
-	// stackPrint(stack);
 
 	while (continueParsing)
 	{
 
+		//if previous operation wasnt reduction
 		if (scanAnotherToken)
 		{
 			incomingTokenItem = eItemInit(incomingToken, TERM);
@@ -105,6 +105,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 				return ERR_INTERNAL;
 			}
 		}
+		//incmiming token type to correct type
 		incomingTokenType = tokenTypeToeType(incomingToken);
 		if (incomingTokenType == P_ERROR)
 		{
@@ -114,7 +115,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		}
 		closestTerm = findClosestTerm(stack); // closest term in stack
 
-		// if closest term is end of the stack
+		// if closest term is the end of the stack
 		if (closestTerm->type == DOLLAR)
 		{
 			stackTokenType = P_DOLLAR;
@@ -181,7 +182,6 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 			 */
 			if (incomingTokenType == P_RIGHT_PAREN || incomingTokenType == P_SEMICOLON)
 			{
-				// printf("JE TO SEMICOLOMN\n");
 				// we need to end expression with $E in stack
 				while (stack->head->next->type != DOLLAR)
 				{
@@ -192,15 +192,17 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 						eStackEmptyAll(stack);
 						return returnVal;
 					}
-					// stackPrint(stack);
 				}
 				continueParsing = false;
 				// free last token, ; OR ) and empty whole stack
 				freeItem(incomingTokenItem);
 				eStackEmptyAll(stack);
-				*returnToken = TOK_RIGHT_PAREN;
+
+				//return what was last token				
 				(incomingTokenType == P_RIGHT_PAREN)?(*returnToken = TOK_RIGHT_PAREN):(*returnToken = TOK_SEMICOLON);
+
 				exprGenerateEndingCode(nonTermCnt,generateCode,incomingTokenType);
+				//return success or error
 				return returnVal;
 			}
 
@@ -219,14 +221,13 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 			return ERR_SYN_ANALYSIS;
 		}
 
-		// stackPrint(stack);
 		if (scanAnotherToken)
 		{
 				getNextToken(parser);
 				incomingToken = copyToken(parser->currentToken);
 		}
 	}
-	// printf("popframe\n");
+	//shouldnt happen
 	eStackEmptyAll(stack);
 	return SUCCESS;
 }
@@ -255,6 +256,7 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 	token_t *token = item->token;
 	htab_pair_t *pair;
 	printf("defvar LF@tmp%ld\n", *nonTermCnt);
+
 	//generate definition code based on the type of token
 	switch (type)
 	{
@@ -277,7 +279,6 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 		pair = htab_find(parser->localSymStack->top->table, token->attribute.strVal->str);
 		if (pair == NULL)
 		{
-			// free
 			fprintf(stderr,"PARSER ERROR (EXPRESSION) couldn't find variable: %s\n",token->attribute.strVal->str);
 			return ERR_SEM_UNDEFINED_VAR;
 		}
@@ -353,6 +354,7 @@ void generateCode_operation(eItem_t *item1, eItem_t *item2, eItem_t *operationIt
 
 int exprReduce(eStack_t *stack, size_t *nonTermCnt, bool generateCode, Parser_t *parser)
 {
+	//find appropriate rule
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;
 	switch (ruleType)
@@ -623,17 +625,15 @@ precTokenType_t tokenTypeToeType(token_t *token)
 	if (type == TOK_KEYWORD)
 	{ // if type of token is keyword, we check keywords
 		keyword_t keyword = token->attribute.kwVal;
-		switch (keyword)
-		{
-		case KW_TRUE:
-		case KW_FALSE:
-		case KW_NULL:
+		if(keyword == KW_NULL){
 			return P_ID;
-		default:
+		}
+		else{
 			fprintf(stderr, "ERROR: wrong type of token in expression7");
 			return P_ERROR;
 		}
 	}
+	//change type to correct type
 	switch (type)
 	{
 	case TOK_STAR:
@@ -676,6 +676,8 @@ precTokenType_t tokenTypeToeType(token_t *token)
 	}
 }
 
+
+//used only for debugging
 char *tokenTypeToStr(token_t *token)
 {
 	tokenType_t type = token->type;

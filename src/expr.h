@@ -1,5 +1,5 @@
 /**
- * Project: Translator of language IFJ22
+ * Project: IFJ22 language Compiler
  * @file expr.h
  * @author Andrej Smatana - xsmata03
  * @author Tomáš Frátrik - xfratr01
@@ -118,7 +118,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 /**
  * @brief generate ending code for expression, determined by ending token
  * 
- * @param nonTermCnt 
+ * @param nonTermCnt id of nonterm
  * @param generateCode shall we even generate code? 
  * @param type type of ending token
  */
