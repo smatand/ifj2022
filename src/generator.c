@@ -870,8 +870,6 @@ char * convertStringToIFJ(char * str) {
             strPushBack(tmp, "\\092", 4);
         } else if (*ptr == 35) { // #
             strPushBack(tmp, "\\035", 4);
-        } else if (*ptr == '\n') {
-            strPushBack(tmp, "\\010", 4);
         } else if (*ptr <= 32) {
             charPushBack(tmp, '\\');
             charPushBack(tmp, '0');
@@ -931,7 +929,7 @@ void genFunctionLabel(htab_key_t functionName) {
     , functionName, functionName);
 }
 
-void genFunctionEnd(htab_key_t functionName) {
+void genFunctionEnd() {
     printf(
         "type GF@typeCheck LF@%%retval\n"
         "pushs GF@typeCheck\n"
@@ -941,7 +939,7 @@ void genFunctionEnd(htab_key_t functionName) {
         // todo check for retval with function type (exit 7 (type compatibility))
         "popframe\n"
         "return\n"
-    , functionName, functionName);
+    );
 }
 
 void genFunctionParamType(keyword_t kw, int count) {

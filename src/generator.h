@@ -15,7 +15,7 @@
         }                                           \
                                                     \
         strPushBack(tmp, str1, strlen(str1));       \
-        strPushBack(tmp, str2, 32);       \
+        strPushBack(tmp, str2, strlen(str2));       \
                                                     \
         if (DLLInsertLast(parser->codeGen, tmp->str, tmp->realLen+1) != SUCCESS) \
             return ERR_INTERNAL;                    \
@@ -92,7 +92,7 @@ void gen_checkType();
 void gen_compute();
 void genInit();
 void genEnd();
-void genFunctionEnd(htab_key_t functionName);
+void genFunctionEnd();
 void genFunctionLabel(htab_key_t functionName);
 void genToPush(char * toPush);
 void genFunctionParamType(keyword_t kw, int count);
