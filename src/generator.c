@@ -375,6 +375,8 @@ void gen_expr_checkType(){
 			"defvar LF@_jumprel3\n"
 			"move LF@_jumprel2 bool@false\n"
 			"move LF@_jumprel3 bool@false\n"
+			"defvar LF@rel4_flag\n"
+			"move LF@rel4_flag bool@false\n"
 
 			"defvar LF@_var1\n"
 			"defvar LF@_var2\n"
@@ -394,9 +396,10 @@ void gen_expr_checkType(){
 			"jumpifeq compare LF@_operand string@compare\n"
 			"jumpifeq compare LF@_operand string@ncompare\n"
 			"jumpifeq rel1 LF@_operand string@greater\n"
-			"jumpifeq rel1 LF@_operand string@lesser\n"
+			"jumpifeq rel4 LF@_operand string@lesser\n"
 			"jumpifeq rel2 LF@_operand string@greatereq\n"
 			"jumpifeq rel3 LF@_operand string@lessereq\n"
+            "jump error_sem7\n"
 
 			"label rel3\n"
 			"move LF@_jumprel3 bool@true\n"
@@ -421,7 +424,59 @@ void gen_expr_checkType(){
 			"jumpifeq true_label LF@_rel2ans bool@true\n"
 			"jump false_label\n"
 
-			// < 
+            //<
+            "label rel4\n"
+            // "move LF@rel4_flag bool@true\n"
+            // "defvar LF@rel4bool\n"
+            // "defvar LF@rel4bool2\n"
+            // "defvar LF@rel4boolret\n"
+            // // "move LF@rel4bool bool@false\n"
+            // // "move LF@rel4bool2 bool@false\n"
+            // // "move LF@rel4boolret bool@false\n"
+            // "eq LF@rel4bool LF@type_var1 string@int\n"
+            // "eq LF@rel4bool2 LF@type_var2 string@float\n"
+            // "and LF@rel4boolret LF@rel4bool LF@rel4bool2\n"
+            // "jumpifeq rel4check LF@rel4boolret bool@true\n"
+
+            // "eq LF@rel4bool LF@type_var1 string@float\n"
+            // "eq LF@rel4bool2 LF@type_var2 string@int\n"
+            // "and LF@rel4boolret LF@rel4bool LF@rel4bool2\n"
+            // "jumpifeq rel4check LF@rel4boolret bool@true\n"
+
+            // "break\n"
+            "jumpifeq rel4_first_int LF@type_var1 string@int\n"
+            "jumpifeq rel4_first_float LF@type_var1 string@float\n"
+
+            "label rel4_first_int\n"
+            "jumpifneq rel4CheckType LF@type_var2 string@float\n"
+            "pushs LF@_var1\n"
+            "pushs int@1\n"
+            "call $floatval\n"
+            "pops LF@_var1\n"
+            "jump rel4check\n"
+
+            "label rel4_first_float\n"
+            "jumpifneq rel4CheckType LF@type_var2 string@int\n"
+            "pushs LF@_var2\n"
+            "pushs int@1\n"
+            "call $floatval\n"
+            "pops LF@_var2\n"
+            "jump rel4check\n"
+
+            
+            "label rel4CheckType\n"
+            "jumpifneq rel1 LF@type_var1 LF@type_var2\n"
+
+            "#if they are equal `<` then it is false..\n"
+            "#we push true to it, because in funcion compute, boolean is inverted\n"
+            "label rel4check\n"
+            "jumpifeq true_label LF@_var1 LF@_var2\n"
+            "jump rel1\n"
+            "\n"
+            );
+
+    printf(
+			// >
 			"label rel1\n"
 			"jumpifeq false_label LF@type_var1 string@nil\n"
 			"jumpifeq false_label LF@type_var2 string@nil\n"

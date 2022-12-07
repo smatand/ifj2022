@@ -1,4 +1,9 @@
 <?php
 declare(strict_types=1);
-$a = 4*4-(3+3);
+if("" <"" ){
+	write("preslo\n");
+}
+else{
+	write("nepreslo\n");
+}
 ?>

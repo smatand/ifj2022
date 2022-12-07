@@ -18,6 +18,8 @@ defvar LF@_jumprel2
 defvar LF@_jumprel3
 move LF@_jumprel2 bool@false
 move LF@_jumprel3 bool@false
+defvar LF@rel4_flag
+move LF@rel4_flag bool@false
 defvar LF@_var1
 defvar LF@_var2
 defvar LF@_operand
@@ -36,9 +38,10 @@ jumpifeq concat LF@_operand string@concat
 jumpifeq compare LF@_operand string@compare
 jumpifeq compare LF@_operand string@ncompare
 jumpifeq rel1 LF@_operand string@greater
-jumpifeq rel1 LF@_operand string@lesser
+jumpifeq rel4 LF@_operand string@lesser
 jumpifeq rel2 LF@_operand string@greatereq
 jumpifeq rel3 LF@_operand string@lessereq
+jump error_sem7
 label rel3
 move LF@_jumprel3 bool@true
 jump rel2
@@ -59,6 +62,31 @@ eq LF@_rel2eq LF@_var1 LF@_var2
 or LF@_rel2ans LF@_bool LF@_rel2eq
 jumpifeq true_label LF@_rel2ans bool@true
 jump false_label
+label rel4
+jumpifeq rel4_first_int LF@type_var1 string@int
+jumpifeq rel4_first_float LF@type_var1 string@float
+label rel4_first_int
+jumpifneq rel4CheckType LF@type_var2 string@float
+pushs LF@_var1
+pushs int@1
+call $floatval
+pops LF@_var1
+jump rel4check
+label rel4_first_float
+jumpifneq rel4CheckType LF@type_var2 string@int
+pushs LF@_var2
+pushs int@1
+call $floatval
+pops LF@_var2
+jump rel4check
+label rel4CheckType
+jumpifneq rel1 LF@type_var1 LF@type_var2
+#if they are equal `<` then it is false..
+#we push true to it, because in funcion compute, boolean is inverted
+label rel4check
+jumpifeq true_label LF@_var1 LF@_var2
+jump rel1
+
 label rel1
 jumpifeq false_label LF@type_var1 string@nil
 jumpifeq false_label LF@type_var2 string@nil
@@ -524,17 +552,18 @@ createframe
 pushframe
 defvar LF@_string
 defvar LF@_retval
+move LF@_retval int@0
 defvar LF@_countArgs
 pops LF@_countArgs
 jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1
 pops LF@_string
 type GF@typeCheck LF@_string
 jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string
-jumpifeq ord_empty_string LF@_string string@
+jumpifeq ord_end LF@_string string@""
+strlen LF@_retval LF@_string
+jumpifeq ord_end LF@_retval int@0
 stri2int LF@_retval LF@_string int@0
 jump ord_end
-label ord_empty_string
-move LF@_retval int@0
 label ord_end
 pushs LF@_retval
 popframe
@@ -560,17 +589,6 @@ return
 
 label _START
 createframe
-defvar LF@%$x%
-createframe
-pushs int@0
-call $readi
-pops LF@%$x%
-defvar LF@%$y%
-createframe
-pushs int@0
-call $readi
-pops LF@%$y%
-defvar LF@%$xd%
 
 ####################
 #### Expression ####
@@ -578,54 +596,7 @@ defvar LF@%$xd%
 createframe
 pushframe
 defvar LF@tmp1
-defvar LF@_tmp1
-popframe
-pushs LF@%$y%
-pushframe
-pops LF@_tmp1 
-move LF@tmp1 LF@_tmp1 
-pushs LF@tmp1
-call exprSemicolon
-popframe
-
-pops LF@%$xd%
-label _while_begin0
-
-####################
-#### Expression ####
-####################
-createframe
-pushframe
-defvar LF@tmp1
-defvar LF@_tmp1
-popframe
-pushs LF@%$x%
-pushframe
-pops LF@_tmp1 
-move LF@tmp1 LF@_tmp1 
-pushs LF@tmp1
-call exprRightParen
-popframe
-
-pushs bool@false
-jumpifeqs _while_end0
-createframe
-pushs string@:xdd:
-pushs int@1
-call $write
-
-####################
-#### Expression ####
-####################
-createframe
-pushframe
-defvar LF@tmp1
-defvar LF@_tmp1
-popframe
-pushs LF@%$x%
-pushframe
-pops LF@_tmp1 
-move LF@tmp1 LF@_tmp1 
+move LF@tmp1 int@0
 defvar LF@tmp2
 move LF@tmp2 int@1
 defvar LF@tmp3
@@ -634,35 +605,35 @@ pushs LF@tmp2
 pushs string@sub
 call $compute
 pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 int@1
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
 pushs LF@tmp3
-call exprSemicolon
-popframe
-
-pops LF@%$x%
-label _while_begin1
-
-####################
-#### Expression ####
-####################
-createframe
-pushframe
-defvar LF@tmp1
-defvar LF@_tmp1
-popframe
-pushs LF@%$y%
-pushframe
-pops LF@_tmp1 
-move LF@tmp1 LF@_tmp1 
-pushs LF@tmp1
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
 call exprRightParen
 popframe
 
 pushs bool@false
-jumpifeqs _while_end1
+jumpifeqs _if0
 createframe
-pushs string@\0321
+pushs string@fail\0320-1\032<\0320-1\010
 pushs int@1
 call $write
+jump _if1
+label _if0
+label _if1
 
 ####################
 #### Expression ####
@@ -670,12 +641,7 @@ call $write
 createframe
 pushframe
 defvar LF@tmp1
-defvar LF@_tmp1
-popframe
-pushs LF@%$y%
-pushframe
-pops LF@_tmp1 
-move LF@tmp1 LF@_tmp1 
+move LF@tmp1 int@0
 defvar LF@tmp2
 move LF@tmp2 int@1
 defvar LF@tmp3
@@ -684,13 +650,2185 @@ pushs LF@tmp2
 pushs string@sub
 call $compute
 pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
 pushs LF@tmp3
-call exprSemicolon
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
 popframe
 
-pops LF@%$y%
-jump _while_begin1
-label _while_end1
+pushs bool@false
+jumpifeqs _if2
+jump _if3
+label _if2
+createframe
+pushs string@fail\0320-1\032<\0320\010
+pushs int@1
+call $write
+label _if3
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@1
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if4
+jump _if5
+label _if4
+createframe
+pushs string@fail\0320-1\032<\0321\010
+pushs int@1
+call $write
+label _if5
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 float@0x1p+0
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
+pushs LF@tmp3
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if6
+createframe
+pushs string@fail\0320-1\032<\0320-1.0\010
+pushs int@1
+call $write
+jump _if7
+label _if6
+label _if7
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 float@0x1p-1
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
+pushs LF@tmp3
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if8
+jump _if9
+label _if8
+createframe
+pushs string@fail\0320-1\032<\0320-0.5\010
+pushs int@1
+call $write
+label _if9
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x0p+0
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if10
+jump _if11
+label _if10
+createframe
+pushs string@fail\0320-1\032<\0320.0\010
+pushs int@1
+call $write
+label _if11
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x1p-1
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if12
+jump _if13
+label _if12
+createframe
+pushs string@fail\0320-1\032<\0320.5\010
+pushs int@1
+call $write
+label _if13
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x1p+0
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if14
+jump _if15
+label _if14
+createframe
+pushs string@fail\0320-1\032<\0321.0\010
+pushs int@1
+call $write
+label _if15
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 int@1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if16
+createframe
+pushs string@fail\0320\032<\0320-1\010
+pushs int@1
+call $write
+jump _if17
+label _if16
+label _if17
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if18
+createframe
+pushs string@fail\0320\032<\0320\010
+pushs int@1
+call $write
+jump _if19
+label _if18
+label _if19
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if20
+jump _if21
+label _if20
+createframe
+pushs string@fail\0320\032<\0321\010
+pushs int@1
+call $write
+label _if21
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p+0
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if22
+createframe
+pushs string@fail\0320\032<\0320-1.0\010
+pushs int@1
+call $write
+jump _if23
+label _if22
+label _if23
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p-1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if24
+createframe
+pushs string@fail\0320\032<\0320-0.5\010
+pushs int@1
+call $write
+jump _if25
+label _if24
+label _if25
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x0p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if26
+createframe
+pushs string@fail\0320\032<\0320.0\010
+pushs int@1
+call $write
+jump _if27
+label _if26
+label _if27
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if28
+jump _if29
+label _if28
+createframe
+pushs string@fail\0320\032<\0320.5\010
+pushs int@1
+call $write
+label _if29
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if30
+jump _if31
+label _if30
+createframe
+pushs string@fail\0320\032<\0321.0\010
+pushs int@1
+call $write
+label _if31
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@1
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 int@1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if32
+createframe
+pushs string@fail\0321\032<\0320-1\010
+pushs int@1
+call $write
+jump _if33
+label _if32
+label _if33
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@1
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if34
+createframe
+pushs string@fail\0321\032<\0320\010
+pushs int@1
+call $write
+jump _if35
+label _if34
+label _if35
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@1
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if36
+createframe
+pushs string@fail\0321\032<\0321\010
+pushs int@1
+call $write
+jump _if37
+label _if36
+label _if37
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@1
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p+0
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if38
+createframe
+pushs string@fail\0321\032<\0320-1.0\010
+pushs int@1
+call $write
+jump _if39
+label _if38
+label _if39
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@1
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p-1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if40
+createframe
+pushs string@fail\0321\032<\0320-0.5\010
+pushs int@1
+call $write
+jump _if41
+label _if40
+label _if41
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@1
+defvar LF@tmp2
+move LF@tmp2 float@0x0p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if42
+createframe
+pushs string@fail\0321\032<\0320.0\010
+pushs int@1
+call $write
+jump _if43
+label _if42
+label _if43
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@1
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if44
+createframe
+pushs string@fail\0321\032<\0320.5\010
+pushs int@1
+call $write
+jump _if45
+label _if44
+label _if45
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@1
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if46
+createframe
+pushs string@fail\0321\032<\0321.0\010
+pushs int@1
+call $write
+jump _if47
+label _if46
+label _if47
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 int@1
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
+pushs LF@tmp3
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if48
+createframe
+pushs string@fail\0320-1.0\032<\0320-1\010
+pushs int@1
+call $write
+jump _if49
+label _if48
+label _if49
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if50
+jump _if51
+label _if50
+createframe
+pushs string@fail\0320-1.0\032<\0320\010
+pushs int@1
+call $write
+label _if51
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@1
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if52
+jump _if53
+label _if52
+createframe
+pushs string@fail\0320-1.0\032<\0321\010
+pushs int@1
+call $write
+label _if53
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 float@0x1p+0
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
+pushs LF@tmp3
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if54
+createframe
+pushs string@fail\0320-1.0\032<\0320-1.0\010
+pushs int@1
+call $write
+jump _if55
+label _if54
+label _if55
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 float@0x1p-1
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
+pushs LF@tmp3
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if56
+jump _if57
+label _if56
+createframe
+pushs string@fail\0320-1.0\032<\0320-0.5\010
+pushs int@1
+call $write
+label _if57
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x0p+0
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if58
+jump _if59
+label _if58
+createframe
+pushs string@fail\0320-1.0\032<\0320.0\010
+pushs int@1
+call $write
+label _if59
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x1p-1
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if60
+jump _if61
+label _if60
+createframe
+pushs string@fail\0320-1.0\032<\0320.5\010
+pushs int@1
+call $write
+label _if61
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x1p+0
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if62
+jump _if63
+label _if62
+createframe
+pushs string@fail\0320-1.0\032<\0321.0\010
+pushs int@1
+call $write
+label _if63
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 int@1
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
+pushs LF@tmp3
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if64
+createframe
+pushs string@fail\0320-0.5\032<\0320-1\010
+pushs int@1
+call $write
+jump _if65
+label _if64
+label _if65
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if66
+jump _if67
+label _if66
+createframe
+pushs string@fail\0320-0.5\032<\0320\010
+pushs int@1
+call $write
+label _if67
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@1
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if68
+jump _if69
+label _if68
+createframe
+pushs string@fail\0320-0.5\032<\0321\010
+pushs int@1
+call $write
+label _if69
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 float@0x1p+0
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
+pushs LF@tmp3
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if70
+createframe
+pushs string@fail\0320-0.5\032<\0320-1.0\010
+pushs int@1
+call $write
+jump _if71
+label _if70
+label _if71
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@0
+defvar LF@tmp5
+move LF@tmp5 float@0x1p-1
+defvar LF@tmp6
+pushs LF@tmp4
+pushs LF@tmp5
+pushs string@sub
+call $compute
+pops LF@tmp6
+defvar LF@tmp7
+pushs LF@tmp3
+pushs LF@tmp6
+pushs string@lesser
+call $compute
+pops LF@tmp7
+pushs LF@tmp7
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if72
+createframe
+pushs string@fail\0320-0.5\032<\0320-0.5\010
+pushs int@1
+call $write
+jump _if73
+label _if72
+label _if73
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x0p+0
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if74
+jump _if75
+label _if74
+createframe
+pushs string@fail\0320-0.5\032<\0320.0\010
+pushs int@1
+call $write
+label _if75
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x1p-1
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if76
+jump _if77
+label _if76
+createframe
+pushs string@fail\0320-0.5\032<\0320.5\010
+pushs int@1
+call $write
+label _if77
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@sub
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 float@0x1p+0
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if78
+jump _if79
+label _if78
+createframe
+pushs string@fail\0320-0.5\032<\0321.0\010
+pushs int@1
+call $write
+label _if79
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x0p+0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 int@1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if80
+createframe
+pushs string@fail\0320.0\032<\0320-1\010
+pushs int@1
+call $write
+jump _if81
+label _if80
+label _if81
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x0p+0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if82
+createframe
+pushs string@fail\0320.0\032<\0320\010
+pushs int@1
+call $write
+jump _if83
+label _if82
+label _if83
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x0p+0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if84
+jump _if85
+label _if84
+createframe
+pushs string@fail\0320.0\032<\0321\010
+pushs int@1
+call $write
+label _if85
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x0p+0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p+0
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if86
+createframe
+pushs string@fail\0320.0\032<\0320-1.0\010
+pushs int@1
+call $write
+jump _if87
+label _if86
+label _if87
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x0p+0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p-1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if88
+createframe
+pushs string@fail\0320.0\032<\0320-0.5\010
+pushs int@1
+call $write
+jump _if89
+label _if88
+label _if89
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x0p+0
+defvar LF@tmp2
+move LF@tmp2 float@0x0p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if90
+createframe
+pushs string@fail\0320.0\032<\0320.0\010
+pushs int@1
+call $write
+jump _if91
+label _if90
+label _if91
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x0p+0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if92
+jump _if93
+label _if92
+createframe
+pushs string@fail\0320.0\032<\0320.5\010
+pushs int@1
+call $write
+label _if93
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x0p+0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if94
+jump _if95
+label _if94
+createframe
+pushs string@fail\0320.0\032<\0321.0\010
+pushs int@1
+call $write
+label _if95
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p-1
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 int@1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if96
+createframe
+pushs string@fail\0320.5\032<\0320-1\010
+pushs int@1
+call $write
+jump _if97
+label _if96
+label _if97
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p-1
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if98
+createframe
+pushs string@fail\0320.5\032<\0320\010
+pushs int@1
+call $write
+jump _if99
+label _if98
+label _if99
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p-1
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if100
+jump _if101
+label _if100
+createframe
+pushs string@fail\0320.5\032<\0321\010
+pushs int@1
+call $write
+label _if101
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p-1
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p+0
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if102
+createframe
+pushs string@fail\0320.5\032<\0320-1.0\010
+pushs int@1
+call $write
+jump _if103
+label _if102
+label _if103
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p-1
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p-1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if104
+createframe
+pushs string@fail\0320.5\032<\0320-0.5\010
+pushs int@1
+call $write
+jump _if105
+label _if104
+label _if105
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p-1
+defvar LF@tmp2
+move LF@tmp2 float@0x0p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if106
+createframe
+pushs string@fail\0320.5\032<\0320.0\010
+pushs int@1
+call $write
+jump _if107
+label _if106
+label _if107
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p-1
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if108
+createframe
+pushs string@fail\0320.5\032<\0320.5\010
+pushs int@1
+call $write
+jump _if109
+label _if108
+label _if109
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p-1
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if110
+jump _if111
+label _if110
+createframe
+pushs string@fail\0320.5\032<\0321.0\010
+pushs int@1
+call $write
+label _if111
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p+0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 int@1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if112
+createframe
+pushs string@fail\0321.0\032<\0320-1\010
+pushs int@1
+call $write
+jump _if113
+label _if112
+label _if113
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p+0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if114
+createframe
+pushs string@fail\0321.0\032<\0320\010
+pushs int@1
+call $write
+jump _if115
+label _if114
+label _if115
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p+0
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if116
+createframe
+pushs string@fail\0321.0\032<\0321\010
+pushs int@1
+call $write
+jump _if117
+label _if116
+label _if117
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p+0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p+0
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if118
+createframe
+pushs string@fail\0321.0\032<\0320-1.0\010
+pushs int@1
+call $write
+jump _if119
+label _if118
+label _if119
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p+0
+defvar LF@tmp2
+move LF@tmp2 int@0
+defvar LF@tmp3
+move LF@tmp3 float@0x1p-1
+defvar LF@tmp4
+pushs LF@tmp2
+pushs LF@tmp3
+pushs string@sub
+call $compute
+pops LF@tmp4
+defvar LF@tmp5
+pushs LF@tmp1
+pushs LF@tmp4
+pushs string@lesser
+call $compute
+pops LF@tmp5
+pushs LF@tmp5
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if120
+createframe
+pushs string@fail\0321.0\032<\0320-0.5\010
+pushs int@1
+call $write
+jump _if121
+label _if120
+label _if121
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p+0
+defvar LF@tmp2
+move LF@tmp2 float@0x0p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if122
+createframe
+pushs string@fail\0321.0\032<\0320.0\010
+pushs int@1
+call $write
+jump _if123
+label _if122
+label _if123
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p+0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p-1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if124
+createframe
+pushs string@fail\0321.0\032<\0320.5\010
+pushs int@1
+call $write
+jump _if125
+label _if124
+label _if125
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 float@0x1p+0
+defvar LF@tmp2
+move LF@tmp2 float@0x1p+0
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if126
+createframe
+pushs string@fail\0321.0\032<\0321.0\010
+pushs int@1
+call $write
+jump _if127
+label _if126
+label _if127
 
 ####################
 #### Expression ####
@@ -699,22 +2837,299 @@ createframe
 pushframe
 defvar LF@tmp1
 defvar LF@_tmp1
-popframe
-pushs LF@%$xd%
-pushframe
-pops LF@_tmp1 
+move LF@_tmp1 string@""
 move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@""
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
 pushs LF@tmp1
-call exprSemicolon
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
 popframe
 
-pops LF@%$y%
+pushs bool@false
+jumpifeqs _if128
 createframe
-pushs string@\010
+pushs string@fail\032""\032<\032""\010
 pushs int@1
 call $write
-jump _while_begin0
-label _while_end0
+jump _if129
+label _if128
+label _if129
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+move LF@_tmp1 string@""
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@aa
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if130
+jump _if131
+label _if130
+createframe
+pushs string@fail\032""\032<\032"aa"\010
+pushs int@1
+call $write
+label _if131
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+move LF@_tmp1 string@""
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@ab
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if132
+jump _if133
+label _if132
+createframe
+pushs string@fail\032""\032<\032"ab"\010
+pushs int@1
+call $write
+label _if133
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+move LF@_tmp1 string@aa
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@""
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if134
+createframe
+pushs string@fail\032"aa"\032<\032""\010
+pushs int@1
+call $write
+jump _if135
+label _if134
+label _if135
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+move LF@_tmp1 string@aa
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@aa
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if136
+createframe
+pushs string@fail\032"aa"\032<\032"aa"\010
+pushs int@1
+call $write
+jump _if137
+label _if136
+label _if137
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+move LF@_tmp1 string@aa
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@ab
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if138
+jump _if139
+label _if138
+createframe
+pushs string@fail\032"aa"\032<\032"ab"\010
+pushs int@1
+call $write
+label _if139
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+move LF@_tmp1 string@ab
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@""
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if140
+createframe
+pushs string@fail\032"ab"\032<\032""\010
+pushs int@1
+call $write
+jump _if141
+label _if140
+label _if141
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+move LF@_tmp1 string@ab
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@aa
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if142
+createframe
+pushs string@fail\032"ab"\032<\032"aa"\010
+pushs int@1
+call $write
+jump _if143
+label _if142
+label _if143
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+defvar LF@_tmp1
+move LF@_tmp1 string@ab
+move LF@tmp1 LF@_tmp1 
+defvar LF@tmp2
+defvar LF@_tmp2
+move LF@_tmp2 string@ab
+move LF@tmp2 LF@_tmp2 
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@lesser
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprRightParen
+popframe
+
+pushs bool@false
+jumpifeqs _if144
+createframe
+pushs string@fail\032"ab"\032<\032"ab"\010
+pushs int@1
+call $write
+jump _if145
+label _if144
+label _if145
+createframe
+pushs string@done
+pushs int@1
+call $write
 jump _END
 label _TYPE_SEM_ERR
 exit int@4
