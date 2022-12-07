@@ -4,7 +4,7 @@
  * @author Martin Maršalek - xmarsa15
  * @author Andrej Smatana - xsmata03
  * @author János László Vasík - xvasik05
- * 
+ *
  * @brief Implementation syntax analysis unit
  */
 
@@ -42,7 +42,7 @@ int rProlog(Parser_t *parser)
 
 int rUnits(Parser_t *parser)
 {
-	//printf("###################### rUnits\n");
+	// printf("###################### rUnits\n");
 	if (parser->currentToken->type == TOK_EOF || parser->currentToken->type == TOK_END_PROLOGUE)
 	{ // got to the end, return SUCCESS
 		;
@@ -91,7 +91,7 @@ int rFunctionDefinition(Parser_t *parser)
 	parser->onParam = 0; // to keep track of the number of parameters, this is the only time onParam is used
 
 	CALL_FUN(getNextToken);
-	
+
 	if (push_empty(parser->localSymStack) != SUCCESS) // push new sym_table
 	{
 		return ERR_INTERNAL;
@@ -111,8 +111,13 @@ int rFunctionDefinition(Parser_t *parser)
 
 	CALL_RULE(rStatements);
 
-	genFunctionEnd(parser->definedFunc->key);
+	printf("jump _TYPE_SEM_ERR\n"); // this is executed if there was no return statement (return instruction wasn't called)
+
+	//genFunctionEnd(parser->definedFunc->key);
+	printf("label $%s_end #__ \n\n", parser->definedFunc->key);
 	pop(parser->localSymStack); // pop new sym_table
+
+	parser->definedFunc = NULL;
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 	return 0;
@@ -150,13 +155,13 @@ int rParam(Parser_t *parser)
 	functionAddParam(parser->definedFunc->data, parser->currentToken->attribute.strVal->str); // add param name to symtable
 
 	// [param_count-1] because inside functionAddParam() it is incremented already
-    printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
-	printf("defvar LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count-1]);
+	printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
+	printf("defvar LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count - 1]);
 	genFunctionAmountOfGivenArgsCheck(0);
-	printf("pops LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count-1]);
+	printf("pops LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count - 1]);
 	genTypeCheck(parser->onParamType, parser->currentToken->attribute.strVal->str);
-    printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
-	//genFunctionAmountOfGivenArgsCheck(parser->onParam, 0);
+	printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
+	// genFunctionAmountOfGivenArgsCheck(parser->onParam, 0);
 	fflush(stdout);
 	parser->onParam++;
 
@@ -167,14 +172,14 @@ int rParam(Parser_t *parser)
 int rParams_n(Parser_t *parser)
 {
 	if (parser->currentToken->type == TOK_RIGHT_PAREN)
-	{	  // there are no more parameters, return
+	{ // there are no more parameters, return
 		;
-		//genFunctionAmountOfParamsCheck(parser->onParam);
-		//while (parser->onParamType)
+		// genFunctionAmountOfParamsCheck(parser->onParam);
+		// while (parser->onParamType)
 		//{
 		//	genTypeCheck(--parser->onParamType);
-		//}
-		//genFunctionAmountOfGivenArgsCheck(0);
+		// }
+		// genFunctionAmountOfGivenArgsCheck(0);
 	}
 	else
 	{
@@ -182,14 +187,11 @@ int rParams_n(Parser_t *parser)
 		CALL_RULE(rParams_n);
 	}
 
-
 	// TODO this needs to be transformed into a %$var% name, not the LF@param
-	//while (parser->onParam)
+	// while (parser->onParam)
 	//{
 	//	printf("pops LF@param%d\n", --parser->onParam); // assign argX to paramX
 	//}
-
-
 
 	return SUCCESS;
 }
@@ -211,13 +213,13 @@ int rParam_n(Parser_t *parser)
 	htab_add(top(parser->localSymStack), parser->currentToken->attribute.strVal->str, data);
 	functionAddParam(parser->definedFunc->data, parser->currentToken->attribute.strVal->str); // add param name to symtable
 
-    printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
-	printf("defvar LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count-1]);
+	printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
+	printf("defvar LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count - 1]);
 	genFunctionAmountOfGivenArgsCheck(0);
-	printf("pops LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count-1]);
+	printf("pops LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count - 1]);
 
 	genTypeCheck(parser->onParamType, parser->currentToken->attribute.strVal->str);
-	//genFunctionAmountOfGivenArgsCheck(0);
+	// genFunctionAmountOfGivenArgsCheck(0);
 
 	fflush(stdout);
 	parser->onParam++;
@@ -239,14 +241,13 @@ int rType(Parser_t *parser)
 	{
 		switch (parser->currentToken->attribute.kwVal)
 		{
-			case KW_INT:
-			case KW_FLOAT:
-			case KW_STRING:
-			case KW_VOID:
-				break;
-			default:
-				return ERR_SYN_ANALYSIS;
-		
+		case KW_INT:
+		case KW_FLOAT:
+		case KW_STRING:
+		case KW_VOID:
+			break;
+		default:
+			return ERR_SYN_ANALYSIS;
 		}
 	}
 	else
@@ -259,7 +260,7 @@ int rType(Parser_t *parser)
 
 int rStatements(Parser_t *parser)
 {
-	
+
 	int retVal = SUCCESS; // SUCCESS or ERR_*
 	if (parser->currentToken->type == TOK_FUNCTION)
 	{
@@ -274,15 +275,15 @@ int rStatements(Parser_t *parser)
 	else if (parser->currentToken->type == TOK_INT_LIT || parser->currentToken->type == TOK_DEC_LIT ||
 			 parser->currentToken->type == TOK_STRING_LIT)
 	{
-		int retToken; // last read non valid token in expression 
+		int retToken; // last read non valid token in expression
 
 		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 		{
 			return retVal;
 		}
 		parser->nextToken->type = retToken;
-		CALL_FUN(getNextToken);			   			// ensuring continuity of tokens after returning from bottom up
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); 	// expressions in statements end with a semicolon
+		CALL_FUN(getNextToken);					   // ensuring continuity of tokens after returning from bottom up
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); // expressions in statements end with a semicolon
 		CALL_RULE(rStatements);
 	}
 	else if (parser->currentToken->type == TOK_KEYWORD && parser->currentToken->attribute.kwVal == KW_IF)
@@ -320,14 +321,14 @@ int rVariableStatement(Parser_t *parser)
 	}
 	else if (checkForOperator(parser->nextToken) == 0)
 	{
-		int retToken; // last read non valid token in expression 
-		
+		int retToken; // last read non valid token in expression
+
 		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 		{
 			return retVal;
 		}
-		//parser->nextToken->type = retToken;
-		//CALL_FUN(getNextToken);		// ensuring continuity of tokens after bottom up
+		// parser->nextToken->type = retToken;
+		// CALL_FUN(getNextToken);		// ensuring continuity of tokens after bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	else if (checkTokenType(parser->nextToken, TOK_SEMICOLON) == 0)
@@ -371,14 +372,14 @@ int rAssignmentStatement(Parser_t *parser)
 
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_ASSIGN);
 
-	if (checkTokenType(parser->currentToken, TOK_FUNCTION)==0)
+	if (checkTokenType(parser->currentToken, TOK_FUNCTION) == 0)
 	{
 		CALL_RULE(rFunctionCallStatement);
 		printf("pops LF@%%%s%%\n", definedVar->key); // move return value from func (now in TF) to var
 	}
 	else
 	{
-		int retToken; // last read non valid token in expression 
+		int retToken; // last read non valid token in expression
 
 		if ((retVal = exprParse(parser->currentToken, NULL, &retToken, parser)) != SUCCESS)
 		{
@@ -387,8 +388,8 @@ int rAssignmentStatement(Parser_t *parser)
 
 		printf("pops LF@%%%s%%\n", definedVar->key); // pop stack into new value
 
-		//parser->nextToken->type = retToken; // THIS CAUSED A STACK OVERFLOW, WHY WAS THIS HERE?
-		//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up (THIS CAUSED A STACK OVERFLOW)
+		// parser->nextToken->type = retToken; // THIS CAUSED A STACK OVERFLOW, WHY WAS THIS HERE?
+		// CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up (THIS CAUSED A STACK OVERFLOW)
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	return SUCCESS;
@@ -398,36 +399,36 @@ int rConditionalStatement(Parser_t *parser)
 {
 	int ifCounterCopy = parser->ifCounter;
 	parser->ifCounter += 2;
-	
+
 	int retVal = SUCCESS; // SUCCESS or ERR_*
 
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_IF);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 
-	int retToken; // last read non valid token in expression 
+	int retToken; // last read non valid token in expression
 
 	if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 	{
 		return retVal;
 	}
-	//parser->nextToken->type = retToken;
+	// parser->nextToken->type = retToken;
 
-	printf("pushs bool@false\n");					// helper variable for if condition
+	printf("pushs bool@false\n");				// helper variable for if condition
 	printf("jumpifeqs _if%d\n", ifCounterCopy); // skip code if expr result was false
 
-	//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
+	// CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
-	printf("jump _if%d\n", ifCounterCopy+1);
+	printf("jump _if%d\n", ifCounterCopy + 1);
 	printf("label _if%d\n", ifCounterCopy);
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_ELSE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 
-	printf("label _if%d\n", ifCounterCopy+1); // label for skipping code
+	printf("label _if%d\n", ifCounterCopy + 1); // label for skipping code
 	fflush(stdout);
 
 	return SUCCESS;
@@ -435,8 +436,8 @@ int rConditionalStatement(Parser_t *parser)
 
 int rWhileLoopStatement(Parser_t *parser)
 {
-	int whileCounterCopy= parser->whileCounter;
-	parser->whileCounter ++;
+	int whileCounterCopy = parser->whileCounter;
+	parser->whileCounter++;
 	int retVal = SUCCESS; // SUCCESS or ERR_*
 
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
@@ -444,18 +445,18 @@ int rWhileLoopStatement(Parser_t *parser)
 
 	printf("label _while_begin%d\n", whileCounterCopy); // label for jumping backwards TODO: does this work?
 
-	int retToken; // last read non valid token in expression 
+	int retToken; // last read non valid token in expression
 
 	if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 	{
 		return retVal;
 	}
-	//parser->nextToken->type = retToken;
+	// parser->nextToken->type = retToken;
 
-	printf("pushs bool@false\n");							  // helper variable for while condition
+	printf("pushs bool@false\n");						  // helper variable for while condition
 	printf("jumpifeqs _while_end%d\n", whileCounterCopy); // skip code if expr result was false
 
-	//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
+	// CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 
@@ -504,6 +505,16 @@ int rReturnStatement(Parser_t *parser)
 {
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_RETURN);
 	CALL_RULE(rReturnValue);
+
+	if (parser->definedFunc == NULL)
+	{
+		return ERR_SYN_ANALYSIS; // calling return outside of a function
+	}
+	else
+	{
+		genFunctionEnd(parser->definedFunc->key);
+	}
+
 	return SUCCESS;
 }
 
@@ -519,9 +530,9 @@ int rArguments(Parser_t *parser)
 		CALL_RULE(rArguments_n);
 	}
 
-	DLLPrintAllReversed(parser->codeGen); // prints given arguments
+	DLLPrintAllReversed(parser->codeGen);	 // prints given arguments
 	printf("pushs int@%d\n", parser->onArg); // prints count of arguments
-	DLLDispose(parser->codeGen); 
+	DLLDispose(parser->codeGen);
 
 	return SUCCESS;
 }
@@ -567,7 +578,7 @@ int rReturnValue(Parser_t *parser)
 	else
 	{
 
-		int retToken; // last read non valid token in expression 
+		int retToken; // last read non valid token in expression
 
 		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
 		{
@@ -576,8 +587,8 @@ int rReturnValue(Parser_t *parser)
 
 		printf("pops LF@%%retval\n"); // TODO: check some stuff here maybe (void?, return type?), maybe in assignment instead?
 
-		//parser->nextToken->type = retToken;
-		//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
+		// parser->nextToken->type = retToken;
+		// CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	return retVal;
@@ -594,14 +605,14 @@ int rTerm(Parser_t *parser)
 		}
 
 		// todo here do some shitcodegen to generate params with
-		char * varName = malloc(parser->currentToken->attribute.strVal->realLen + 5); // 5 for %% %%
+		char *varName = malloc(parser->currentToken->attribute.strVal->realLen + 5); // 5 for %% %%
 		if (varName == NULL)
 		{
 			fprintf(stderr, "[ERROR] Memory allocation error.\n");
 			exit(ERR_INTERNAL);
 		}
 
-		snprintf(varName, parser->currentToken->attribute.strVal->realLen+5, "%%%s%%", parser->currentToken->attribute.strVal->str);
+		snprintf(varName, parser->currentToken->attribute.strVal->realLen + 5, "%%%s%%", parser->currentToken->attribute.strVal->str);
 		CODEGEN_INSERT_IN_DLL("pushs LF@", varName);
 
 		fflush(stdout);
@@ -669,7 +680,7 @@ int rTerm(Parser_t *parser)
 
 	parser->onArg++;
 	CALL_FUN(getNextToken);
-	
+
 	return SUCCESS;
 }
 
