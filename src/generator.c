@@ -941,7 +941,6 @@ void genFunctionLabel(htab_key_t functionName) {
 
 void genFunctionEnd(htab_key_t functionName) {
     printf(
-        "label $%s_ret # genFunctionEnd() \n"
         "type GF@typeCheck LF@%%retval\n"
         "pushs GF@typeCheck\n"
         "pushs LF@_returnType\n"
@@ -950,7 +949,6 @@ void genFunctionEnd(htab_key_t functionName) {
         // todo check for retval with function type (exit 7 (type compatibility))
         "popframe\n"
         "return\n"
-        "label $%s_end #__ \n\n"
     , functionName, functionName);
 }
 
