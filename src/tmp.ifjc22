@@ -368,6 +368,22 @@ read LF@_retval float
 pushs LF@_retval
 popframe
 return
+label $strlen
+createframe
+pushframe
+defvar LF@_string
+defvar LF@_countArgs
+pops LF@_countArgs
+jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1
+pops LF@_string
+type GF@typeCheck LF@_string
+jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string
+defvar LF@_retval
+strlen LF@_retval LF@_string
+label $strlen_end
+pushs LF@_retval
+popframe
+return
 jump $floatval_end
 label $floatval
 createframe
@@ -463,14 +479,14 @@ defvar LF@_strlen
 defvar LF@_countArgs
 pops LF@_countArgs
 jumpifneq _TYPE_SEM_ERR LF@_countArgs int@3
-pops LF@_index_to # $j
-type GF@typeCheck LF@_index_to
-jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int
+pops LF@_string # $s
+type GF@typeCheck LF@_string
+jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string
 pops LF@_index_from # $i
 type GF@typeCheck LF@_index_from
 jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int
-pops LF@_string # $s
-type GF@typeCheck LF@_string
+pops LF@_index_to # $j
+type GF@typeCheck LF@_index_to
 jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int
 # errors
 lt LF@_tmp LF@_index_from int@0 # $i < 0
@@ -540,17 +556,7 @@ return
 
 label _START
 createframe
-defvar LF@%$in%
-createframe
-pushs int@0
-call $readf
-pops LF@%$in%
-defvar LF@%$f%
-createframe
-pushs LF@%$in%
-pushs int@1
-call $intval
-pops LF@%$f%
+defvar LF@%$a%
 
 ####################
 #### Expression ####
@@ -558,35 +564,71 @@ pops LF@%$f%
 createframe
 pushframe
 defvar LF@tmp1
-defvar LF@_tmp1
+move LF@tmp1 int@4
+defvar LF@tmp2
+move LF@tmp2 int@1
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@add
+call $compute
+pops LF@tmp3
+pushs LF@tmp3
+call exprSemicolon
 popframe
-pushs LF@%$f%
+
+pops LF@%$a%
+defvar LF@%$b%
+
+####################
+#### Expression ####
+####################
+createframe
 pushframe
-pops LF@_tmp1 
-move LF@tmp1 LF@_tmp1 
+defvar LF@tmp1
+move LF@tmp1 int@2
 defvar LF@tmp2
 move LF@tmp2 int@3
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@compare
+pushs string@add
 call $compute
 pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@4
+defvar LF@tmp5
 pushs LF@tmp3
-call exprRightParen
+pushs LF@tmp4
+pushs string@add
+call $compute
+pops LF@tmp5
+defvar LF@tmp6
+defvar LF@_tmp6
+popframe
+pushs LF@%$a%
+pushframe
+pops LF@_tmp6 
+move LF@tmp6 LF@_tmp6 
+defvar LF@tmp7
+pushs LF@tmp5
+pushs LF@tmp6
+pushs string@add
+call $compute
+pops LF@tmp7
+defvar LF@tmp8
+move LF@tmp8 int@1
+defvar LF@tmp9
+pushs LF@tmp7
+pushs LF@tmp8
+pushs string@add
+call $compute
+pops LF@tmp9
+pushs LF@tmp9
+call exprSemicolon
 popframe
 
-pushs bool@false
-jumpifeqs _if0
-createframe
-pushs string@GOOD\010
-pushs int@1
-call $write
-createframe
-pushs string@BAD\010
-pushs int@1
-call $write
-label _if0
+pops LF@%$b%
 jump _END
 label _TYPE_SEM_ERR
 exit int@4

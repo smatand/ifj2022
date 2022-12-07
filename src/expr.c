@@ -226,41 +226,9 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 				// free last token, ; OR ) and empty whole stack
 				freeItem(incomingTokenItem);
 				eStackEmptyAll(stack);
-
-				if (generateCode)
-				{
-					// printf("defvar LF@type_tmp%ld\n", nonTermCnt);
-					// printf("defvar LF@exprResult%ld\n");
-					// printf("move LF@exprResult LF@tmp%ld\n", nonTermCnt);
-					// printf("type LF@type_tmp%ld LF@tmp%ld\n", nonTermCnt, nonTermCnt);
-					printf("pushs LF@tmp%ld\n",nonTermCnt);
-				}
-
-				if (incomingTokenType == P_RIGHT_PAREN)
-				{
-					*returnToken = TOK_RIGHT_PAREN;
-					// we have to return boolean
-					if (generateCode)
-					{
-						printf("call exprRightParen\n");
-					
-					}
-				}
-				else
-				{
-					*returnToken = TOK_SEMICOLON;
-					// we return anything but boolean
-					if (generateCode)
-					{
-
-						printf("call exprSemicolon\n");
-					}
-				}
-				if (generateCode)
-				{
-					printf("popframe\n");
-					printf("\n");
-				}
+				*returnToken = TOK_RIGHT_PAREN;
+				(incomingTokenType == P_RIGHT_PAREN)?(*returnToken = TOK_RIGHT_PAREN):(*returnToken = TOK_SEMICOLON);
+				exprGenerateEndingCode(nonTermCnt,generateCode,incomingTokenType);
 				return returnVal;
 			}
 
@@ -304,6 +272,25 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	eStackEmptyAll(stack);
 	return SUCCESS;
 }
+
+void exprGenerateEndingCode(size_t nonTermCnt,bool generateCode,int type){
+	if (generateCode)
+	{
+		printf("pushs LF@tmp%ld\n",nonTermCnt);
+		if (type == P_RIGHT_PAREN)
+		{
+			printf("call exprRightParen\n");
+			
+		}
+		else
+		{
+			printf("call exprSemicolon\n");
+		}
+		printf("popframe\n");
+		printf("\n");
+	}
+}
+
 int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 {
 	int type = item->token->type;
