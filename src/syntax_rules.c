@@ -273,7 +273,7 @@ int rStatements(Parser_t *parser)
 		CALL_RULE(rStatements);
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT || parser->currentToken->type == TOK_DEC_LIT ||
-			 parser->currentToken->type == TOK_STRING_LIT)
+			 parser->currentToken->type == TOK_STRING_LIT || parser->currentToken->type == TOK_LEFT_PAREN)
 	{
 		int retToken; // last read non valid token in expression
 
