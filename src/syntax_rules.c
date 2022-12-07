@@ -260,7 +260,7 @@ int rStatements(Parser_t *parser)
 	{
 		int retToken; // last read non valid token in expression
 
-		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
+		if ((retVal = exprParse(&retToken, parser,false)) != SUCCESS)
 		{
 			return retVal;
 		}
@@ -306,7 +306,7 @@ int rVariableStatement(Parser_t *parser)
 	{
 		int retToken; // last read non valid token in expression
 
-		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
+		if ((retVal = exprParse(&retToken, parser,true)) != SUCCESS)
 		{
 			return retVal;
 		}
@@ -362,7 +362,7 @@ int rAssignmentStatement(Parser_t *parser)
 	{
 		int retToken; // last read non valid token in expression
 
-		if ((retVal = exprParse(parser->currentToken, NULL, &retToken, parser)) != SUCCESS)
+		if ((retVal = exprParse(&retToken, parser,true)) != SUCCESS)
 		{
 			return retVal;
 		}
@@ -388,7 +388,7 @@ int rConditionalStatement(Parser_t *parser)
 
 	int retToken; // last read non valid token in expression
 
-	if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
+	if ((retVal = exprParse(&retToken, parser,true)) != SUCCESS)
 	{
 		return retVal;
 	}
@@ -428,7 +428,7 @@ int rWhileLoopStatement(Parser_t *parser)
 
 	int retToken; // last read non valid token in expression
 
-	if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
+	if ((retVal = exprParse(&retToken, parser,true)) != SUCCESS)
 	{
 		return retVal;
 	}
@@ -556,7 +556,7 @@ int rReturnValue(Parser_t *parser)
 
 		int retToken; // last read non valid token in expression
 
-		if ((retVal = exprParse(parser->currentToken, parser->nextToken, &retToken, parser)) != SUCCESS)
+		if ((retVal = exprParse(&retToken, parser,true)) != SUCCESS)
 		{
 			return retVal;
 		}

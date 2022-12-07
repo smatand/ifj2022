@@ -4,7 +4,7 @@
  * @author Tomáš Frátrik - xfratr01
  * @author Andrej Smatana - xsmata03
  * @author Martin Maršalek - xmarsa15
- * 
+ *
  * @brief Implementation of precedence analyzer unit
  */
 
@@ -20,10 +20,9 @@
 #include "generator.h"
 #include "parser.h"
 
-
-int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parser_t *parser)
+int exprParse(int *returnToken, Parser_t *parser,bool generateCode)
 {
-	
+
 	int returnVal = SUCCESS;
 	size_t nonTermCnt = 0;
 	// bool generateCode = true;
@@ -49,19 +48,17 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		{'>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '>', '!', '>', '!', '>'}, // i
 		{'<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '<', '!', '<', '!'}, // $
 	};
-	if (firstToken == NULL)
-	{
-		fprintf(stderr, "expr,ERROR: internal Error \n");
-		return ERR_SYN_ANALYSIS;
-	}
-	
-	bool generateCode = true;
+	// if (firstToken == NULL)
+	// {
+	// 	fprintf(stderr, "expr,ERROR: internal Error \n");
+	// 	return ERR_SYN_ANALYSIS;
+	// }
 
-	if (secondToken != NULL)
-	{
-		generateCode = false;
 
-	}
+	// if (secondToken != NULL)
+	// {
+	// 	generateCode = false;
+	// }
 	generateCode = true;
 	if (generateCode)
 	{
@@ -94,7 +91,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 	while (continueParsing)
 	{
 
-		//if previous operation wasnt reduction
+		// if previous operation wasnt reduction
 		if (scanAnotherToken)
 		{
 			incomingTokenItem = eItemInit(incomingToken, TERM);
@@ -105,7 +102,7 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 				return ERR_INTERNAL;
 			}
 		}
-		//incmiming token type to correct type
+		// incmiming token type to correct type
 		incomingTokenType = tokenTypeToeType(incomingToken);
 		if (incomingTokenType == P_ERROR)
 		{
@@ -198,11 +195,11 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 				freeItem(incomingTokenItem);
 				eStackEmptyAll(stack);
 
-				//return what was last token				
-				(incomingTokenType == P_RIGHT_PAREN)?(*returnToken = TOK_RIGHT_PAREN):(*returnToken = TOK_SEMICOLON);
+				// return what was last token
+				(incomingTokenType == P_RIGHT_PAREN) ? (*returnToken = TOK_RIGHT_PAREN) : (*returnToken = TOK_SEMICOLON);
 
-				exprGenerateEndingCode(nonTermCnt,generateCode,incomingTokenType);
-				//return success or error
+				exprGenerateEndingCode(nonTermCnt, generateCode, incomingTokenType);
+				// return success or error
 				return returnVal;
 			}
 
@@ -223,23 +220,23 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 
 		if (scanAnotherToken)
 		{
-				getNextToken(parser);
-				incomingToken = copyToken(parser->currentToken);
+			getNextToken(parser);
+			incomingToken = copyToken(parser->currentToken);
 		}
 	}
-	//shouldnt happen
+	// shouldnt happen
 	eStackEmptyAll(stack);
 	return SUCCESS;
 }
 
-void exprGenerateEndingCode(size_t nonTermCnt,bool generateCode,int type){
+void exprGenerateEndingCode(size_t nonTermCnt, bool generateCode, int type)
+{
 	if (generateCode)
 	{
-		printf("pushs LF@tmp%ld\n",nonTermCnt);
+		printf("pushs LF@tmp%ld\n", nonTermCnt);
 		if (type == P_RIGHT_PAREN)
 		{
 			printf("call exprRightParen\n");
-			
 		}
 		else
 		{
@@ -257,7 +254,7 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 	htab_pair_t *pair;
 	printf("defvar LF@tmp%ld\n", *nonTermCnt);
 
-	//generate definition code based on the type of token
+	// generate definition code based on the type of token
 	switch (type)
 	{
 	case TOK_INT_LIT:
@@ -275,11 +272,11 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 		return SUCCESS;
 		break;
 	case TOK_VARIABLE:
-		//try to find variable in the table of symbols
+		// try to find variable in the table of symbols
 		pair = htab_find(parser->localSymStack->top->table, token->attribute.strVal->str);
 		if (pair == NULL)
 		{
-			fprintf(stderr,"PARSER ERROR (EXPRESSION) couldn't find variable: %s\n",token->attribute.strVal->str);
+			fprintf(stderr, "PARSER ERROR (EXPRESSION) couldn't find variable: %s\n", token->attribute.strVal->str);
 			return ERR_SEM_UNDEFINED_VAR;
 		}
 		printf("defvar LF@_tmp%ld\n", *nonTermCnt);
@@ -309,7 +306,7 @@ void generateCode_operation(eItem_t *item1, eItem_t *item2, eItem_t *operationIt
 	printf("defvar LF@tmp%ld\n", *nonTermCnt);
 	printf("pushs LF@tmp%ld\n", item2->id);
 	printf("pushs LF@tmp%ld\n", item1->id);
-	//generate code -> operation based on the operation token
+	// generate code -> operation based on the operation token
 	switch (operation)
 	{
 	case TOK_PLUS:
@@ -354,7 +351,7 @@ void generateCode_operation(eItem_t *item1, eItem_t *item2, eItem_t *operationIt
 
 int exprReduce(eStack_t *stack, size_t *nonTermCnt, bool generateCode, Parser_t *parser)
 {
-	//find appropriate rule
+	// find appropriate rule
 	int ruleType = exprFindRule(stack);
 	eItem_t *currItem = stack->head;
 	switch (ruleType)
@@ -365,7 +362,7 @@ int exprReduce(eStack_t *stack, size_t *nonTermCnt, bool generateCode, Parser_t 
 		eItem_t *currItemOperand = eStackPopItem(stack);
 		eItem_t *currItem2 = eStackPopItem(stack);
 
-		if(generateCode)
+		if (generateCode)
 		{
 			generateCode_operation(currItem, currItem2, currItemOperand, nonTermCnt);
 		}
@@ -625,15 +622,17 @@ precTokenType_t tokenTypeToeType(token_t *token)
 	if (type == TOK_KEYWORD)
 	{ // if type of token is keyword, we check keywords
 		keyword_t keyword = token->attribute.kwVal;
-		if(keyword == KW_NULL){
+		if (keyword == KW_NULL)
+		{
 			return P_ID;
 		}
-		else{
+		else
+		{
 			fprintf(stderr, "ERROR: wrong type of token in expression7");
 			return P_ERROR;
 		}
 	}
-	//change type to correct type
+	// change type to correct type
 	switch (type)
 	{
 	case TOK_STAR:
@@ -671,13 +670,12 @@ precTokenType_t tokenTypeToeType(token_t *token)
 		return P_ID;
 	default:
 		fprintf(stderr, "ERROR: wrong type of token in expression 8\n");
-		fprintf(stderr, "token = %d\n",type);
+		fprintf(stderr, "token = %d\n", type);
 		return P_ERROR;
 	}
 }
 
-
-//used only for debugging
+// used only for debugging
 char *tokenTypeToStr(token_t *token)
 {
 	tokenType_t type = token->type;

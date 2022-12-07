@@ -3,7 +3,7 @@
  * @file generator.h
  * @author Andrej Smatana - xsmata03
  * @author Tomáš Frátrik - xfratr01
- * 
+ *
  * @brief Header file for generating code
  */
 
@@ -17,20 +17,22 @@
 
 typedef struct Parser Parser_t;
 
-#define CODEGEN_INSERT_IN_DLL(str1, str2)           \
-    do {                                            \
-        int ret = 0;                                \
-        string_t * tmp = stringInit(&ret);          \
-        if (ret) {                                  \
-            return ret;                             \
-        }                                           \
-                                                    \
-        strPushBack(tmp, str1, strlen(str1));       \
-        strPushBack(tmp, str2, strlen(str2));       \
-                                                    \
-        if (DLLInsertLast(parser->codeGen, tmp->str, tmp->realLen+1) != SUCCESS) \
-            return ERR_INTERNAL;                    \
-        stringDestroy(tmp);                         \
+#define CODEGEN_INSERT_IN_DLL(str1, str2)                                          \
+    do                                                                             \
+    {                                                                              \
+        int ret = 0;                                                               \
+        string_t *tmp = stringInit(&ret);                                          \
+        if (ret)                                                                   \
+        {                                                                          \
+            return ret;                                                            \
+        }                                                                          \
+                                                                                   \
+        strPushBack(tmp, str1, strlen(str1));                                      \
+        strPushBack(tmp, str2, strlen(str2));                                      \
+                                                                                   \
+        if (DLLInsertLast(parser->codeGen, tmp->str, tmp->realLen + 1) != SUCCESS) \
+            return ERR_INTERNAL;                                                   \
+        stringDestroy(tmp);                                                        \
     } while (0)
 
 /**************** STANDARD LIBRARY (PHP) ****************/
@@ -44,8 +46,8 @@ void gen_readi();
 /** @brief function readf() : ?float */
 void gen_readf();
 
-/** @brief function write(term1, term2, ..., termn) : void 
- * 
+/** @brief function write(term1, term2, ..., termn) : void
+ *
  * @param token to parse its type and generate formatted string
  * @param list to insert instruction of ifjcode22
  * @return ERR_INTERNAL in case of malloc failed
@@ -75,7 +77,6 @@ void gen_builtin_functions();
 
 /************** END OF STANDARD LIBRARY (PHP) ************/
 
-
 /** @brief check semantics of expression*/
 void gen_expr_checkType();
 
@@ -89,26 +90,25 @@ void gen_expr_semicolon();
 void gen_expr_rightparen();
 
 /** @brief Convert from C string to IFJcode22 string
- * 
+ *
  * @param str C string
  * @return IFJcode22 string
  */
-char * convertStringToIFJ(char * str);
+char *convertStringToIFJ(char *str);
 
 /** @brief Convert from C int to IFJcode22 string
- * 
+ *
  * @param str C int
  * @return IFJcode22 string
-*/
-char * convertIntToIFJ(int x);
+ */
+char *convertIntToIFJ(int x);
 
 /** @brief Convert from C float to IFJcode22 string
- * 
+ *
  * @param str C float
  * @return IFJcode22 string
-*/
-char * convertFloatToIFJ(double x);
-
+ */
+char *convertFloatToIFJ(double x);
 
 /** @brief generating code for main, function calls, definitions */
 void gen_checkType();
@@ -117,12 +117,12 @@ void genInit();
 void genEnd();
 void genFunctionEnd();
 void genFunctionLabel(htab_key_t functionName);
-void genToPush(char * toPush);
+void genToPush(char *toPush);
 void genFunctionParamType(keyword_t kw, int count);
 void genFunctionRetType(keyword_t kw);
-void genTypeCheck(int count, char * varName);
+void genTypeCheck(int count, char *varName);
 void genFunctionAmountOfGivenArgsCheck(int toCompareWith);
 void genFunctionAmountOfParamsCheck(int count);
-int genFunctionPushsVariable(struct Parser * parser);
+int genFunctionPushsVariable(struct Parser *parser);
 
 #endif // GENERATOR_H
