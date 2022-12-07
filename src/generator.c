@@ -428,24 +428,6 @@ void gen_expr_checkType(){
 
             //<
             "label rel4\n"
-            // "move LF@rel4_flag bool@true\n"
-            // "defvar LF@rel4bool\n"
-            // "defvar LF@rel4bool2\n"
-            // "defvar LF@rel4boolret\n"
-            // // "move LF@rel4bool bool@false\n"
-            // // "move LF@rel4bool2 bool@false\n"
-            // // "move LF@rel4boolret bool@false\n"
-            // "eq LF@rel4bool LF@type_var1 string@int\n"
-            // "eq LF@rel4bool2 LF@type_var2 string@float\n"
-            // "and LF@rel4boolret LF@rel4bool LF@rel4bool2\n"
-            // "jumpifeq rel4check LF@rel4boolret bool@true\n"
-
-            // "eq LF@rel4bool LF@type_var1 string@float\n"
-            // "eq LF@rel4bool2 LF@type_var2 string@int\n"
-            // "and LF@rel4boolret LF@rel4bool LF@rel4bool2\n"
-            // "jumpifeq rel4check LF@rel4boolret bool@true\n"
-
-            // "break\n"
             "jumpifeq rel4_first_int LF@type_var1 string@int\n"
             "jumpifeq rel4_first_float LF@type_var1 string@float\n"
 
@@ -595,6 +577,9 @@ void gen_expr_checkType(){
 			"call $floatval\n"
 			"pops LF@_var2\n"
 			"label arit1_skip4\n"
+            "jumpifneq arit1_skip11 LF@type_var2 string@nil\n"
+			"move LF@_var2 float@0x0.0p+0\n"
+            "label arit1_skip11\n"
 			"jump checkEnd\n"
 
 			"label arit1_firstnull\n"
@@ -606,6 +591,9 @@ void gen_expr_checkType(){
 			"jumpifneq arit1_skip8 LF@type_var2 string@int\n"
 			"move LF@_var1 int@0\n"
 			"label arit1_skip8\n"
+			"jumpifneq arit1_skip10 LF@type_var2 string@float\n"
+			"move LF@_var1 float@0x0.0p+0\n"
+            "label arit1_skip10\n"
 			"jump checkEnd\n"
 
 
@@ -637,7 +625,7 @@ void gen_expr_checkType(){
 			"jump checkEnd\n"
 			
 			"label error_sem7\n"
-			"write string@checkType_error_sem_7\n"
+			// "write string@checkType_error_sem_7\n"
 			"exit int@7\n"
 
 
@@ -757,7 +745,7 @@ void gen_expr_semicolon(){
             "type LF@type_returnVal LF@returnVal\n"
 
             "jumpifneq exprSkip9 LF@type_returnVal string@bool\n"
-            "write string@cannot_return_boolean\n"
+            // "write string@cannot_return_boolean\n"
             "exit int@7\n"
             "label exprSkip9\n"
             // "write LF@returnVal\n" //dbg

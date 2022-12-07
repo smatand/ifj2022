@@ -191,6 +191,9 @@ pushs int@1
 call $floatval
 pops LF@_var2
 label arit1_skip4
+jumpifneq arit1_skip11 LF@type_var2 string@nil
+move LF@_var2 float@0x0.0p+0
+label arit1_skip11
 jump checkEnd
 label arit1_firstnull
 jumpifneq arit1_skip7 LF@type_var2 string@nil
@@ -201,6 +204,9 @@ label arit1_skip7
 jumpifneq arit1_skip8 LF@type_var2 string@int
 move LF@_var1 int@0
 label arit1_skip8
+jumpifneq arit1_skip10 LF@type_var2 string@float
+move LF@_var1 float@0x0.0p+0
+label arit1_skip10
 jump checkEnd
 label arit2
 jumpifeq arit2_second LF@type_var1 string@float
@@ -227,7 +233,6 @@ jumpifneq error_sem7 LF@type_var2 string@nil
 move LF@_var2 float@0x0.0p+0
 jump checkEnd
 label error_sem7
-write string@checkType_error_sem_7
 exit int@7
 label checkEnd
 pushs LF@_var2
@@ -317,7 +322,6 @@ pops LF@returnVal
 defvar LF@type_returnVal
 type LF@type_returnVal LF@returnVal
 jumpifneq exprSkip9 LF@type_returnVal string@bool
-write string@cannot_return_boolean
 exit int@7
 label exprSkip9
 pushs LF@returnVal
@@ -593,34 +597,8 @@ return
 
 label _START
 createframe
-
-####################
-#### Expression ####
-####################
+defvar LF@%$a%
 createframe
-pushframe
-defvar LF@tmp1
-move LF@tmp1 nil@nil
-pushs LF@tmp1
-call exprRightParen
-popframe
-
-pushs bool@false
-jumpifeqs _if0
-createframe
-pushs string@BAD\010
-pushs int@1
-call $write
-jump _if1
-label _if0
-createframe
-pushs string@GOOD\010
-pushs int@1
-call $write
-label _if1
-jump _END
-label _TYPE_SEM_ERR
-exit int@4
-label _NIL_SEM_ERR
-exit int@8
-label _END
+pushs int@0
+call $reads
+pops LF@%$a%
