@@ -272,6 +272,7 @@ pushs LF@_returnVal
 popframe
 return
 
+######SEMICOLON#####
 label exprSemicolon
 createframe
 pushframe
@@ -284,6 +285,45 @@ write string@cannot_return_boolean
 exit int@7
 label exprSkip9
 write LF@returnVal
+pushs LF@returnVal
+popframe
+return
+######RIGHT_PAREN#####
+label exprRightParen
+createframe
+pushframe
+defvar LF@returnVal
+pops LF@returnVal
+defvar LF@type_returnVal
+type LF@type_returnVal LF@returnVal
+jumpifeq exprDetermineBool LF@type_returnVal string@bool
+jumpifeq exprConvertNum LF@type_returnVal string@int
+jumpifeq exprConvertNum LF@type_returnVal string@float
+jumpifeq exprConvertString LF@type_returnVal string@string
+label exprConvertString
+jumpifeq exprFalse LF@returnVal string@0
+defvar LF@str_len
+strlen LF@str_len LF@returnVal
+jumpifeq exprFalse LF@str_len int@0
+jump exprTrue
+label exprConvertNum
+pushs LF@returnVal
+call floatval
+pops LF@returnVal
+jumpifeq exprFalse LF@returnVal float@0x0p+0
+jump exprTrue
+label exprDetermineBool
+jumpifeq exprTrue LF@returnVal bool@true
+jump exprFalse
+label exprTrue
+move LF@returnVal bool@true
+write string@true
+jump exprEnd
+label exprFalse
+move LF@returnVal bool@false
+write string@false
+jump exprEnd
+label exprEnd
 pushs LF@returnVal
 popframe
 return
@@ -500,7 +540,17 @@ return
 
 label _START
 createframe
-defvar LF@%$a%
+defvar LF@%$in%
+createframe
+pushs int@0
+call $readf
+pops LF@%$in%
+defvar LF@%$f%
+createframe
+pushs LF@%$in%
+pushs int@1
+call $intval
+pops LF@%$f%
 
 ####################
 #### Expression ####
@@ -508,71 +558,35 @@ defvar LF@%$a%
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@4
-defvar LF@tmp2
-move LF@tmp2 int@1
-defvar LF@tmp3
-pushs LF@tmp1
-pushs LF@tmp2
-pushs string@add
-call $compute
-pops LF@tmp3
-pushs LF@tmp3
-call exprSemicolon
+defvar LF@_tmp1
 popframe
-
-pops LF@%$a%
-defvar LF@%$b%
-
-####################
-#### Expression ####
-####################
-createframe
+pushs LF@%$f%
 pushframe
-defvar LF@tmp1
-move LF@tmp1 int@2
+pops LF@_tmp1 
+move LF@tmp1 LF@_tmp1 
 defvar LF@tmp2
 move LF@tmp2 int@3
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@add
+pushs string@compare
 call $compute
 pops LF@tmp3
-defvar LF@tmp4
-move LF@tmp4 int@4
-defvar LF@tmp5
 pushs LF@tmp3
-pushs LF@tmp4
-pushs string@add
-call $compute
-pops LF@tmp5
-defvar LF@tmp6
-defvar LF@_tmp6
-popframe
-pushs LF@%$a%
-pushframe
-pops LF@_tmp6 
-move LF@tmp6 LF@_tmp6 
-defvar LF@tmp7
-pushs LF@tmp5
-pushs LF@tmp6
-pushs string@add
-call $compute
-pops LF@tmp7
-defvar LF@tmp8
-move LF@tmp8 int@1
-defvar LF@tmp9
-pushs LF@tmp7
-pushs LF@tmp8
-pushs string@add
-call $compute
-pops LF@tmp9
-pushs LF@tmp9
-call exprSemicolon
+call exprRightParen
 popframe
 
-pops LF@%$b%
+pushs bool@false
+jumpifeqs _if0
+createframe
+pushs string@GOOD\010
+pushs int@1
+call $write
+createframe
+pushs string@BAD\010
+pushs int@1
+call $write
+label _if0
 jump _END
 label _TYPE_SEM_ERR
 exit int@4

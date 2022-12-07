@@ -697,6 +697,7 @@ void gen_expr_compute(){
 }
 void gen_expr_semicolon(){
     printf(
+            "######SEMICOLON#####\n"
             "label exprSemicolon\n"
             "createframe\n"
             "pushframe\n"
@@ -709,11 +710,67 @@ void gen_expr_semicolon(){
             "write string@cannot_return_boolean\n"
             "exit int@7\n"
             "label exprSkip9\n"
-            "write LF@returnVal\n" //dbg
+            // "write LF@returnVal\n" //dbg
             "pushs LF@returnVal\n"
             "popframe\n"
             "return\n"
             );
+}
+
+void gen_expr_rightparen(){
+
+    printf(
+            "######RIGHT_PAREN#####\n"
+            "label exprRightParen\n"
+            "createframe\n"
+            "pushframe\n"
+            "defvar LF@returnVal\n"
+            "pops LF@returnVal\n"
+            "defvar LF@type_returnVal\n"
+            "type LF@type_returnVal LF@returnVal\n"
+
+            "jumpifeq exprDetermineBool LF@type_returnVal string@bool\n"
+            "jumpifeq exprConvertNum LF@type_returnVal string@int\n"
+            "jumpifeq exprConvertNum LF@type_returnVal string@float\n"
+            "jumpifeq exprConvertString LF@type_returnVal string@string\n"
+
+            "label exprConvertString\n"
+            "jumpifeq exprFalse LF@returnVal string@0\n"
+            "defvar LF@str_len\n"
+            "strlen LF@str_len LF@returnVal\n"
+            "jumpifeq exprFalse LF@str_len int@0\n"
+            "jump exprTrue\n"
+
+
+
+            "label exprConvertNum\n"
+            "pushs LF@returnVal\n"
+            "call floatval\n"
+            "pops LF@returnVal\n"
+            "jumpifeq exprFalse LF@returnVal float@0x0p+0\n"
+            "jump exprTrue\n"
+
+            "label exprDetermineBool\n"
+            "jumpifeq exprTrue LF@returnVal bool@true\n"
+            "jump exprFalse\n"
+
+            "label exprTrue\n"
+            "move LF@returnVal bool@true\n"
+            // "write string@true\n" // dbg
+            "jump exprEnd\n"
+
+            "label exprFalse\n"
+            "move LF@returnVal bool@false\n"
+            // "write string@false\n" //dbg
+            "jump exprEnd\n"
+
+            "label exprEnd\n"
+            "pushs LF@returnVal\n"
+            "popframe\n"
+            "return\n"
+            );
+
+
 }
 
 void genInit() {
@@ -731,6 +788,7 @@ void genInit() {
     gen_expr_checkType();
 	gen_expr_compute();
     gen_expr_semicolon();
+    gen_expr_rightparen();
     gen_builtin_functions();
 
     printf("\nlabel _START\n");

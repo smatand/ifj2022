@@ -242,39 +242,8 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 					// we have to return boolean
 					if (generateCode)
 					{
-						printf("jumpifeq exprSkip1 LF@type_tmp%ld string@bool\n", nonTermCnt);
-						printf("jumpifeq convert_num LF@type_tmp%ld string@int\n", nonTermCnt);
-						printf("jumpifeq convert_num LF@type_tmp%ld string@float\n", nonTermCnt);
-						printf("jumpifeq convert_string LF@type_tmp%ld string@float\n", nonTermCnt);
-						printf("jumpifeq exprFalse LF@type_tmp%ld string@nil\n", nonTermCnt);
-
-						// if it wasn't already boolean we convert
-						printf("label convert_string\n");
-						printf("jumpifeq exprFalse LF@tmp%ld string@0\n", nonTermCnt);
-						printf("defvar LF@str_len\n");
-						printf("strlen LF@str_len LF@tmp%ld\n", nonTermCnt);
-						printf("jumpifeq exprFalse LF@str_len int@0\n");
-						//printf("write LF@str_len\n"); //write
-						printf("jump exprTrue\n");
-						printf("label convert_num\n");
-						printf("pushs LF@tmp%ld\n", nonTermCnt);
-						printf("call $floatval\n");
-						printf("pops LF@tmp%ld\n", nonTermCnt);
-						printf("jumpifeq exprFalse LF@tmp%ld float@0x0p+0\n", nonTermCnt);
-						printf("jump exprTrue\n");
-
-						printf("label exprSkip1\n");
-						printf("jumpifeq exprTrue LF@tmp%ld bool@true\n", nonTermCnt);
-
-						printf("label exprFalse\n");
-						//printf("write string@false\n"); //write
-						printf("move LF@exprResult bool@false\n");
-						printf("jump exprEnd\n");
-
-						printf("label exprTrue\n");
-						printf("move LF@exprResult bool@true\n");
-						//printf("write string@true\n"); //write
-						printf("jump exprEnd\n");
+						printf("call exprRightParen\n");
+					
 					}
 				}
 				else
