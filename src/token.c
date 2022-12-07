@@ -1,3 +1,11 @@
+/**
+ * @file token.c
+ * @author Martin Marsalek - xmarsa15
+ *
+ * @brief Token source file, includes functions for dealing with sym_table token data
+ */
+
+
 #include <stdlib.h>
 
 #include "token.h"
