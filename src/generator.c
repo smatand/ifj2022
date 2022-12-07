@@ -936,7 +936,6 @@ void genFunctionEnd() {
         "pushs LF@_returnType\n"
         "jumpifneqs _TYPE_SEM_ERR\n"
         "pushs LF@%%retval\n"
-        // todo check for retval with function type (exit 7 (type compatibility))
         "popframe\n"
         "return\n"
     );
@@ -955,7 +954,7 @@ void genFunctionParamType(keyword_t kw, int count) {
         case KW_STRING:
             printf("move LF@_paramType%%%d string@string\n", count);
             break;
-        default: // todo
+        default: 
             fprintf(stderr, "Error: line %d", __LINE__);
             break;
     }
@@ -977,7 +976,7 @@ void genFunctionRetType(keyword_t kw) {
         case KW_VOID:
             printf("move LF@_returnType string@nil\n");
             break;
-        default: // todo
+        default: 
             fprintf(stderr, "Error: line %d", __LINE__);
             break;
     }

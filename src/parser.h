@@ -18,6 +18,7 @@
 #include "sym_table_stack.h"
 #include "token.h"
 #include "generator.h"
+#include "parser.h"
 
 /** @brief Parser structure */
 typedef struct Parser
@@ -44,6 +45,7 @@ typedef struct Parser
  * @return Pointer to initialized parser, or NULL in case of failure
  */
 Parser_t *initParser();
+
 
 /**
  * @brief Free all memory allocated by the parser
@@ -76,5 +78,11 @@ int checkTokenType(token_t *token, tokenType_t type);
  * @return 0 if keywords match, otherwise 1
  */
 int checkTokenKeyword(token_t *token, keyword_t keyword);
+
+/**
+ * @brief Main program
+ * @param parser structure to work with
+*/
+int rProgram(Parser_t * parser);
 
 #endif /* PARSER_H */

@@ -6,6 +6,8 @@
 #include "str.h"
 #include "parser.h"
 
+typedef struct Parser Parser_t;
+
 #define CODEGEN_INSERT_IN_DLL(str1, str2)           \
     do {                                            \
         int ret = 0;                                \

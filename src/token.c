@@ -28,16 +28,12 @@ token_data_t *createTokenDataFunction()
 	data->type = TOKTYPE_FUNCTION;
 	data->param_count = 0;
 
-	data->param_IDs = calloc(sizeof(char *) * MAX_PARAM_COUNT, 1); // TODO: memory leak
+	data->param_IDs = calloc(sizeof(char *) * MAX_PARAM_COUNT, 1);
 	if (data->param_IDs == NULL)
 	{
 		free(data);
 		exit(ERR_INTERNAL);
 	}
-	//for (int i = 0; i < MAX_PARAM_COUNT; i++)
-	//{
-	//	data->param_IDs = NULL; // set all the pointers to NULL
-	//}
 
 	return data;
 }

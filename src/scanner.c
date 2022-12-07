@@ -466,7 +466,7 @@ int scanToken(token_t *token)
             {
                 if (!checkForMatch(fp, "php"))
                 {
-                    token->type = TOK_PROLOGUE; // TOK_PROLOGUE is the whole expression "<?php" TODO should it be taken as syntax error (2) ?
+                    token->type = TOK_PROLOGUE; // TOK_PROLOGUE is the whole expression "<?php"
 
                     return SUCCESS;
                 }

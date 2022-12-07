@@ -42,7 +42,6 @@ int rProlog(Parser_t *parser)
 
 int rUnits(Parser_t *parser)
 {
-	// printf("###################### rUnits\n");
 	if (parser->currentToken->type == TOK_EOF || parser->currentToken->type == TOK_END_PROLOGUE)
 	{ // got to the end, return SUCCESS
 		;
@@ -70,7 +69,6 @@ int rUnit(Parser_t *parser)
 
 int rFunctionDefinition(Parser_t *parser)
 {
-	int retVal = SUCCESS;
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_FUNCTION);
 	CURRENT_TOKEN_TYPE(TOK_FUNCTION);
 
@@ -139,7 +137,6 @@ int rParams(Parser_t *parser)
 
 int rParam(Parser_t *parser)
 {
-	int retVal;
 	parser->onParamType = 0;
 	CALL_RULE(rType);
 	genFunctionParamType(parser->currentToken->attribute.kwVal, parser->onParamType);
@@ -161,7 +158,6 @@ int rParam(Parser_t *parser)
 	printf("pops LF@%%%s%%\n", parser->definedFunc->data->param_IDs[parser->definedFunc->data->param_count - 1]);
 	genTypeCheck(parser->onParamType, parser->currentToken->attribute.strVal->str);
 	printf("sub LF@%%_countArgs LF@%%_countArgs int@1\n");
-	// genFunctionAmountOfGivenArgsCheck(parser->onParam, 0);
 	fflush(stdout);
 	parser->onParam++;
 
@@ -174,24 +170,12 @@ int rParams_n(Parser_t *parser)
 	if (parser->currentToken->type == TOK_RIGHT_PAREN)
 	{ // there are no more parameters, return
 		;
-		// genFunctionAmountOfParamsCheck(parser->onParam);
-		// while (parser->onParamType)
-		//{
-		//	genTypeCheck(--parser->onParamType);
-		// }
-		// genFunctionAmountOfGivenArgsCheck(0);
 	}
 	else
 	{
 		CALL_RULE(rParam_n); // checking next parameter
 		CALL_RULE(rParams_n);
 	}
-
-	// TODO this needs to be transformed into a %$var% name, not the LF@param
-	// while (parser->onParam)
-	//{
-	//	printf("pops LF@param%d\n", --parser->onParam); // assign argX to paramX
-	//}
 
 	return SUCCESS;
 }
@@ -223,7 +207,6 @@ int rParam_n(Parser_t *parser)
 
 	fflush(stdout);
 	parser->onParam++;
-	// TODO: check types of arguments and their existence somehow, in rType maybe? helper vars that store types maybe?
 
 	CALL_FUN(getNextToken);
 	return SUCCESS;
@@ -301,7 +284,7 @@ int rStatements(Parser_t *parser)
 		CALL_RULE(rReturnStatement);
 		CALL_RULE(rStatements);
 	}
-	else if (checkForOperator(parser->currentToken) == NULL)
+	else if (checkForOperator(parser->currentToken) == 0)
 	{ // unary operators are not allowed in IFJ22
 		return ERR_SYN_ANALYSIS;
 	}
@@ -354,7 +337,7 @@ int rAssignmentStatement(Parser_t *parser)
 {
 	int retVal = SUCCESS; // SUCCESS or ERR_*
 
-	CURRENT_TOKEN_TYPE(TOK_VARIABLE); // TODO: codegen
+	CURRENT_TOKEN_TYPE(TOK_VARIABLE);
 	htab_pair_t *definedVar = NULL;
 
 	if ((definedVar = htab_find((top(parser->localSymStack)), parser->currentToken->attribute.strVal->str)) == NULL) // variable hasn't been declared yet
@@ -365,8 +348,6 @@ int rAssignmentStatement(Parser_t *parser)
 
 		printf("defvar LF@%%%s%%\n", definedVar->key); // generate defvar code
 	}
-
-	// TODO: set or change the value and type(?) of the declared variable (code generation)
 
 	CALL_FUN(getNextToken);
 
@@ -443,7 +424,7 @@ int rWhileLoopStatement(Parser_t *parser)
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 
-	printf("label _while_begin%d\n", whileCounterCopy); // label for jumping backwards TODO: does this work?
+	printf("label _while_begin%d\n", whileCounterCopy); // label for jumping backwards
 
 	int retToken; // last read non valid token in expression
 
@@ -451,7 +432,6 @@ int rWhileLoopStatement(Parser_t *parser)
 	{
 		return retVal;
 	}
-	// parser->nextToken->type = retToken;
 
 	printf("pushs bool@false\n");						  // helper variable for while condition
 	printf("jumpifeqs _while_end%d\n", whileCounterCopy); // skip code if expr result was false
@@ -482,10 +462,6 @@ int rFunctionCallStatement(Parser_t *parser)
 	printf("createframe\n");
 
 	htab_pair_t *calledFunction = htab_find(parser->globalSymTable, parser->currentToken->attribute.strVal->str);
-
-	// if (!strcmp(calledFunction->key, "write")) {
-	//	printf("write ");
-	// }
 
 	CALL_FUN(getNextToken);
 
@@ -573,7 +549,7 @@ int rReturnValue(Parser_t *parser)
 
 	if (parser->currentToken->type == TOK_SEMICOLON)
 	{
-		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON); // TODO: missing return value -> check if void function?
+		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	else
 	{
@@ -585,10 +561,8 @@ int rReturnValue(Parser_t *parser)
 			return retVal;
 		}
 
-		printf("pops LF@%%retval\n"); // TODO: check some stuff here maybe (void?, return type?), maybe in assignment instead?
+		printf("pops LF@%%retval\n");
 
-		// parser->nextToken->type = retToken;
-		// CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 		CURRENT_TOKEN_TYPE_GETNEXT(TOK_SEMICOLON);
 	}
 	return retVal;
@@ -604,7 +578,6 @@ int rTerm(Parser_t *parser)
 			exit(ERR_SEM_UNDEFINED_VAR);
 		}
 
-		// todo here do some shitcodegen to generate params with
 		char *varName = malloc(parser->currentToken->attribute.strVal->realLen + 5); // 5 for %% %%
 		if (varName == NULL)
 		{
@@ -620,9 +593,6 @@ int rTerm(Parser_t *parser)
 	}
 	else if (parser->currentToken->type == TOK_INT_LIT)
 	{
-		// TODO: check for type matching in code gen
-		// printf("defvar TF@%%%d\n", parser->onArg);
-		// printf("move TF@%%%d int@%d\n", parser->onArg, parser->currentToken->attribute.intVal); // TODO: no conversion necessary here?
 		char *str = convertIntToIFJ(parser->currentToken->attribute.intVal);
 		if (str == NULL)
 		{
@@ -636,27 +606,18 @@ int rTerm(Parser_t *parser)
 	}
 	else if (parser->currentToken->type == TOK_STRING_LIT)
 	{
-
-		// TODO: check for type matching in code gen
-		// printf("defvar TF@%%%d\n", parser->onArg);
-
-		char *str = convertStringToIFJ(parser->currentToken->attribute.strVal->str); // TODO: does this work?
+		char *str = convertStringToIFJ(parser->currentToken->attribute.strVal->str); 
 		if (str == NULL)
 		{
 			return ERR_INTERNAL;
 		}
-		// printf("move TF@%%%d string@%s\n", parser->onArg, temp);
 
 		CODEGEN_INSERT_IN_DLL("pushs string@", str);
 
 		fflush(stdout);
-		//free(str);
 	}
 	else if (parser->currentToken->type == TOK_DEC_LIT)
 	{
-		// TODO: check for type matching in code gen
-		// printf("defvar TF@%%%d\n", parser->onArg);
-		// printf("move TF@%%%d float@%a\n", parser->onArg, parser->currentToken->attribute.decVal); // TODO: does this work?
 		char *str = convertFloatToIFJ(parser->currentToken->attribute.decVal);
 		if (str == NULL)
 		{
@@ -690,4 +651,5 @@ int rProgramEnd(Parser_t *parser)
 	{
 		return SUCCESS;
 	}
+	return ERR_SYN_ANALYSIS;
 }
