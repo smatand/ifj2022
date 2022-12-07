@@ -860,7 +860,7 @@ char * convertFloatToIFJ(double x) {
     return ptr;
 }
 
-void genFunctionLabel(char * functionName) {
+void genFunctionLabel(htab_key_t functionName) {
     printf(
         "\njump $%s_end # genFunctionLabel() \n"
         "label $%s\n"
@@ -872,7 +872,7 @@ void genFunctionLabel(char * functionName) {
     , functionName, functionName);
 }
 
-void genFunctionEnd(char * functionName) {
+void genFunctionEnd(htab_key_t functionName) {
     printf(
         "label $%s_ret # genFunctionEnd() \n"
         "type GF@typeCheck LF@%%retval\n"
