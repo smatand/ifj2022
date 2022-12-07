@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
-$x = 5;
-$a = 3;
-if
-?>
+
+function voidf(int $x) : int{
+    return 1;
+}
+$x = voidf(5);
+write($x,"\n");

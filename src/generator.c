@@ -18,9 +18,9 @@ void gen_reads() {
     printf("pushframe\n"); // save frame
 
     printf("defvar LF@_retval\n"); // local variable
-    printf("read TF@_retval string\n");
+    printf("read LF@_retval string\n");
 
-    printf("pushs TF@_retvall\n");
+    printf("pushs LF@_retval\n");
     printf("popframe\n"); //restore
     printf("return\n");
 }
