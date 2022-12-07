@@ -21,33 +21,6 @@
 #include "parser.h"
 
 
-
-
-// int main(){
-// 	// token_t *token2 = tokenInit();
-// 	// scanToken(token2);
-// 	int returnToken;
-// 	token_t *token = tokenInit();
-// 	scanToken(token);
-// 	token_t *token2 = tokenInit();
-// 	scanToken(token2);
-// 	Parser_t *Parser = NULL;
-// 	int returnVal = exprParse(token,token2,&returnToken,Parser);
-// 	// token = tokenInit();
-// 	// scanToken(token);
-// 	// returnVal = exprParse(token,NULL,&returnToken);
-// 	(void)returnToken;
-// 	(void)returnVal;
-// 	if(returnVal != SUCCESS)
-// 	{
-// 		printf("ERROR: %d\n",returnVal);
-// 	}
-// 	else
-// 	{
-// 		puts("SUCCESS");
-// 	}
-// }
-
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parser_t *parser)
 {
 	
@@ -82,13 +55,12 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		return ERR_SYN_ANALYSIS;
 	}
 	
-	bool secondTokenDelay = false;
 	bool generateCode = true;
 
 	if (secondToken != NULL)
 	{
 		generateCode = false;
-		secondTokenDelay = true; // expression isn't assigned to anything
+
 	}
 	generateCode = true;
 	if (generateCode)
@@ -250,22 +222,8 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 		// stackPrint(stack);
 		if (scanAnotherToken)
 		{
-			// if (secondTokenDelay == false)
-			// {
-				// incomingToken = tokenInit();
 				getNextToken(parser);
 				incomingToken = copyToken(parser->currentToken);
-
-			// }
-			// this happens only if expression is not assigned to anything
-			// this expression is processed if there are no errors, but its result
-			// is thrown away
-			// else
-			// {
-			// 	// getNextToken(parser);
-			// 	incomingToken = copyToken(parser->nextToken);
-			// 	secondTokenDelay = false;
-			// }
 		}
 	}
 	// printf("popframe\n");

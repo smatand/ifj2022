@@ -1,0 +1,10 @@
+<?php
+declare(strict_types=1);
+//$x = 1.0 / 5.0 / 100.0;
+$x = 2.3;
+//$x = readf();
+if($x > 1) {
+    write("GOOD\n");
+} else {
+    write("BAD\n");
+}

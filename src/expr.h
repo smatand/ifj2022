@@ -112,4 +112,15 @@ struct eItem *findClosestTerm(eStack_t *stack);
  * @return SUCCESS, otherwise some error (ERR_*)
  */
 int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parser_t *parser);
+
+
+
+/**
+ * @brief generate ending code for expression, determined by ending token
+ * 
+ * @param nonTermCnt 
+ * @param generateCode shall we even generate code? 
+ * @param type type of ending token
+ */
+void exprGenerateEndingCode(size_t nonTermCnt,bool generateCode,int type);
 #endif /* EXPR_H */ 
