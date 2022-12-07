@@ -1,3 +1,11 @@
+/**
+ * Project: IFJ22 language Compiler
+ * @file generator.h
+ * @author Andrej Smatana - xsmata03
+ * @author 
+ * 
+ * @brief Header file of DLL algorithm for IFJ22
+ */
 #ifndef DLL_H
 #define DLL_H
 
