@@ -17,16 +17,8 @@ void gen_reads() {
     printf("createframe\n");
     printf("pushframe\n"); // save frame
 
-    //printf("defvar LF@_countArgs\n");
-    //printf("pops LF@_countArgs\n");
-    //printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
-
     printf("defvar LF@_retval\n"); // local variable
     printf("read TF@_retval string\n");
-
-    // not needed to check for type as it is written in 2rd argument of READ
-    //printf("type GF@typeCheck TF@_retval\n");
-    //printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string\n");
 
     printf("pushs TF@_retvall\n");
     printf("popframe\n"); //restore
@@ -41,9 +33,6 @@ void gen_readi() {
     printf("defvar LF@_retval\n");
     printf("read LF@_retval int\n");
 
-    //printf("type GF@typeCheck TF@_retval\n");
-    //printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
-
     printf("pushs LF@_retval\n");
     printf("popframe\n");
     printf("return\n");
@@ -56,15 +45,11 @@ void gen_readf() {
     printf("defvar LF@_retval\n");
     printf("read LF@_retval float\n");
 
-    //printf("type GF@typeCheck TF@_retval\n");
-    //printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
-
     printf("pushs LF@_retval\n");
     printf("popframe\n");
     printf("return\n");
 }
 void gen_write() {
-    //printf("jump $write_end\n");
     printf("label $write\n");
     printf("createframe\n");
     printf("pushframe\n");
@@ -83,7 +68,6 @@ void gen_write() {
     printf("label $write_ret\n");
     printf("popframe\n");
     printf("return\n");
-    //printf("label $write_end\n");
 }
 
 void gen_floatval() {
