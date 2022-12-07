@@ -303,7 +303,9 @@ void gen_ord() {
 
     printf("type GF@typeCheck LF@_string\n");
     printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string\n");
-    printf("jumpifeq ord_end LF@_string string@\"\"\n");
+
+    printf("strlen LF@_retval LF@_string\n");
+    printf("jumpifeq ord_end LF@_retval int@0\n");
 
     printf("strlen LF@_retval LF@_string\n");
     printf("jumpifeq ord_end LF@_retval int@0\n");
@@ -814,6 +816,8 @@ char * convertStringToIFJ(char * str) {
     }
 
     if (*ptr == '\0') {
+        return "";
+    } else if (!strcmp(ptr, "\"\"")) {
         return "";
     }
 
