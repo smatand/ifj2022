@@ -415,12 +415,14 @@ int rConditionalStatement(Parser_t *parser)
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
+	printf("jump _if%d\n", parser->ifCounter+1);
+	printf("label _if%d\n", parser->ifCounter);
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_ELSE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 
-	printf("label _if%d\n", parser->ifCounter); // label for skipping code
+	printf("label _if%d\n", parser->ifCounter+1); // label for skipping code
 	fflush(stdout);
 
 	parser->ifCounter++;
