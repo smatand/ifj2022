@@ -196,7 +196,6 @@ int rParams_n(Parser_t *parser)
 
 int rParam_n(Parser_t *parser)
 {
-	int retVal = SUCCESS;
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_COMMA);
 
 	CALL_RULE(rType);
@@ -240,11 +239,14 @@ int rType(Parser_t *parser)
 	{
 		switch (parser->currentToken->attribute.kwVal)
 		{
-		case KW_INT:
-		case KW_FLOAT:
-		case KW_STRING:
-		case KW_VOID:
-			break;
+			case KW_INT:
+			case KW_FLOAT:
+			case KW_STRING:
+			case KW_VOID:
+				break;
+			default:
+				return ERR_SYN_ANALYSIS;
+		
 		}
 	}
 	else
@@ -425,7 +427,7 @@ int rConditionalStatement(Parser_t *parser)
 	printf("label _if%d\n", parser->ifCounter+1); // label for skipping code
 	fflush(stdout);
 
-	parser->ifCounter++;
+	parser->ifCounter += 2;
 	return SUCCESS;
 }
 

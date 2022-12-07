@@ -64,17 +64,6 @@ void gen_builtin_functions();
 
 /************** END OF STANDARD LIBRARY (PHP) ************/
 
-// TODO: comment
-void gen_checkType();
-
-// TODO: comment
-void gen_compute();
-
-/** @brief Initialization of code generator*/
-void genInit();
-
-/** @brief End code generation*/
-void genEnd();
 
 /** @brief Convert from C string to IFJcode22 string
  * 
@@ -97,18 +86,19 @@ char * convertIntToIFJ(int x);
 */
 char * convertFloatToIFJ(double x);
 
+
+/** @brief generating code for main, function calls, definitions */
+void gen_checkType();
+void gen_compute();
+void genInit();
+void genEnd();
+void genFunctionEnd(char * functionName);
 void genToPush(char * toPush);
-
 void genFunctionParamType(keyword_t kw, int count);
-
 void genFunctionRetType(keyword_t kw);
-
 void genTypeCheck(int count, char * varName);
-
 void genFunctionAmountOfGivenArgsCheck(int toCompareWith);
-
 void genFunctionAmountOfParamsCheck(int count);
-
 int genFunctionPushsVariable(struct Parser * parser);
 
 #endif // GENERATOR_H
