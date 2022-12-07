@@ -182,32 +182,32 @@ void gen_intval() {
 }
 
 void gen_strval() {
-        printf("label $strval\n");
-        printf("createframe\n");
-        printf("pushframe\n");
+    printf("label $strval\n");
+    printf("createframe\n");
+    printf("pushframe\n");
 
-        printf("defvar LF@_retval\n");
-        printf("defvar LF@_condition\n");
+    printf("defvar LF@_retval\n");
+    printf("defvar LF@_condition\n");
 
-        printf("defvar LF@_countArgs\n");
-        printf("pops LF@_countArgs\n");
-        printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
-
-
-        printf("pops LF@_retval\n");
-        printf("type GF@typeCheck LF@_retval\n");
-        printf("jumpifeq _TYPE_SEM_ERR GF@typeCheck string@int\n"); // strnum
-        printf("jumpifeq _TYPE_SEM_ERR GF@typeCheck string@float\n"); // strnum
+    printf("defvar LF@_countArgs\n");
+    printf("pops LF@_countArgs\n");
+    printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1\n");
 
 
-        printf("jumpifeq $strval_end GF@typeCheck string@string\n");
+    printf("pops LF@_retval\n");
+    printf("type GF@typeCheck LF@_retval\n");
+    printf("jumpifeq _TYPE_SEM_ERR GF@typeCheck string@int\n"); // strnum
+    printf("jumpifeq _TYPE_SEM_ERR GF@typeCheck string@float\n"); // strnum
 
-        printf("move LF@_retval string@\n"); // it is null then
 
-        printf("label $strval_end\n");
-        printf("pushs LF@_retval\n");
-        printf("popframe\n");
-        printf("return\n");
+    printf("jumpifeq $strval_end GF@typeCheck string@string\n");
+
+    printf("move LF@_retval string@\n"); // it is null then
+
+    printf("label $strval_end\n");
+    printf("pushs LF@_retval\n");
+    printf("popframe\n");
+    printf("return\n");
 }
 
 void gen_strlen(/*string*/) {
@@ -253,16 +253,17 @@ void gen_substring() {
     printf("pops LF@_countArgs\n");
     printf("jumpifneq _TYPE_SEM_ERR LF@_countArgs int@3\n");
 
-    printf("pops LF@_index_to # $j\n");
-    printf("type GF@typeCheck LF@_index_to\n");
-    printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
+
+    printf("pops LF@_string # $s\n");
+    printf("type GF@typeCheck LF@_string\n");
+    printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string\n");
 
     printf("pops LF@_index_from # $i\n");
     printf("type GF@typeCheck LF@_index_from\n");
     printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
 
-    printf("pops LF@_string # $s\n");
-    printf("type GF@typeCheck LF@_string\n");
+    printf("pops LF@_index_to # $j\n");
+    printf("type GF@typeCheck LF@_index_to\n");
     printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int\n");
 
     printf("# errors\n");
@@ -366,6 +367,7 @@ void gen_builtin_functions() {
     gen_reads();
     gen_readi();
     gen_readf();
+    gen_strlen();
     gen_floatval();
     gen_intval();
     gen_strval();
