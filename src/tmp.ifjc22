@@ -272,7 +272,21 @@ pushs LF@_returnVal
 popframe
 return
 
-jump $write_end
+label exprSemicolon
+createframe
+pushframe
+defvar LF@returnVal
+pops LF@returnVal
+defvar LF@type_returnVal
+type LF@type_returnVal LF@returnVal
+jumpifneq exprSkip9 LF@type_returnVal string@bool
+write string@cannot_return_boolean
+exit int@7
+label exprSkip9
+write LF@returnVal
+pushs LF@returnVal
+popframe
+return
 label $write
 createframe
 pushframe
@@ -290,13 +304,12 @@ jumpifneq $write_loop LF@_count int@0
 label $write_ret
 popframe
 return
-label $write_end
 label $reads
 createframe
 pushframe
 defvar LF@_retval
-read TF@_retval string 
-pushs TF@_retval
+read TF@_retval string
+pushs TF@_retvall
 popframe
 return
 label $readi
@@ -315,59 +328,67 @@ read LF@_retval float
 pushs LF@_retval
 popframe
 return
+jump $floatval_end
 label $floatval
 createframe
 pushframe
+defvar LF@_countArgs
+pops LF@_countArgs
+jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1
 defvar LF@_param # also retval
 defvar LF@_type
 defvar LF@_condition
 pops LF@_param
 move LF@_condition bool@false
 type LF@_type LF@_param # int, bool, float, string or nil
-jumpifeq floatval_end LF@_type string@float # no need to convert
-jumpifeq int_to_float LF@_type string@int
-jumpifeq bool_to_float LF@_type string@bool
+jumpifeq $floatval_ret LF@_type string@float # no need to convert
+jumpifeq $floatval_int_to_float LF@_type string@int
+jumpifeq $floatval_bool_to_float LF@_type string@bool
 move LF@_param float@0x0.0p+0
-jump floatval_end
-label bool_to_float
+jump $floatval_ret
+label $floatval_bool_to_float
 eq LF@_condition LF@_param bool@true
-jumpifneq bool_false_to_float LF@_condition bool@true
+jumpifneq $floatval_bool_false_to_float LF@_condition bool@true
 move LF@_param float@0x1.0p+0
-jump floatval_end
-label bool_false_to_float
+jump $floatval_ret
+label $floatval_bool_false_to_float
 move LF@_param float@0x0.0p+0
-jump floatval_end
-label int_to_float
+jump $floatval_ret
+label $floatval_int_to_float
 int2float LF@_param LF@_param
-label floatval_end
+label $floatval_ret
 pushs LF@_param
 popframe
 return
+label $floatval_end
 label $intval
 createframe
 pushframe
+defvar LF@_countArgs
+pops LF@_countArgs
+jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1
 defvar LF@_param # also retval
 defvar LF@_type
 defvar LF@_condition
 pops LF@_param
 move LF@_condition bool@false
 type LF@_type LF@_param # int, bool, float, string or nil
-jumpifeq intval_end LF@_type string@int # no need to convert
-jumpifeq float_to_int LF@_type string@float
-jumpifeq bool_to_int LF@_type string@bool
+jumpifeq $intval_end LF@_type string@int # no need to convert
+jumpifeq $intval_float_to_int LF@_type string@float
+jumpifeq $intval_bool_to_int LF@_type string@bool
 move LF@_param int@0
-jump intval_end 
-label bool_to_int
+jump $intval_end 
+label $intval_bool_to_int
 eq LF@_condition LF@_param bool@true
-jumpifneq bool_false_to_int LF@_condition bool@true
+jumpifneq $floatval_bool_false_to_int LF@_condition bool@true
 move LF@_param int@1
-jump intval_end
-label bool_false_to_int
+jump $intval_end
+label $floatval_bool_false_to_int
 move LF@_param int@0
-jump intval_end
-label float_to_int
+jump $intval_end
+label $intval_float_to_int
 float2int LF@_param LF@_param
-label intval_end
+label $intval_end
 pushs LF@_param
 popframe
 return
@@ -376,11 +397,16 @@ createframe
 pushframe
 defvar LF@_retval
 defvar LF@_condition
+defvar LF@_countArgs
+pops LF@_countArgs
+jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1
 pops LF@_retval
-eq LF@_condition LF@_retval nil@nil
-jumpifeq strval_end LF@_condition bool@false
+type GF@typeCheck LF@_retval
+jumpifeq _TYPE_SEM_ERR GF@typeCheck string@int
+jumpifeq _TYPE_SEM_ERR GF@typeCheck string@float
+jumpifeq $strval_end GF@typeCheck string@string
 move LF@_retval string@
-label strval_end
+label $strval_end
 pushs LF@_retval
 popframe
 return
@@ -394,9 +420,18 @@ defvar LF@_retval
 move LF@_retval string@
 defvar LF@_tmp
 defvar LF@_strlen
+defvar LF@_countArgs
+pops LF@_countArgs
+jumpifneq _TYPE_SEM_ERR LF@_countArgs int@3
 pops LF@_index_to # $j
+type GF@typeCheck LF@_index_to
+jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int
 pops LF@_index_from # $i
+type GF@typeCheck LF@_index_from
+jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int
 pops LF@_string # $s
+type GF@typeCheck LF@_string
+jumpifneq _TYPE_SEM_ERR GF@typeCheck string@int
 # errors
 lt LF@_tmp LF@_index_from int@0 # $i < 0
 jumpifeq substring_return_null LF@_tmp bool@true
@@ -429,7 +464,12 @@ createframe
 pushframe
 defvar LF@_string
 defvar LF@_retval
+defvar LF@_countArgs
+pops LF@_countArgs
+jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1
 pops LF@_string
+type GF@typeCheck LF@_string
+jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string
 jumpifeq ord_empty_string LF@_string string@
 stri2int LF@_retval LF@_string int@0
 jump ord_end
@@ -444,9 +484,15 @@ createframe
 pushframe
 defvar LF@_int
 defvar LF@_retval
+defvar LF@_countArgs
+pops LF@_countArgs
+jumpifneq _TYPE_SEM_ERR LF@_countArgs int@1
 pops LF@_int
+type GF@typeCheck LF@_int
+pushs GF@typeCheck
+pushs string@int
+jumpifneqs _TYPE_SEM_ERR
 int2char LF@_retval LF@_int
-jump chr_end
 label chr_end
 pushs LF@_retval
 popframe
@@ -454,7 +500,7 @@ return
 
 label _START
 createframe
-defvar LF@$a
+defvar LF@%$a%
 
 ####################
 #### Expression ####
@@ -462,49 +508,74 @@ defvar LF@$a
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@5
+move LF@tmp1 int@4
 defvar LF@tmp2
 move LF@tmp2 int@1
 defvar LF@tmp3
 pushs LF@tmp1
 pushs LF@tmp2
-pushs string@greater
+pushs string@add
 call $compute
 pops LF@tmp3
-defvar LF@type_tmp3
-defvar LF@exprResult
-move LF@exprResult LF@tmp3
-type LF@type_tmp3 LF@tmp3
-jumpifeq exprSkip1 LF@type_tmp3 string@bool
-jumpifeq convert_num LF@type_tmp3 string@int
-jumpifeq convert_num LF@type_tmp3 string@float
-jumpifeq convert_string LF@type_tmp3 string@float
-jumpifeq exprFalse LF@type_tmp3 string@nil
-label convert_string
-jumpifeq exprFalse LF@tmp3 string@0
-defvar LF@str_len
-strlen LF@str_len LF@tmp3
-jumpifeq exprFalse LF@str_len int@0
-write LF@str_len
-jump exprTrue
-label convert_num
 pushs LF@tmp3
-call $floatval
-pops LF@tmp3
-jumpifeq exprFalse LF@tmp3 float@0x0p+0
-jump exprTrue
-label exprSkip1
-jumpifeq exprTrue LF@tmp3 bool@true
-label exprFalse
-write string@false
-move LF@exprResult bool@false
-jump exprEnd
-label exprTrue
-move LF@exprResult bool@true
-write string@true
-jump exprEnd
-label exprEnd
-pushs LF@exprResult
+call exprSemicolon
 popframe
 
-pops LF@$a
+pops LF@%$a%
+defvar LF@%$b%
+
+####################
+#### Expression ####
+####################
+createframe
+pushframe
+defvar LF@tmp1
+move LF@tmp1 int@2
+defvar LF@tmp2
+move LF@tmp2 int@3
+defvar LF@tmp3
+pushs LF@tmp1
+pushs LF@tmp2
+pushs string@add
+call $compute
+pops LF@tmp3
+defvar LF@tmp4
+move LF@tmp4 int@4
+defvar LF@tmp5
+pushs LF@tmp3
+pushs LF@tmp4
+pushs string@add
+call $compute
+pops LF@tmp5
+defvar LF@tmp6
+defvar LF@_tmp6
+popframe
+pushs LF@%$a%
+pushframe
+pops LF@_tmp6 
+move LF@tmp6 LF@_tmp6 
+defvar LF@tmp7
+pushs LF@tmp5
+pushs LF@tmp6
+pushs string@add
+call $compute
+pops LF@tmp7
+defvar LF@tmp8
+move LF@tmp8 int@1
+defvar LF@tmp9
+pushs LF@tmp7
+pushs LF@tmp8
+pushs string@add
+call $compute
+pops LF@tmp9
+pushs LF@tmp9
+call exprSemicolon
+popframe
+
+pops LF@%$b%
+jump _END
+label _TYPE_SEM_ERR
+exit int@4
+label _NIL_SEM_ERR
+exit int@8
+label _END

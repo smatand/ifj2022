@@ -7,7 +7,7 @@
  * 
  * @brief Implementation of precedence analyzer unit
  */
-//koment
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -229,10 +229,11 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 
 				if (generateCode)
 				{
-					printf("defvar LF@type_tmp%ld\n", nonTermCnt);
-					printf("defvar LF@exprResult\n");
-					printf("move LF@exprResult LF@tmp%ld\n", nonTermCnt);
-					printf("type LF@type_tmp%ld LF@tmp%ld\n", nonTermCnt, nonTermCnt);
+					// printf("defvar LF@type_tmp%ld\n", nonTermCnt);
+					// printf("defvar LF@exprResult%ld\n");
+					// printf("move LF@exprResult LF@tmp%ld\n", nonTermCnt);
+					// printf("type LF@type_tmp%ld LF@tmp%ld\n", nonTermCnt, nonTermCnt);
+					printf("pushs LF@tmp%ld\n",nonTermCnt);
 				}
 
 				if (incomingTokenType == P_RIGHT_PAREN)
@@ -282,19 +283,12 @@ int exprParse(token_t *firstToken, token_t *secondToken, int *returnToken, Parse
 					// we return anything but boolean
 					if (generateCode)
 					{
-						printf("jumpifneq exprSkip9 LF@type_tmp%ld string@bool\n", nonTermCnt);
-						//printf("write string@cannot_return_boolean\n");
-						printf("exit int@7\n");
-						printf("label exprSkip9\n");
-						//printf("write LF@tmp%ld\n", nonTermCnt);			  // dbg
-						printf("move LF@exprResult LF@tmp%ld\n", nonTermCnt); // dbg
-						printf("jump exprEnd\n");
+
+						printf("call exprSemicolon\n");
 					}
 				}
 				if (generateCode)
 				{
-					printf("label exprEnd\n");
-					printf("pushs LF@exprResult\n");
 					printf("popframe\n");
 					printf("\n");
 				}
@@ -375,7 +369,7 @@ int generateCode_defvar(eItem_t *item, size_t *nonTermCnt, Parser_t *parser)
 		}
 		printf("defvar LF@_tmp%ld\n", *nonTermCnt);
 		printf("popframe\n");
-		printf("pushs LF@%s\n", token->attribute.strVal->str);
+		printf("pushs LF@%%%s%%\n", token->attribute.strVal->str);
 		printf("pushframe\n");
 		printf("pops LF@_tmp%ld \n", *nonTermCnt);
 		printf("move LF@tmp%ld LF@_tmp%ld \n", *nonTermCnt, *nonTermCnt);

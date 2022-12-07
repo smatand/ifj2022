@@ -377,7 +377,7 @@ void gen_builtin_functions() {
 /**************** END OF STANDARD LIBRARY (PHP) ****************/
 /**************************************************************/
 
-void gen_checkType(){
+void gen_expr_checkType(){
 	printf(
 			"\n"
 			"#checktype(var1,var2,operand)\n"
@@ -601,7 +601,7 @@ void gen_checkType(){
 			);
 }
 
-void gen_compute(){
+void gen_expr_compute(){
 	printf(
 			"\n"
 			"##############################\n"
@@ -695,6 +695,26 @@ void gen_compute(){
 			"\n"
 			);
 }
+void gen_expr_semicolon(){
+    printf(
+            "label exprSemicolon\n"
+            "createframe\n"
+            "pushframe\n"
+            "defvar LF@returnVal\n"
+            "pops LF@returnVal\n"
+            "defvar LF@type_returnVal\n"
+            "type LF@type_returnVal LF@returnVal\n"
+
+            "jumpifneq exprSkip9 LF@type_returnVal string@bool\n"
+            "write string@cannot_return_boolean\n"
+            "exit int@7\n"
+            "label exprSkip9\n"
+            "write LF@returnVal\n" //dbg
+            "pushs LF@returnVal\n"
+            "popframe\n"
+            "return\n"
+            );
+}
 
 void genInit() {
     printf(".IFJcode22\n");
@@ -708,8 +728,9 @@ void genInit() {
     printf("pushframe\n");
     printf("jump _START\n");
 
-    gen_checkType();
-	gen_compute();
+    gen_expr_checkType();
+	gen_expr_compute();
+    gen_expr_semicolon();
     gen_builtin_functions();
 
     printf("\nlabel _START\n");
