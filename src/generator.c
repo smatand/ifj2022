@@ -739,7 +739,7 @@ void gen_expr_rightparen(){
             "label exprConvertNum\n"
             "pushs LF@returnVal\n"
             "pushs int@1\n"
-            "call floatval\n"
+            "call $floatval\n"
             "pops LF@returnVal\n"
             "jumpifeq exprFalse LF@returnVal float@0x0p+0\n"
             "jump exprTrue\n"

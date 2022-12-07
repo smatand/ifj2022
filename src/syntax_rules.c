@@ -396,6 +396,9 @@ int rAssignmentStatement(Parser_t *parser)
 
 int rConditionalStatement(Parser_t *parser)
 {
+	int ifCounterCopy = parser->ifCounter;
+	parser->ifCounter += 2;
+	
 	int retVal = SUCCESS; // SUCCESS or ERR_*
 
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_IF);
@@ -410,35 +413,36 @@ int rConditionalStatement(Parser_t *parser)
 	//parser->nextToken->type = retToken;
 
 	printf("pushs bool@false\n");					// helper variable for if condition
-	printf("jumpifeqs _if%d\n", parser->ifCounter); // skip code if expr result was false
+	printf("jumpifeqs _if%d\n", ifCounterCopy); // skip code if expr result was false
 
 	//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
-	printf("jump _if%d\n", parser->ifCounter+1);
-	printf("label _if%d\n", parser->ifCounter);
+	printf("jump _if%d\n", ifCounterCopy+1);
+	printf("label _if%d\n", ifCounterCopy);
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_ELSE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_BRACE);
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 
-	printf("label _if%d\n", parser->ifCounter+1); // label for skipping code
+	printf("label _if%d\n", ifCounterCopy+1); // label for skipping code
 	fflush(stdout);
 
-	parser->ifCounter += 2;
 	return SUCCESS;
 }
 
 int rWhileLoopStatement(Parser_t *parser)
 {
+	int whileCounterCopy= parser->whileCounter;
+	parser->whileCounter ++;
 	int retVal = SUCCESS; // SUCCESS or ERR_*
 
 	CURRENT_TOKEN_KWORD_GETNEXT(KW_WHILE);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_LEFT_PAREN);
 
-	printf("label _while_begin%d\n", parser->whileCounter); // label for jumping backwards TODO: does this work?
+	printf("label _while_begin%d\n", whileCounterCopy); // label for jumping backwards TODO: does this work?
 
 	int retToken; // last read non valid token in expression 
 
@@ -449,7 +453,7 @@ int rWhileLoopStatement(Parser_t *parser)
 	//parser->nextToken->type = retToken;
 
 	printf("pushs bool@false\n");							  // helper variable for while condition
-	printf("jumpifeqs _while_end%d\n", parser->whileCounter); // skip code if expr result was false
+	printf("jumpifeqs _while_end%d\n", whileCounterCopy); // skip code if expr result was false
 
 	//CALL_FUN(getNextToken); // ensuring continuity of tokens after returning from bottom up
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_PAREN);
@@ -458,11 +462,10 @@ int rWhileLoopStatement(Parser_t *parser)
 	CALL_RULE(rStatements);
 	CURRENT_TOKEN_TYPE_GETNEXT(TOK_RIGHT_BRACE);
 
-	printf("jump _while_begin%d\n", parser->whileCounter); // label for jumping backwards
-	printf("label _while_end%d\n", parser->whileCounter);  // label for skipping code
+	printf("jump _while_begin%d\n", whileCounterCopy); // label for jumping backwards
+	printf("label _while_end%d\n", whileCounterCopy);  // label for skipping code
 	fflush(stdout);
 
-	parser->whileCounter++;
 	return SUCCESS;
 }
 
