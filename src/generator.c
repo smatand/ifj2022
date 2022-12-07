@@ -783,6 +783,10 @@ void gen_expr_rightparen(){
             "jumpifeq exprConvertNum LF@type_returnVal string@int\n"
             "jumpifeq exprConvertNum LF@type_returnVal string@float\n"
             "jumpifeq exprConvertString LF@type_returnVal string@string\n"
+            "jumpifeq exprConvertNull LF@type_returnVal string@nil\n"
+
+            "label exprConvertNull\n"
+            "jump exprFalse\n"
 
             "label exprConvertString\n"
             "jumpifeq exprFalse LF@returnVal string@0\n"

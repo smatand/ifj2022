@@ -335,6 +335,9 @@ jumpifeq exprDetermineBool LF@type_returnVal string@bool
 jumpifeq exprConvertNum LF@type_returnVal string@int
 jumpifeq exprConvertNum LF@type_returnVal string@float
 jumpifeq exprConvertString LF@type_returnVal string@string
+jumpifeq exprConvertNull LF@type_returnVal string@nil
+label exprConvertNull
+jump exprFalse
 label exprConvertString
 jumpifeq exprFalse LF@returnVal string@0
 defvar LF@str_len
@@ -591,62 +594,30 @@ return
 label _START
 createframe
 
-jump $voidf_end # genFunctionLabel() 
-label $voidf
-pushframe
-defvar LF@%retval
-move LF@%retval nil@nil
-defvar LF@%_countArgs
-pops LF@%_countArgs # __ 
-defvar LF@_paramType%0
-move LF@_paramType%0 string@int
-sub LF@%_countArgs LF@%_countArgs int@1
-defvar LF@%$x%
-pushs LF@%_countArgs
-pushs int@0
-jumpifeqs _TYPE_SEM_ERR #__
-pops LF@%$x%
-type GF@typeCheck LF@%$x% #genTypeCheck()
-pushs GF@typeCheck
-pushs LF@_paramType%0
-jumpifneqs _TYPE_SEM_ERR #__
-sub LF@%_countArgs LF@%_countArgs int@1
-defvar LF@_returnType #genFunctionRetType() 
-move LF@_returnType string@int
-
 ####################
 #### Expression ####
 ####################
 createframe
 pushframe
 defvar LF@tmp1
-move LF@tmp1 int@1
+move LF@tmp1 nil@nil
 pushs LF@tmp1
-call exprSemicolon
+call exprRightParen
 popframe
 
-pops LF@%retval
-label $voidf_ret # genFunctionEnd() 
-type GF@typeCheck LF@%retval
-pushs GF@typeCheck
-pushs LF@_returnType
-jumpifneqs _TYPE_SEM_ERR
-pushs LF@%retval
-popframe
-return
-label $voidf_end #__ 
-
-defvar LF@%$x%
+pushs bool@false
+jumpifeqs _if0
 createframe
-pushs int@5
+pushs string@BAD\010
 pushs int@1
-call $voidf
-pops LF@%$x%
-createframe
-pushs string@\010
-pushs LF@%$x%
-pushs int@2
 call $write
+jump _if1
+label _if0
+createframe
+pushs string@GOOD\010
+pushs int@1
+call $write
+label _if1
 jump _END
 label _TYPE_SEM_ERR
 exit int@4
