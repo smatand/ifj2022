@@ -293,6 +293,7 @@ void gen_ord() {
 
     printf("defvar LF@_string\n");
     printf("defvar LF@_retval\n");
+    printf("move LF@_retval int@0\n");
 
     printf("defvar LF@_countArgs\n");
     printf("pops LF@_countArgs\n");
@@ -302,14 +303,13 @@ void gen_ord() {
 
     printf("type GF@typeCheck LF@_string\n");
     printf("jumpifneq _TYPE_SEM_ERR GF@typeCheck string@string\n");
+    printf("jumpifeq ord_end LF@_string string@\"\"\n");
 
-    printf("jumpifeq ord_empty_string LF@_string string@\n");
+    printf("strlen LF@_retval LF@_string\n");
+    printf("jumpifeq ord_end LF@_retval int@0\n");
 
     printf("stri2int LF@_retval LF@_string int@0\n");
     printf("jump ord_end\n");
-
-    printf("label ord_empty_string\n");
-    printf("move LF@_retval int@0\n");
 
     printf("label ord_end\n");
     printf("pushs LF@_retval\n");
@@ -822,8 +822,7 @@ char * convertStringToIFJ(char * str) {
             strPushBack(tmp, "\\092", 4);
         } else if (*ptr == 35) { // #
             strPushBack(tmp, "\\035", 4);
-        }
-        else if (*ptr <= 32) {
+        } else if (*ptr <= 32) {
             charPushBack(tmp, '\\');
             charPushBack(tmp, '0');
             charPushBack(tmp, (*ptr / 10) + 48);
