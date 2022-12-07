@@ -805,6 +805,9 @@ char * convertStringToIFJ(char * str) {
     if (str == NULL) {
         return NULL;
     }
+    if (*str == '\0' || !strcmp(str, "\"\"")) {
+        return "";
+    }
 
     char * ptr = str;
     int retVal = 0;
@@ -815,17 +818,13 @@ char * convertStringToIFJ(char * str) {
         exit(retVal);
     }
 
-    if (*ptr == '\0') {
-        return "";
-    } else if (!strcmp(ptr, "\"\"")) {
-        return "";
-    }
-
     while (*ptr != '\0') {
         if (*ptr == 92) { // backslash
             strPushBack(tmp, "\\092", 4);
         } else if (*ptr == 35) { // #
             strPushBack(tmp, "\\035", 4);
+        } else if (*ptr == '\n') {
+            strPushBack(tmp, "\\010", 4);
         } else if (*ptr <= 32) {
             charPushBack(tmp, '\\');
             charPushBack(tmp, '0');
