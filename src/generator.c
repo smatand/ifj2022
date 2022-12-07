@@ -58,20 +58,19 @@ void gen_write() {
     printf("defvar LF@_tmp\n");
     printf("pops LF@_count\n");
     printf("eq LF@_tmp LF@_count int@0\n");
-    printf("jumpifeq $write_ret LF@_tmp bool@true\n");
-    printf("label $write_loop\n");
+    printf("jumpifeq write_ret LF@_tmp bool@true\n");
+    printf("label write_loop\n");
     printf("pops LF@_toPrint\n");
     printf("write LF@_toPrint\n");
     printf("sub LF@_count LF@_count int@1\n");
-    printf("jumpifneq $write_loop LF@_count int@0\n");
+    printf("jumpifneq write_loop LF@_count int@0\n");
 
-    printf("label $write_ret\n");
+    printf("label write_ret\n");
     printf("popframe\n");
     printf("return\n");
 }
 
 void gen_floatval() {
-    printf("jump $floatval_end\n");
     printf("label $floatval\n");
     printf("createframe\n");
     printf("pushframe\n");
@@ -88,34 +87,33 @@ void gen_floatval() {
     printf("move LF@_condition bool@false\n");
     printf("type LF@_type LF@_param # int, bool, float, string or nil\n");
         
-    printf("jumpifeq $floatval_ret LF@_type string@float # no need to convert\n");
+    printf("jumpifeq floatval_ret LF@_type string@float # no need to convert\n");
         
-    printf("jumpifeq $floatval_int_to_float LF@_type string@int\n");
+    printf("jumpifeq floatval_int_to_float LF@_type string@int\n");
         
-    printf("jumpifeq $floatval_bool_to_float LF@_type string@bool\n");
+    printf("jumpifeq floatval_bool_to_float LF@_type string@bool\n");
 
     printf("move LF@_param float@0x0.0p+0\n"); // nil to 0.0
-    printf("jump $floatval_ret\n");
+    printf("jump floatval_ret\n");
 
-    printf("label $floatval_bool_to_float\n");
+    printf("label floatval_bool_to_float\n");
     printf("eq LF@_condition LF@_param bool@true\n");
-    printf("jumpifneq $floatval_bool_false_to_float LF@_condition bool@true\n");
+    printf("jumpifneq floatval_bool_false_to_float LF@_condition bool@true\n");
         
     printf("move LF@_param float@0x1.0p+0\n");
-    printf("jump $floatval_ret\n");
+    printf("jump floatval_ret\n");
         
-    printf("label $floatval_bool_false_to_float\n");
+    printf("label floatval_bool_false_to_float\n");
     printf("move LF@_param float@0x0.0p+0\n");
     printf("jump $floatval_ret\n");
 
-    printf("label $floatval_int_to_float\n");
+    printf("label floatval_int_to_float\n");
     printf("int2float LF@_param LF@_param\n");
 
-    printf("label $floatval_ret\n");
+    printf("label floatval_ret\n");
     printf("pushs LF@_param\n");
     printf("popframe\n");
     printf("return\n");
-    printf("label $floatval_end\n");
 }
 
 void gen_intval() {
@@ -136,30 +134,30 @@ void gen_intval() {
 
     printf("type LF@_type LF@_param # int, bool, float, string or nil\n");
 
-    printf("jumpifeq $intval_end LF@_type string@int # no need to convert\n");
+    printf("jumpifeq intval_end LF@_type string@int # no need to convert\n");
 
-    printf("jumpifeq $intval_float_to_int LF@_type string@float\n");
+    printf("jumpifeq intval_float_to_int LF@_type string@float\n");
 
-    printf("jumpifeq $intval_bool_to_int LF@_type string@bool\n");
+    printf("jumpifeq intval_bool_to_int LF@_type string@bool\n");
 
     printf("move LF@_param int@0\n");
-    printf("jump $intval_end \n");
+    printf("jump intval_end \n");
 
-    printf("label $intval_bool_to_int\n");
+    printf("label intval_bool_to_int\n");
     printf("eq LF@_condition LF@_param bool@true\n");
     printf("jumpifneq $floatval_bool_false_to_int LF@_condition bool@true\n");
 
     printf("move LF@_param int@1\n");
-    printf("jump $intval_end\n");
+    printf("jump intval_end\n");
 
-    printf("label $floatval_bool_false_to_int\n");
+    printf("label floatval_bool_false_to_int\n");
     printf("move LF@_param int@0\n");
-    printf("jump $intval_end\n");
+    printf("jump intval_end\n");
 
-    printf("label $intval_float_to_int\n");
+    printf("label intval_float_to_int\n");
     printf("float2int LF@_param LF@_param\n");
 
-    printf("label $intval_end\n");
+    printf("label intval_end\n");
     printf("pushs LF@_param\n");
     printf("popframe\n");
     printf("return\n");
@@ -184,11 +182,11 @@ void gen_strval() {
     printf("jumpifeq _TYPE_SEM_ERR GF@typeCheck string@float\n"); // strnum
 
 
-    printf("jumpifeq $strval_end GF@typeCheck string@string\n");
+    printf("jumpifeq strval_end GF@typeCheck string@string\n");
 
     printf("move LF@_retval string@\n"); // it is null then
 
-    printf("label $strval_end\n");
+    printf("label strval_end\n");
     printf("pushs LF@_retval\n");
     printf("popframe\n");
     printf("return\n");
@@ -212,7 +210,7 @@ void gen_strlen(/*string*/) {
     printf("defvar LF@_retval\n");
     printf("strlen LF@_retval LF@_string\n");
 
-    printf("label $strlen_end\n");
+    printf("label strlen_end\n");
     printf("pushs LF@_retval\n");
     printf("popframe\n");
     printf("return\n");
