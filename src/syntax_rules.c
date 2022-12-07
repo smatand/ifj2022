@@ -650,7 +650,7 @@ int rTerm(Parser_t *parser)
 		CODEGEN_INSERT_IN_DLL("pushs string@", str);
 
 		fflush(stdout);
-		free(str);
+		//free(str);
 	}
 	else if (parser->currentToken->type == TOK_DEC_LIT)
 	{
