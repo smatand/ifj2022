@@ -1,3 +1,12 @@
+/**
+ * Project: IFJ22 language Compiler
+ * @file generator.c
+ * @author Andrej Smatana - xsmata03
+ * @author Tomáš Frátrik - xfratr01
+ * 
+ * @brief Header file for generating code
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

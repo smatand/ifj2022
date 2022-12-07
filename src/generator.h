@@ -1,3 +1,12 @@
+/**
+ * Project: IFJ22 language Compiler
+ * @file generator.h
+ * @author Andrej Smatana - xsmata03
+ * @author Tomáš Frátrik - xfratr01
+ * 
+ * @brief Header file for generating code
+ */
+
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
@@ -66,6 +75,18 @@ void gen_builtin_functions();
 
 /************** END OF STANDARD LIBRARY (PHP) ************/
 
+
+/** @brief check semantics of expression*/
+void gen_expr_checkType();
+
+/** @brief  compute given expression after it has been checked*/
+void gen_expr_compute();
+
+/** @brief  execute this code if expression ended with semicolon*/
+void gen_expr_semicolon();
+
+/** @brief  execute this code if expression ended with right parenthesis*/
+void gen_expr_rightparen();
 
 /** @brief Convert from C string to IFJcode22 string
  * 
