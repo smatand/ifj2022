@@ -26,11 +26,6 @@
 
 #define INITIAL_BUCKET_COUNT 113
 
-/** @brief Types of token data */
-typedef enum
-{
-	DATA_UNDEFINED, DATA_INT, DATA_FLOAT, DATA_STRING, DATA_NULL
-} data_type_t;
 
 typedef const char *htab_key_t;
 
