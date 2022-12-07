@@ -1007,7 +1007,7 @@ void genTypeCheck(int count, char * varName) {
 void genFunctionAmountOfGivenArgsCheck(int toCompareWith) {
     printf("pushs LF@%%_countArgs\n");
     printf("pushs int@%d\n", toCompareWith);
-    printf("jumpifeqs _TYPE_SEM_ERR #__\n");
+    printf("jumpifneqs _TYPE_SEM_ERR #__\n");
 }
 
 int genFunctionPushsVariable(struct Parser * parser) {
