@@ -9,3 +9,4 @@ CHANGES:
   * 2022-11-24:
     * Oprava chyby v analyze nevalidni escape sekvence na konci retezcoveho literalu (pro spravne vygenerovane retezce fungovalo a funguje vse v poradku), dale byl opraven vypis desetinnych cisel (v pripade nulove desetinne casti se vypisovalo cislo jako cele, opraveno na format hexadecimalni pro desetinna cisla).
 
+# Author: Zbynek Krivka
